@@ -1,0 +1,6 @@
+usr/bin/pkicreate
+usr/bin/pkicontrol
+usr/bin/pkiremove
+usr/share/pki/scripts/functions
+usr/share/pki/scripts/pki_apache_initscript
+usr/share/pki/scripts/pkicommon.pm

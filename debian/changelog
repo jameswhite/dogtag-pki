@@ -1,0 +1,5 @@
+pki (9.0-1) UNRELEASED; urgency=low
+
+  * Initial release (Closes: #653606)
+
+ -- Timo Aaltonen <tjaalton@ubuntu.com>  Tue, 27 Dec 2011 01:10:12 +0200

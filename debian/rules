@@ -1,0 +1,71 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+#
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+#
+# Modified to make a template file for a multi-binary package with separated
+# build-arch and build-indep targets  by Bill Allombert 2001
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+VER :=  $(shell dpkg-parsechangelog | sed -n 's/^Version: *\(.*\)-.*$$/\1/ p' | sed -e 's/~.*//')
+
+JAVA_HOME=/usr/lib/jvm/default-java
+CFLAGS += -I/usr/include/nss
+CXXFLAGS += -I/usr/include/nss
+
+override_dh_auto_configure:
+#	dh_auto_configure -- \
+	mkdir $(CURDIR)/build
+	cd $(CURDIR)/build && cmake -DCMAKE_INSTALL_PREFIX=/usr \
+		-DSYSCONF_INSTALL_DIR:PATH=/etc \
+		-DVAR_INSTALL_DIR:PATH=/var \
+		-DBUILD_PKI_CORE:BOOL=ON \
+		-DJAVA_LIB_INSTALL_DIR=/usr/share/java \
+		-DSERVLET_JAR=/usr/share/java/servlet-api.jar \
+		-DXERCES_JAR=/usr/share/java/xercesImpl.jar \
+		-DXALAN_JAR=/usr/share/java/xalan2.jar \
+		../pki
+
+override_dh_auto_install:
+	dh_auto_install
+	mkdir -p $(CURDIR)/debian/libpki-symkey-java/usr/lib/jni
+	install -m 0755 $(CURDIR)/build/base/symkey/src/com/netscape/symkey/libsymkey.so \
+		$(CURDIR)/debian/libpki-symkey-java/usr/lib/jni/
+
+override_jh_installlibs:
+	jh_installlibs -plibpki-symkey-java \
+		$(CURDIR)/build/base/symkey/src/symkey.jar
+	jh_installlibs -plibpki-ca-java \
+		$(CURDIR)/build/base/ca/src/pki-ca.jar
+	jh_installlibs -plibpki-common-java \
+		$(CURDIR)/build/base/common/src/pki-certsrv.jar \
+		$(CURDIR)/build/base/common/src/pki-cms.jar \
+		$(CURDIR)/build/base/common/src/pki-cmsbundle.jar \
+		$(CURDIR)/build/base/common/src/pki-cmscore.jar
+	jh_installlibs -plibpki-java-tools-java \
+		$(CURDIR)/build/base/java-tools/src/pki-tools.jar
+	jh_installlibs -plibpki-silent-java \
+		$(CURDIR)/build/base/silent/src/pki-silent.jar
+	jh_installlibs -plibpki-util-java \
+		$(CURDIR)/build/base/util/src/pki-cmsutil.jar \
+		$(CURDIR)/build/base/util/src/pki-nsutil.jar
+
+override_jh_installjavadoc:
+	jh_installjavadoc -plibpki-common-java-doc \
+		$(CURDIR)/build/base/common/src/javadoc/pki-common-$(VER)
+	jh_installjavadoc -plibpki-java-tools-java-doc \
+		$(CURDIR)/build/base/java-tools/src/javadoc/pki-java-tools-$(VER)
+	jh_installjavadoc -plibpki-util-java-doc \
+		$(CURDIR)/build/base/util/src/javadoc/pki-util-$(VER)
+
+%:
+	dh $@ --with javahelper --builddirectory=build/

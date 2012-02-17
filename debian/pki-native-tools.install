@@ -1,0 +1,6 @@
+usr/bin/p7tool
+usr/bin/revoker
+usr/bin/setpin
+usr/bin/sslget
+usr/bin/tkstool
+usr/share/pki/native-tools/*
