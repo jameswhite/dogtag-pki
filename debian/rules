@@ -20,14 +20,21 @@ STAMP_DIR = debian/stamp
 STAMP = $(STAMP_DIR)/$(DEB_BUILD_GNU_TYPE)
 BUILD_STAMPS = $(addprefix $(STAMP)-build-, $(CONFIGS))
 
-confflags-common = 
+confflags = 
+
+confflags-common = $(confflags) \
+	-DPKI_CERTSRV_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-certsrv.jar \
+	-DPKI_CMS_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-cms.jar \
+	-DPKI_CMSCORE_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-cmscore.jar \
+	-DPKI_CMSUTIL_JAR=$(DEB_BUILD_DIR)/core/base/util/src/pki-cmsutil.jar \
+	-DPKI_NSUTIL_JAR=$(DEB_BUILD_DIR)/core/base/util/src/pki-nsutil.jar \
 
 confflags-core = \
 	-DBUILD_PKI_CORE:BOOL=ON \
 	-DSERVLET_JAR=/usr/share/java/servlet-api.jar \
 	-DXERCES_JAR=/usr/share/java/xercesImpl.jar \
 	-DXALAN_JAR=/usr/share/java/xalan2.jar \
-	$(confflags-common)
+	$(confflags)
 
 confflags-kra = \
 	-DBUILD_PKI_KRA:BOOL=ON \
