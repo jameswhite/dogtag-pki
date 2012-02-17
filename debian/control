@@ -1,4 +1,4 @@
-Source: pki-core
+Source: pki
 Section: java
 Priority: extra
 Maintainer: Timo Aaltonen <tjaalton@ubuntu.com>
