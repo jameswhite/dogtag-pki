@@ -92,24 +92,24 @@ Architecture: all
 Depends: ${java:Depends}, ${misc:Depends},
  pki-native-tools,
  libpki-util-java (= ${binary:Version}),
- libpki-java-tools-java (= ${binary:Version}),
+ libpki-tools-java (= ${binary:Version}),
 Description: Certificate System - PKI Java-Based Tools
  These platform-independent PKI executables are used to help make
  Certificate System into a more complete and robust PKI solution.
  .
  This package is a part of the PKI Core used by the Certificate System.
 
-Package: libpki-java-tools-java
+Package: libpki-tools-java
 Architecture: all
 Depends: ${java:Depends}, ${misc:Depends},
-Suggests: libpki-java-tools-java-doc (= ${binary:Version})
+Suggests: libpki-tools-java-doc (= ${binary:Version})
 Description: Certificate System - PKI Java-Based Tools - Java bindings
  These platform-independent PKI executables are used to help make
  Certificate System into a more complete and robust PKI solution.
  .
  This package is a part of the PKI Core used by the Certificate System.
 
-Package: libpki-java-tools-java-doc
+Package: libpki-tools-java-doc
 Architecture: all
 Section: doc
 Depends: ${java:Depends}, ${misc:Depends},

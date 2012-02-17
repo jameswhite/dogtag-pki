@@ -90,7 +90,7 @@ override_jh_installlibs:
 override_jh_installjavadoc:
 	jh_installjavadoc -plibpki-common-java-doc \
 		$(DEB_BUILD_DIR)/core/base/common/src/javadoc/pki-common-*
-	jh_installjavadoc -plibpki-java-tools-java-doc \
+	jh_installjavadoc -plibpki-tools-java-doc \
 		$(DEB_BUILD_DIR)/core/base/java-tools/src/javadoc/pki-java-tools-*
 	jh_installjavadoc -plibpki-util-java-doc \
 		$(DEB_BUILD_DIR)/core/base/util/src/javadoc/pki-util-*
