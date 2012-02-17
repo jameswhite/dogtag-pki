@@ -29,6 +29,26 @@ confflags-core = \
 	-DXALAN_JAR=/usr/share/java/xalan2.jar \
 	$(confflags-common)
 
+confflags-kra = \
+	-DBUILD_PKI_KRA:BOOL=ON \
+	$(confflags-common)
+
+confflags-ocsp = \
+	-DBUILD_PKI_OCSP:BOOL=ON \
+	$(confflags-common)
+
+confflags-ra = \
+	-DBUILD_PKI_RA:BOOL=ON \
+	$(confflags-common)
+
+confflags-tks = \
+	-DBUILD_PKI_TKS:BOOL=ON \
+	$(confflags-common)
+
+confflags-tps = \
+	-DBUILD_PKI_TPS:BOOL=ON \
+	$(confflags-common)
+
 confflags-dogtag-pki-theme = \
 	-DBUILD_DOGTAG_PKI_THEME:BOOL=ON \
 	$(confflags-common)
