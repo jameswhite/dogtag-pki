@@ -15,6 +15,7 @@ DEB_BUILD_DIR ?= $(CURDIR)/build
 
 CONFIGS = core \
 	  kra \
+	  ocsp \
 	  dogtag-pki-theme
 
 STAMP_DIR = debian/stamp
@@ -102,6 +103,9 @@ override_jh_installjavadoc:
 		$(DEB_BUILD_DIR)/core/base/java-tools/src/javadoc/pki-java-tools-*
 	jh_installjavadoc -plibpki-util-java-doc \
 		$(DEB_BUILD_DIR)/core/base/util/src/javadoc/pki-util-*
+
+override_dh_installinit:
+	dh_installinit -ppki-ocsp --name=pki-ocspd
 
 %:
 	dh $@ --with javahelper --builddirectory=build/

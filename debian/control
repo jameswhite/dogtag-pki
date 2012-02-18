@@ -351,3 +351,33 @@ Description: Certificate System - Data Recovery Manager
  .
  Note that the DRM archives encryption keys; it does NOT archive signing keys,
  since such archival would undermine non-repudiation properties of signing keys.
+
+Package: pki-ocsp
+Architecture: any
+Depends: ${java:Depends}, ${misc:Depends},
+ pki-common,
+ pki-ocsp-theme,
+Description: Certificate System - Online Certificate Status Protocol Manager
+ Certificate System (CS) is an enterprise software system designed
+ to manage enterprise Public Key Infrastructure (PKI) deployments.
+ .
+ The Online Certificate Status Protocol (OCSP) Manager is an optional PKI
+ subsystem that can act as a stand-alone OCSP service.  The OCSP Manager
+ performs the task of an online certificate validation authority by enabling
+ OCSP-compliant clients to do real-time verification of certificates.  Note
+ that an online certificate-validation authority is often referred to as an
+ OCSP Responder.
+ .
+ Although the Certificate Authority (CA) is already configured with an
+ internal OCSP service.  An external OCSP Responder is offered as a separate
+ subsystem in case the user wants the OCSP service provided outside of a
+ firewall while the CA resides inside of a firewall, or to take the load of
+ requests off of the CA.
+ .
+ The OCSP Manager can receive Certificate Revocation Lists (CRLs) from
+ multiple CA servers, and clients can query the OCSP Manager for the
+ revocation status of certificates issued by all of these CA servers.
+ .
+ When an instance of OCSP Manager is set up with an instance of CA, and
+ publishing is set up to this OCSP Manager, CRLs are published to it
+ whenever they are issued or updated.
