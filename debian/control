@@ -328,3 +328,26 @@ Description: Certificate System - PKI Console User Interface
  the Dogtag textual and graphical user interface for the PKI Console.
  .
  This package is used by the Dogtag Certificate System.
+
+Package: pki-kra
+Architecture: any
+Depends: ${java:Depends}, ${misc:Depends},
+ pki-common,
+ pki-kra-theme,
+Description: Certificate System - Data Recovery Manager
+ Certificate System (CS) is an enterprise software system designed
+ to manage enterprise Public Key Infrastructure (PKI) deployments.
+ .
+ The Data Recovery Manager (DRM) is an optional PKI subsystem that can act
+ as a Key Recovery Authority (KRA).  When configured in conjunction with the
+ Certificate Authority (CA), the DRM stores private encryption keys as part of
+ the certificate enrollment process.  The key archival mechanism is triggered
+ when a user enrolls in the PKI and creates the certificate request.  Using the
+ Certificate Request Message Format (CRMF) request format, a request is
+ generated for the user's private encryption key.  This key is then stored in
+ the DRM which is configured to store keys in an encrypted format that can only
+ be decrypted by several agents requesting the key at one time, providing for
+ protection of the public encryption keys for the users in the PKI deployment.
+ .
+ Note that the DRM archives encryption keys; it does NOT archive signing keys,
+ since such archival would undermine non-repudiation properties of signing keys.
