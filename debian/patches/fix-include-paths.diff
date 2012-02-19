@@ -1,0 +1,114 @@
+diff --git a/pki/base/tps/src/engine/RA.cpp b/pki/base/tps/src/engine/RA.cpp
+index 862b9e1..2b503b0 100644
+--- a/pki/base/tps/src/engine/RA.cpp
++++ b/pki/base/tps/src/engine/RA.cpp
+@@ -29,7 +29,7 @@ extern "C"
+ #include <string.h>
+ #include <unistd.h>
+ 
+-#include "httpd/httpd.h"
++#include "apache2/httpd.h"
+ #include "prmem.h"
+ #include "prsystem.h"
+ #include "plstr.h"
+diff --git a/pki/base/tps/src/modules/tokendb/mod_tokendb.cpp b/pki/base/tps/src/modules/tokendb/mod_tokendb.cpp
+index 3e411c9..46a6f67 100644
+--- a/pki/base/tps/src/modules/tokendb/mod_tokendb.cpp
++++ b/pki/base/tps/src/modules/tokendb/mod_tokendb.cpp
+@@ -55,14 +55,14 @@ extern "C"
+ #include "prthread.h"
+ #include "cert.h"
+ #include "regex.h"
+-#include "nss3/base64.h"
+-
+-#include "httpd/httpd.h"
+-#include "httpd/http_config.h"
+-#include "httpd/http_log.h"
+-#include "httpd/http_protocol.h"
+-#include "httpd/http_main.h"
+-#include "httpd/http_request.h"
++#include "nss/base64.h"
++
++#include "apache2/httpd.h"
++#include "apache2/http_config.h"
++#include "apache2/http_log.h"
++#include "apache2/http_protocol.h"
++#include "apache2/http_main.h"
++#include "apache2/http_request.h"
+ 
+ #include "apr_strings.h"
+ 
+diff --git a/pki/base/tps/src/modules/tps/AP_Context.cpp b/pki/base/tps/src/modules/tps/AP_Context.cpp
+index cde3142..1bd9074 100644
+--- a/pki/base/tps/src/modules/tps/AP_Context.cpp
++++ b/pki/base/tps/src/modules/tps/AP_Context.cpp
+@@ -23,8 +23,8 @@ extern "C"
+ {
+ #endif
+ 
+-#include "httpd/httpd.h"
+-#include "httpd/http_log.h"
++#include "apache2/httpd.h"
++#include "apache2/http_log.h"
+ #include "nspr.h"
+ 
+ #include "modules/tps/AP_Context.h"
+diff --git a/pki/base/tps/src/modules/tps/AP_Session.cpp b/pki/base/tps/src/modules/tps/AP_Session.cpp
+index 36f4553..1749c6c 100644
+--- a/pki/base/tps/src/modules/tps/AP_Session.cpp
++++ b/pki/base/tps/src/modules/tps/AP_Session.cpp
+@@ -27,8 +27,8 @@ extern "C"
+ #include <stdlib.h>
+ #include <stdarg.h>
+ #include "nspr.h"
+-#include "httpd/httpd.h"
+-#include "httpd/http_protocol.h"
++#include "apache2/httpd.h"
++#include "apache2/http_protocol.h"
+ 
+ #include "engine/RA.h"
+ #include "main/Util.h"
+diff --git a/pki/base/tps/src/modules/tps/mod_tps.cpp b/pki/base/tps/src/modules/tps/mod_tps.cpp
+index dc6cc95..393a0b3 100644
+--- a/pki/base/tps/src/modules/tps/mod_tps.cpp
++++ b/pki/base/tps/src/modules/tps/mod_tps.cpp
+@@ -41,11 +41,11 @@ extern "C"
+ #include <unistd.h>
+ #include "nspr.h"
+ 
+-#include "httpd/httpd.h"
+-#include "httpd/http_config.h"
+-#include "httpd/http_log.h"
+-#include "httpd/http_protocol.h"
+-#include "httpd/http_main.h"
++#include "apache2/httpd.h"
++#include "apache2/http_config.h"
++#include "apache2/http_log.h"
++#include "apache2/http_protocol.h"
++#include "apache2/http_main.h"
+ 
+ #include "apr_strings.h"
+ 
+diff --git a/pki/base/tps/stubs/modules/nss/mod_nss_stub.c b/pki/base/tps/stubs/modules/nss/mod_nss_stub.c
+index b47fa0e..68f811e 100644
+--- a/pki/base/tps/stubs/modules/nss/mod_nss_stub.c
++++ b/pki/base/tps/stubs/modules/nss/mod_nss_stub.c
+@@ -35,12 +35,12 @@
+ #include <windows.h>
+ #endif /* XP_WIN32 */
+ 
+-#include "httpd/httpd.h"
+-#include "httpd/http_config.h"
+-#include "httpd/http_log.h"
+-#include "httpd/http_protocol.h"
+-#include "httpd/http_main.h"
+-#include "httpd/apr_strings.h"
++#include "apache2/httpd.h"
++#include "apache2/http_config.h"
++#include "apache2/http_log.h"
++#include "apache2/http_protocol.h"
++#include "apache2/http_main.h"
++#include "apache2/apr_strings.h"
+ 
+ MOD_NSS_STUB_PUBLIC char *nss_var_lookup( apr_pool_t *p, server_rec *s,
+                                           conn_rec *c, request_rec *r,
