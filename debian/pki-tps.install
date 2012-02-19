@@ -1,0 +1,11 @@
+usr/bin/tpsclient
+usr/lib/httpd/modules/*		usr/lib/apache2/modules
+usr/lib/tps
+usr/share/pki/tps/applets
+usr/share/pki/tps/cgi-bin
+usr/share/pki/tps/conf
+usr/share/pki/tps/docroot
+usr/share/pki/tps/lib
+usr/share/pki/tps/samples
+usr/share/pki/tps/scripts
+usr/share/pki/tps/setup

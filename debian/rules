@@ -16,6 +16,9 @@ DEB_BUILD_DIR ?= $(CURDIR)/build
 CONFIGS = core \
 	  kra \
 	  ocsp \
+	  ra \
+	  tks \
+	  tps \
 	  dogtag-pki-theme
 
 STAMP_DIR = debian/stamp
@@ -47,16 +50,14 @@ confflags-ocsp = \
 	$(confflags-common)
 
 confflags-ra = \
-	-DBUILD_PKI_RA:BOOL=ON \
-	$(confflags-common)
+	-DBUILD_PKI_RA:BOOL=ON
 
 confflags-tks = \
 	-DBUILD_PKI_TKS:BOOL=ON \
 	$(confflags-common)
 
 confflags-tps = \
-	-DBUILD_PKI_TPS:BOOL=ON \
-	$(confflags-common)
+	-DBUILD_PKI_TPS:BOOL=ON
 
 confflags-dogtag-pki-theme = \
 	-DBUILD_DOGTAG_PKI_THEME:BOOL=ON \
@@ -87,6 +88,11 @@ override_dh_auto_install:
 	set -e; for config in $(CONFIGS); do \
 		make -C $(DEB_BUILD_DIR)/$$config DESTDIR=$(CURDIR)/debian/tmp install; \
 	done
+
+	find $(CURDIR)/debian/tmp/usr/ -name '*.cgi' -exec chmod 755 '{}' ';'
+
+	cd $(CURDIR)/debian/tmp/usr/share/pki/tps/docroot && \
+		ln -s tokendb tus
 
 	mkdir -p $(CURDIR)/debian/libpki-symkey-java/usr/lib/jni
 	install -m 0755 $(DEB_BUILD_DIR)/core/base/symkey/src/com/netscape/symkey/libsymkey.so \
