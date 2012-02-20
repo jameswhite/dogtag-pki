@@ -1,3 +1,9 @@
+pki (9.0-0ubuntu0.1) precise; urgency=low
+
+  * Merge from debian git.
+
+ -- Timo Aaltonen <tjaalton@ubuntu.com>  Mon, 20 Feb 2012 02:11:29 +0200
+
 pki (9.0-1) UNRELEASED; urgency=low
 
   * Initial release (Closes: #653606)
