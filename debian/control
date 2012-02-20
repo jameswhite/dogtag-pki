@@ -66,7 +66,7 @@ Description: Dogtag Public Key Infrastructure (PKI) Suite
 
 Package: pki-setup
 Architecture: all
-Depends: ${misc:Depends},
+Depends: ${misc:Depends}, ${perl:Depends},
  libfile-slurp-perl,
  libcrypt-ssleay-perl,
  policycoreutils,
@@ -256,7 +256,7 @@ Description: Certificate System - Certificate Authority - Java bindings
 
 Package: pki-silent
 Architecture: all
-Depends: ${java:Depends}, ${misc:Depends},
+Depends: ${java:Depends}, ${misc:Depends}, ${perl:Depends},
  libpki-silent-java (= ${binary:Version}),
  pki-common,
 Description: Certificate System - Silent Installer
@@ -351,6 +351,7 @@ Description: Certificate System - Token Key Service User Interface
 
 Package: dogtag-pki-tps-theme
 Architecture: any
+Depends: ${perl:Depends},
 Provides: pki-tps-theme, pki-tps-ui
 Description: Certificate System - Token Processing System User Interface
  This Token Processing System (TPS) User Interface contains
@@ -439,7 +440,7 @@ Description: Certificate System - Online Certificate Status Protocol Manager
 
 Package: pki-ra
 Architecture: any
-Depends: ${java:Depends}, ${misc:Depends},
+Depends: ${java:Depends}, ${misc:Depends}, ${perl:Depends},
  pki-common,
  pki-ra-theme,
 # pki-selinux,
@@ -488,7 +489,7 @@ Description: Certificate System - Token Key Service
 
 Package: pki-tps
 Architecture: any
-Depends: ${shlibs:Depends}, ${java:Depends}, ${misc:Depends},
+Depends: ${shlibs:Depends}, ${java:Depends}, ${misc:Depends}, ${perl:Depends},
  pki-common,
  pki-native-tools,
 # pki-selinux,
