@@ -1,8 +1,8 @@
 #!/bin/bash
 ### BEGIN INIT INFO
 # Provides:          pki-ocspd
-# Required-Start:    $network $syslog
-# Required-Stop:     $network $syslog
+# Required-Start:    $remote_fs $network $syslog
+# Required-Stop:     $remote_fs $network $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Start pki-ocspd at boot time
