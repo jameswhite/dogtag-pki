@@ -27,6 +27,44 @@ Homepage: http://pki.fedoraproject.org
 Vcs-Git: git://git.debian.org/collab-maint/pki-core.git
 Vcs-Browser: http://git.debian.org/?p=collab-maint/pki-core.git;a=summary
 
+Package: dogtag-pki
+Architecture: all
+Depends:
+ libjss-java,
+ libosutil-java,
+ libtomcatjss-java
+ pki-ca,
+ pki-common,
+ pki-console,
+ pki-java-tools,
+ pki-kra,
+ pki-ocsp,
+ pki-ra,
+# pki-selinux,
+ pki-setup,
+ pki-silent,
+ pki-symkey,
+ pki-tks,
+ pki-tps,
+ pki-util,
+# esc,
+Description: Dogtag Public Key Infrastructure (PKI) Suite
+ The Dogtag Public Key Infrastructure (PKI) Suite is comprised of the following
+ six subsystems and a client (for use by a Token Management System):
+ .
+   * Certificate Authority (CA)
+   * Data Recovery Manager (DRM)
+   * Online Certificate Status Protocol (OCSP) Manager
+   * Registration Authority (RA)
+   * Token Key Service (TKS)
+   * Token Processing System (TPS)
+   * Enterprise Security Client (ESC)
+ .
+ Additionally, it provides a console GUI application used for server and
+ user/group administration of CA, DRM, OCSP, and TKS, javadocs on portions
+ of the Dogtag API, as well as various command-line tools used to assist with
+ a PKI deployment.
+
 Package: pki-setup
 Architecture: all
 Depends: ${misc:Depends},
