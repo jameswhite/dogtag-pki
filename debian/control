@@ -324,7 +324,7 @@ Description: Certificate System - Token Processing System User Interface
 Package: dogtag-pki-console-theme
 Architecture: any
 Section: java
-Depends: java6-runtime
+Depends: ${java:Depends}, ${misc:Depends},
 Provides: pki-console-theme, pki-console-ui
 Description: Certificate System - PKI Console User Interface
  This PKI Console User Interface contains
