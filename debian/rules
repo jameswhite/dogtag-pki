@@ -14,12 +14,14 @@ CXXFLAGS += -I/usr/include/nss
 DEB_BUILD_DIR ?= $(CURDIR)/build
 
 CONFIGS = core \
+	  console \
 	  kra \
 	  ocsp \
 	  ra \
 	  tks \
 	  tps \
-	  dogtag-pki-theme
+	  dogtag-pki-theme \
+	  ipa-pki-theme
 
 STAMP_DIR = debian/stamp
 STAMP = $(STAMP_DIR)/$(DEB_BUILD_GNU_TYPE)
@@ -41,6 +43,10 @@ confflags-core = \
 	-DXALAN_JAR=/usr/share/java/xalan2.jar \
 	$(confflags)
 
+confflags-console = \
+	-DBUILD_PKI_CONSOLE:BOOL=ON \
+	$(confflags-common)
+
 confflags-kra = \
 	-DBUILD_PKI_KRA:BOOL=ON \
 	$(confflags-common)
@@ -61,6 +67,10 @@ confflags-tps = \
 
 confflags-dogtag-pki-theme = \
 	-DBUILD_DOGTAG_PKI_THEME:BOOL=ON \
+	$(confflags-common)
+
+confflags-ipa-pki-theme = \
+	-DBUILD_IPA_PKI_THEME:BOOL=ON \
 	$(confflags-common)
 
 override_dh_auto_clean:
@@ -85,9 +95,11 @@ $(STAMP)-build-%:
 override_dh_auto_build: build-stamp
 
 override_dh_auto_install:
-	set -e; for config in $(CONFIGS); do \
+	set -e; for config in $(filter-out ipa-pki-theme, $(CONFIGS)); do \
 		make -C $(DEB_BUILD_DIR)/$$config DESTDIR=$(CURDIR)/debian/tmp install; \
 	done
+
+	make -C $(DEB_BUILD_DIR)/ipa-pki-theme DESTDIR=$(CURDIR)/debian/tmp/ipa install
 
 	find $(CURDIR)/debian/tmp/usr/share/pki -name '*.cgi' -exec chmod 755 '{}' ';'
 	find $(CURDIR)/debian/tmp/usr/share/pki -name '*.pl' -exec chmod 755 '{}' ';'
