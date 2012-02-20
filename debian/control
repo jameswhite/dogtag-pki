@@ -7,6 +7,7 @@ Build-Depends: debhelper (>= 8.0.0), pkg-config,
  javahelper,
  default-jdk,
  libapr1-dev,
+ libidm-console-framework-java,
  libjss-java,
  libldap2-dev,
  libldap-java,
@@ -368,6 +369,19 @@ Description: Certificate System - PKI Console User Interface
  .
  This package is used by the Dogtag Certificate System.
 
+Package: pki-console
+Architecture: any
+Depends: ${java:Depends}, ${misc:Depends},
+ pki-console-theme,
+ libidm-console-framework-java,
+ libjss-java,
+ libldap-java,
+Description: Certificate System - PKI Console
+ Certificate System (CS) is an enterprise software system designed
+ to manage enterprise Public Key Infrastructure (PKI) deployments.
+ .
+ The PKI Console is a java application used to administer CS.
+
 Package: pki-kra
 Architecture: any
 Depends: ${java:Depends}, ${misc:Depends},
@@ -503,3 +517,24 @@ Description: Certificate System - Token Processing System
  .
  TPS also interacts with the token database, an LDAP server that stores
  information about individual tokens.
+
+Package: ipa-pki-common-theme
+Architecture: any
+Provides: pki-common-theme, pki-common-ui
+Conflicts: dogtag-pki-common-theme, dogtag-pki-common-ui
+Description: Certificate System - PKI Common Framework User Interface
+ This PKI Common Framework User Interface contains
+ no textual or graphical user interface for the PKI Common Framework.
+ .
+ This package is used by the Certificate System utilized by IPA.
+
+Package: ipa-pki-ca-theme
+Architecture: any
+Depends: ipa-pki-common-theme (= ${binary:Version})
+Provides: pki-ca-theme, pki-ca-ui
+Conflicts: dogtag-pki-ca-theme
+Description: Certificate System - Certificate Authority User Interface
+ This Certificate Authority (CA) User Interface contains
+ no textual or graphical user interface for the CA.
+ .
+ This package is used by the Certificate System utilized by IPA.
