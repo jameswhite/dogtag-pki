@@ -43,10 +43,8 @@ Depends:
 # pki-selinux,
  pki-setup,
  pki-silent,
- pki-symkey,
  pki-tks,
  pki-tps,
- pki-util,
 # esc,
 Description: Dogtag Public Key Infrastructure (PKI) Suite
  The Dogtag Public Key Infrastructure (PKI) Suite is comprised of the following
