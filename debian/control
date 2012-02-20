@@ -32,7 +32,7 @@ Architecture: all
 Depends:
  libjss-java,
  libosutil-java,
- libtomcatjss-java
+ libtomcatjss-java,
  pki-ca,
  pki-common,
  pki-console,
