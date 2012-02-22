@@ -69,6 +69,7 @@ Architecture: all
 Depends: ${misc:Depends}, ${perl:Depends},
  libfile-slurp-perl,
  libcrypt-ssleay-perl,
+ libxml-libxml-perl,
  policycoreutils,
  ldap-utils,
 Description: Certificate System - PKI Instance Creation & Removal Scripts
