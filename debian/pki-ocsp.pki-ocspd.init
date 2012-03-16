@@ -37,9 +37,9 @@
 
 PROG_NAME=`basename $0`
 SERVICE_NAME="pki-ocspd"
-SERVICE_PROG="/sbin/service"
+SERVICE_PROG="/usr/sbin/service"
 PKI_PATH="/usr/share/pki/ocsp"
-PKI_REGISTRY="/etc/sysconfig/pki/ocsp"
+PKI_REGISTRY="/etc/dogtag/pki/ocsp"
 PKI_TYPE="pki-ocsp"
 PKI_TOTAL_PORTS=6
 
@@ -52,9 +52,6 @@ umask 00002
 
 command="$1"
 pki_instance="$2"
-
-# Source function library.
-. /etc/init.d/functions
 
 # Source the PKI function library
 . /usr/share/pki/scripts/functions

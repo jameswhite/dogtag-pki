@@ -30,7 +30,7 @@ Vcs-Browser: http://git.debian.org/?p=collab-maint/pki-core.git;a=summary
 
 Package: dogtag-pki
 Architecture: all
-Depends:
+Depends: ${misc:Depends},
  libjss-java,
  libosutil-java,
  libtomcatjss-java,
@@ -69,6 +69,7 @@ Architecture: all
 Depends: ${misc:Depends}, ${perl:Depends},
  libfile-slurp-perl,
  libcrypt-ssleay-perl,
+ libxml-libxml-perl,
  policycoreutils,
  ldap-utils,
 Description: Certificate System - PKI Instance Creation & Removal Scripts
@@ -163,7 +164,7 @@ Package: pki-common
 Architecture: all
 Depends: ${java:Depends}, ${misc:Depends},
  libpki-common-java (= ${binary:Version}),
- libpki-symkey-java (= ${binary:Version}),
+ libpki-symkey-java (>= ${binary:Version}),
  pki-common-theme,
  pki-java-tools (= ${binary:Version}),
  pki-setup (= ${binary:Version}),
@@ -178,6 +179,7 @@ Depends: ${java:Depends}, ${misc:Depends},
  velocity,
  libxml-commons-external-java,
  libxml-commons-resolver1.1-java,
+ adduser,
 Description: Certificate System - PKI Common Framework
  The PKI Common Framework is required by the following four PKI subsystems:
  .
@@ -292,6 +294,7 @@ Description: Certificate System - Silent Installer - Java bindings
 
 Package: dogtag-pki-common-theme
 Architecture: any
+Depends: ${misc:Depends},
 Provides: pki-common-theme, pki-common-ui
 Description: Certificate System - PKI Common Framework User Interface
  This PKI Common Framework User Interface contains
@@ -301,7 +304,7 @@ Description: Certificate System - PKI Common Framework User Interface
 
 Package: dogtag-pki-ca-theme
 Architecture: any
-Depends: dogtag-pki-common-theme (= ${binary:Version})
+Depends: ${misc:Depends}, dogtag-pki-common-theme (= ${binary:Version})
 Provides: pki-ca-theme, pki-ca-ui
 Description: Certificate System - Certificate Authority User Interface
  This Certificate Authority (CA) User Interface contains
@@ -311,7 +314,7 @@ Description: Certificate System - Certificate Authority User Interface
 
 Package: dogtag-pki-kra-theme
 Architecture: any
-Depends: dogtag-pki-common-theme (= ${binary:Version})
+Depends: ${misc:Depends}, dogtag-pki-common-theme (= ${binary:Version})
 Provides: pki-kra-theme, pki-kra-ui
 Description: Certificate System - Data Recovery Manager User Interface
  This Data Recovery Manager (DRM) User Interface contains
@@ -321,7 +324,7 @@ Description: Certificate System - Data Recovery Manager User Interface
 
 Package: dogtag-pki-ocsp-theme
 Architecture: any
-Depends: dogtag-pki-common-theme (= ${binary:Version})
+Depends: ${misc:Depends}, dogtag-pki-common-theme (= ${binary:Version})
 Provides: pki-ocsp-theme, pki-ocsp-ui
 Description: Certificate System - Online Certificate Status Protocol Manager User Interface
  This Online Certificate Status Protocol (OCSP) Manager
@@ -332,6 +335,7 @@ Description: Certificate System - Online Certificate Status Protocol Manager Use
 
 Package: dogtag-pki-ra-theme
 Architecture: any
+Depends: ${misc:Depends},
 Provides: pki-ra-theme, pki-ra-ui
 Description: Certificate System - Registration Authority User Interface
  This Registration Authority (RA) User Interface contains
@@ -341,7 +345,7 @@ Description: Certificate System - Registration Authority User Interface
 
 Package: dogtag-pki-tks-theme
 Architecture: any
-Depends: dogtag-pki-common-theme (= ${binary:Version})
+Depends: ${misc:Depends}, dogtag-pki-common-theme (= ${binary:Version})
 Provides: pki-tks-theme, pki-tks-ui
 Description: Certificate System - Token Key Service User Interface
  This Token Key Service (TKS) User Interface contains
@@ -351,7 +355,7 @@ Description: Certificate System - Token Key Service User Interface
 
 Package: dogtag-pki-tps-theme
 Architecture: any
-Depends: ${perl:Depends},
+Depends: ${perl:Depends}, ${misc:Depends},
 Provides: pki-tps-theme, pki-tps-ui
 Description: Certificate System - Token Processing System User Interface
  This Token Processing System (TPS) User Interface contains
@@ -521,6 +525,7 @@ Description: Certificate System - Token Processing System
 
 Package: ipa-pki-common-theme
 Architecture: any
+Depends: ${misc:Depends}
 Provides: pki-common-theme, pki-common-ui
 Conflicts: dogtag-pki-common-theme, dogtag-pki-common-ui
 Description: Certificate System - PKI Common Framework User Interface
@@ -531,7 +536,7 @@ Description: Certificate System - PKI Common Framework User Interface
 
 Package: ipa-pki-ca-theme
 Architecture: any
-Depends: ipa-pki-common-theme (= ${binary:Version})
+Depends: ${misc:Depends}, ipa-pki-common-theme (= ${binary:Version})
 Provides: pki-ca-theme, pki-ca-ui
 Conflicts: dogtag-pki-ca-theme
 Description: Certificate System - Certificate Authority User Interface

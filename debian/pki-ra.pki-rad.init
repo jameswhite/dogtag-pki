@@ -37,9 +37,9 @@
 
 PROG_NAME=`basename $0`
 SERVICE_NAME="pki-rad"
-SERVICE_PROG="/sbin/service"
+SERVICE_PROG="/usr/sbin/service"
 PKI_PATH="/usr/share/pki/ra"
-PKI_REGISTRY="/etc/sysconfig/pki/ra"
+PKI_REGISTRY="/etc/dogtag/pki/ra"
 PKI_TYPE="pki-ra"
 PKI_TOTAL_PORTS=3
 
@@ -52,9 +52,6 @@ umask 00002
 
 command="$1"
 pki_instance="$2"
-
-# Source function library.
-. /etc/init.d/functions
 
 # Source the PKI function library
 . /usr/share/pki/scripts/functions
