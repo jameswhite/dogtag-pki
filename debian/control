@@ -179,6 +179,7 @@ Depends: ${java:Depends}, ${misc:Depends},
  velocity,
  libxml-commons-external-java,
  libxml-commons-resolver1.1-java,
+ adduser,
 Description: Certificate System - PKI Common Framework
  The PKI Common Framework is required by the following four PKI subsystems:
  .
