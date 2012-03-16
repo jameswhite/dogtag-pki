@@ -105,7 +105,7 @@
  my $jakarta_commons_lang_jar_base_name    = "jakarta-commons-lang.jar";
 -my $xml_commons_apis_jar_base_name        = "xml-commons-apis.jar";
 -my $xml_commons_resolver_jar_base_name    = "xml-commons-resolver.jar";
-+my $xml_commons_apis_jar_base_name        = "xml-apis.jar";
++my $xml_commons_apis_jar_base_name        = "jaxp-1.4.jar";
 +my $xml_commons_resolver_jar_base_name    = "xml-resolver.jar";
  
  my $conf_base_name                = "conf";                   # CA, KRA, OCSP, TKS,
@@ -154,3 +154,63 @@
  PKI_TYPE="pki-${pki_subsystem_type}"
  PKI_SYSTEMD_TARGET="pki-${pki_subsystem_type}d"
  SYSTEMD=1
+--- a/pki/base/ca/shared/conf/tomcat6.conf
++++ b/pki/base/ca/shared/conf/tomcat6.conf
+@@ -30,7 +30,8 @@
+ #JAVA_OPTS="-Djava.library.path=/usr/lib64"
+ 
+ # What user should run tomcat
+-TOMCAT_USER="[PKI_USER]"
++TOMCAT6_USER="[PKI_USER]"
++TOMCAT6_GROUP="[PKI_GROUP]"
+ 
+ # You can change your tomcat locale here
+ #LANG="en_US"
+--- a/pki/base/kra/shared/conf/tomcat6.conf
++++ b/pki/base/kra/shared/conf/tomcat6.conf
+@@ -30,7 +30,8 @@
+ #JAVA_OPTS="-Djava.library.path=/usr/lib64"
+ 
+ # What user should run tomcat
+-TOMCAT_USER="[PKI_USER]"
++TOMCAT6_USER="[PKI_USER]"
++TOMCAT6_GROUP="[PKI_GROUP]"
+ 
+ # You can change your tomcat locale here
+ #LANG="en_US"
+--- a/pki/base/ocsp/shared/conf/tomcat6.conf
++++ b/pki/base/ocsp/shared/conf/tomcat6.conf
+@@ -30,7 +30,8 @@
+ #JAVA_OPTS="-Djava.library.path=/usr/lib64"
+ 
+ # What user should run tomcat
+-TOMCAT_USER="[PKI_USER]"
++TOMCAT6_USER="[PKI_USER]"
++TOMCAT6_GROUP="[PKI_GROUP]"
+ 
+ # You can change your tomcat locale here
+ #LANG="en_US"
+--- a/pki/base/tks/shared/conf/tomcat6.conf
++++ b/pki/base/tks/shared/conf/tomcat6.conf
+@@ -30,7 +30,8 @@
+ #JAVA_OPTS="-Djava.library.path=/usr/lib64"
+ 
+ # What user should run tomcat
+-TOMCAT_USER="[PKI_USER]"
++TOMCAT6_USER="[PKI_USER]"
++TOMCAT6_GROUP="[PKI_GROUP]"
+ 
+ # You can change your tomcat locale here
+ #LANG="en_US"
+--- a/pki/base/setup/scripts/functions
++++ b/pki/base/setup/scripts/functions
+@@ -923,6 +923,9 @@
+     done
+ 
+     if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt ${errors} ] ; then
++        if [ ! -d "/var/lock/subsys" ]; then
++            mkdir /var/lock/subsys
++        fi
+         touch ${lockfile}
+         chmod 00600 ${lockfile}
+     fi
