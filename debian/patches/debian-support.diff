@@ -1,8 +1,6 @@
-diff --git a/pki/base/setup/pkicommon.pm b/pki/base/setup/pkicommon.pm
-index f8c304b..f63c5fe 100755
 --- a/pki/base/setup/pkicommon.pm
 +++ b/pki/base/setup/pkicommon.pm
-@@ -49,7 +49,7 @@ our @EXPORT = qw(
+@@ -49,7 +49,7 @@
   format_install_info get_install_info_description
   parse_install_info parse_old_cleanup read_old_cleanup
   read_install_info read_install_info_from_dir write_install_info_to_dir uninstall
@@ -11,7 +9,7 @@ index f8c304b..f63c5fe 100755
   set_library_path get_library_path fedora_release
   check_for_root_UID user_disallows_shell
   user_exists create_user
-@@ -175,6 +175,7 @@ our $default_system_user_binaries  = undef;
+@@ -175,6 +175,7 @@
  our $default_system_user_libraries = undef;
  our $default_java_path             = undef;
  our $default_pki_java_path         = undef;
@@ -19,7 +17,7 @@ index f8c304b..f63c5fe 100755
  our $default_x86_64_jni_java_path  = undef;
  our $default_system_jni_java_path  = undef;
  our @default_jar_path              = undef;
-@@ -203,9 +204,9 @@ my $is_IPv6 = 0;
+@@ -203,9 +204,9 @@
  # Compute "hardware platform" of Operating System
  if ($^O eq "linux") {
      $pki_flavor = "pki";
@@ -31,7 +29,7 @@ index f8c304b..f63c5fe 100755
      $default_lockdir = "/var/lock/$pki_flavor";
      $default_hardware_platform = `uname -i`;
      $default_hardware_platform =~ s/\s+$//g;
-@@ -217,19 +218,20 @@ if ($^O eq "linux") {
+@@ -217,19 +218,20 @@
          $default_system_user_binaries  = "/usr/bin";
          $default_system_user_libraries = "/usr/lib";
          $default_java_path             = "/usr/share/java";
@@ -60,7 +58,7 @@ index f8c304b..f63c5fe 100755
          @default_jar_path = ($default_pki_java_path, $default_java_path, $default_x86_64_jni_java_path, $default_system_jni_java_path);
      } else {
          emit("Unsupported '$^O' hardware platform '$default_hardware_platform'!", "error");
-@@ -816,6 +818,18 @@ sub is_RHEL4 {
+@@ -816,6 +818,18 @@
  }
  
  # no args
@@ -79,7 +77,7 @@ index f8c304b..f63c5fe 100755
  # return release_number
  # return 0 if not found
  sub fedora_release {
-@@ -830,7 +844,6 @@ sub fedora_release {
+@@ -830,7 +844,6 @@
      return 0;
  }
  
@@ -87,11 +85,9 @@ index f8c304b..f63c5fe 100755
  # no args
  # no return value
  sub setup_platform_dependent_parameters
-diff --git a/pki/base/setup/pkicreate b/pki/base/setup/pkicreate
-index 82da22c..3ae372a 100755
 --- a/pki/base/setup/pkicreate
 +++ b/pki/base/setup/pkicreate
-@@ -184,16 +184,16 @@ my $osutil_jar_base_name          = "osutil.jar";          # CA, KRA, OCSP, TKS
+@@ -184,16 +184,16 @@
  my $symkey_jar_base_name          = "symkey.jar";          # CA, KRA, OCSP, TKS
  my $tomcatjss_jar_base_name       = "tomcatjss.jar";       # CA, KRA, OCSP, TKS
  my $velocity_jar_base_name        = "velocity.jar";        # CA, KRA, OCSP, TKS
@@ -114,16 +110,16 @@ index 82da22c..3ae372a 100755
  
  my $conf_base_name                = "conf";                   # CA, KRA, OCSP, TKS,
  my $catalina_properties_base_name = "catalina.properties";    # CA, KRA, OCSP, TKS
-@@ -596,7 +596,7 @@ if ($^O eq "linux") {
+@@ -596,7 +596,7 @@
      }
  
      # Tomcat instance config directory
 -    $tomcat6_instance_config_path = "/etc/sysconfig";
-+    $tomcat6_instance_config_path = "/etc/default";
++    $tomcat6_instance_config_path = "/etc/dogtag";
  
      # Superuser and group to give to PKI installed files
      $root_user = "root";
-@@ -3316,7 +3316,7 @@ ASK_AGAIN:
+@@ -3316,7 +3316,7 @@
              "/bin/systemctl restart $pki_instance_systemd_service_name";
      } else {
          $pki_registry_initscript_command = 
@@ -132,11 +128,9 @@ index 82da22c..3ae372a 100755
      }
  
      $command = "${pki_registry_initscript_command}";
-diff --git a/pki/base/setup/pkiremove b/pki/base/setup/pkiremove
-index dd9fbc7..fbbfe37 100755
 --- a/pki/base/setup/pkiremove
 +++ b/pki/base/setup/pkiremove
-@@ -502,10 +502,10 @@ ASK_AGAIN:
+@@ -502,10 +502,10 @@
                  "/bin/systemctl stop $pki_instance_systemd_service_name";
          } else {
              if (entity_exists("$default_initscripts_path/$pki_instance_name")) {
@@ -149,3 +143,14 @@ index dd9fbc7..fbbfe37 100755
              }
          }
      } else {
+--- a/pki/base/setup/scripts/pkicontrol
++++ b/pki/base/setup/scripts/pkicontrol
+@@ -28,7 +28,7 @@
+ pki_instance="$3"
+ 
+ PKI_PATH="/usr/share/pki/${pki_subsystem_type}"
+-PKI_REGISTRY="/etc/sysconfig/pki/${pki_subsystem_type}"
++PKI_REGISTRY="/etc/dogtag/pki/${pki_subsystem_type}"
+ PKI_TYPE="pki-${pki_subsystem_type}"
+ PKI_SYSTEMD_TARGET="pki-${pki_subsystem_type}d"
+ SYSTEMD=1
