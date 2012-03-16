@@ -23,7 +23,7 @@ Build-Depends: debhelper (>= 8.0.0), pkg-config,
  selinux-policy-dev,
  velocity,
  apache2-threaded-dev,
-Standards-Version: 3.9.2
+Standards-Version: 3.9.3
 Homepage: http://pki.fedoraproject.org
 Vcs-Git: git://git.debian.org/collab-maint/pki-core.git
 Vcs-Browser: http://git.debian.org/?p=collab-maint/pki-core.git;a=summary
