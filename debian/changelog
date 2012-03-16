@@ -1,3 +1,9 @@
+pki (9.0-0ubuntu0.4) precise; urgency=low
+
+  * Merge from debian git.
+
+ -- Timo Aaltonen <tjaalton@ubuntu.com>  Fri, 16 Mar 2012 23:04:49 +0200
+
 pki (9.0-0ubuntu0.3) precise; urgency=low
 
   * Merge from debian git.
