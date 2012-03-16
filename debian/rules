@@ -123,12 +123,12 @@ override_jh_installjavadoc:
 		$(DEB_BUILD_DIR)/core/base/util/src/javadoc/pki-util-*
 
 override_dh_installinit:
-	dh_installinit -ppki-ca --name=pki-cad
-	dh_installinit -ppki-kra --name=pki-krad
-	dh_installinit -ppki-ocsp --name=pki-ocspd
-	dh_installinit -ppki-ra --name=pki-rad
-	dh_installinit -ppki-tks --name=pki-tksd
-	dh_installinit -ppki-tps --name=pki-tpsd
+	dh_installinit -ppki-ca --name=pki-cad --error-handler=invoke_failure
+	dh_installinit -ppki-kra --name=pki-krad --error-handler=invoke_failure
+	dh_installinit -ppki-ocsp --name=pki-ocspd --error-handler=invoke_failure
+	dh_installinit -ppki-ra --name=pki-rad --error-handler=invoke_failure
+	dh_installinit -ppki-tks --name=pki-tksd --error-handler=invoke_failure
+	dh_installinit -ppki-tps --name=pki-tpsd --error-handler=invoke_failure
 
 %:
 	dh $@ --with javahelper --builddirectory=build/

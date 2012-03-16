@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+
+. /usr/share/debconf/confmodule
+
+invoke_failure() {
+    # invoke-rc.d failed, likely because no instance has been configured yet
+    # but exit with an error if an instance is configured and the invoke failed
+    if [ ! -d /etc/pki-ca ]; then
+        echo "... because no CA instance has been configured yet."
+    else
+        exit 1
+    fi
+}
+
+#DEBHELPER#
