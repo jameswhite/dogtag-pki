@@ -9,10 +9,8 @@ Date:   Wed Feb 22 01:15:56 2012 -0600
     
     Ticket #90
 
-Index: pki/pki/.classpath
-===================================================================
---- pki.orig/pki/.classpath	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/.classpath	2012-03-17 08:12:19.693256996 +0200
+--- a/pki/.classpath
++++ b/pki/.classpath
 @@ -25,7 +25,6 @@
  	<classpathentry kind="lib" path="/usr/share/java/ldapjdk.jar"/>
  	<classpathentry kind="lib" path="/usr/share/java/idm-console-nmclf.jar"/>
@@ -21,10 +19,8 @@ Index: pki/pki/.classpath
  	<classpathentry kind="lib" path="/usr/share/java/velocity.jar"/>
  	<classpathentry kind="lib" path="/usr/share/java/servlet.jar"/>
  	<classpathentry kind="lib" path="/usr/share/java/xerces-j2.jar"/>
-Index: pki/pki/base/CMakeLists.txt
-===================================================================
---- pki.orig/pki/base/CMakeLists.txt	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/base/CMakeLists.txt	2012-03-17 08:10:14.149433579 +0200
+--- a/pki/base/CMakeLists.txt
++++ b/pki/base/CMakeLists.txt
 @@ -1,7 +1,6 @@
  project(base)
  
@@ -33,10 +29,8 @@ Index: pki/pki/base/CMakeLists.txt
  if (APPLICATION_FLAVOR_PKI_CORE)
      add_subdirectory(setup)
      add_subdirectory(symkey)
-Index: pki/pki/base/ca/src/CMakeLists.txt
-===================================================================
---- pki.orig/pki/base/ca/src/CMakeLists.txt	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/base/ca/src/CMakeLists.txt	2012-03-17 08:13:32.751481923 +0200
+--- a/pki/base/ca/src/CMakeLists.txt
++++ b/pki/base/ca/src/CMakeLists.txt
 @@ -17,13 +17,6 @@
          ${JAVA_LIB_INSTALL_DIR}
  )
@@ -48,19 +42,19 @@ Index: pki/pki/base/ca/src/CMakeLists.txt
 -        ${JAVA_LIB_INSTALL_DIR}
 -)
 -
- 
- # identify java sources
- set(pki-ca_java_SRCS
-@@ -42,7 +35,7 @@
+ find_file(COMMONS_CODEC_JAR
+     NAMES
+         commons-codec.jar
+@@ -49,7 +42,7 @@
      ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
      ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
      ${LDAPJDK_JAR}
--    ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR})
-+    ${JSS_JAR} ${SYMKEY_JAR})
+-    ${JSS_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
++    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
  
  
  # set version
-@@ -51,7 +44,7 @@
+@@ -58,7 +51,7 @@
  
  # build pki-ca.jar
  add_jar(pki-ca ${pki-ca_java_SRCS})
@@ -69,10 +63,8 @@ Index: pki/pki/base/ca/src/CMakeLists.txt
  install_jar(pki-ca ${JAVA_JAR_INSTALL_DIR}/pki)
  set(PKI_CA_JAR ${pki-ca_JAR_FILE} CACHE INTERNAL "pki-ca jar file")
  
-Index: pki/pki/base/common/src/CMakeLists.txt
-===================================================================
---- pki.orig/pki/base/common/src/CMakeLists.txt	2012-03-16 23:16:33.000000000 +0200
-+++ pki/pki/base/common/src/CMakeLists.txt	2012-03-17 08:15:19.854743600 +0200
+--- a/pki/base/common/src/CMakeLists.txt
++++ b/pki/base/common/src/CMakeLists.txt
 @@ -16,14 +16,6 @@
          /usr/share/java
  )
@@ -85,10 +77,18 @@ Index: pki/pki/base/common/src/CMakeLists.txt
 -        /usr/share/java
 -)
 -
- find_file(SERVLET_JAR
+ find_file(COMMONS_CODEC_JAR
      NAMES
-         servlet.jar
-@@ -1002,14 +994,14 @@
+         commons-codec.jar
+@@ -1002,21 +994,21 @@
+ set(CMAKE_JAVA_INCLUDE_PATH
+     ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
+     ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
+-    ${JSS_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
++    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
+ 
+ set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
+ 
  # build pki-certsrv
  set(CMAKE_JAR_CLASSES_PREFIX com/netscape/certsrv)
  add_jar(pki-certsrv ${pki-certsrv_java_SRCS})
@@ -105,7 +105,7 @@ Index: pki/pki/base/common/src/CMakeLists.txt
  install_jar(pki-cms ${JAVA_JAR_INSTALL_DIR}/pki)
  set(PKI_CMS_JAR ${pki-cms_JAR_FILE} CACHE INTERNAL "pki-cms jar file")
  
-@@ -1027,12 +1019,12 @@
+@@ -1034,12 +1026,12 @@
  # build pki-cmscore
  set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cmscore)
  add_jar(pki-cmscore ${pki-cmscore_java_SRCS})
@@ -120,10 +120,8 @@ Index: pki/pki/base/common/src/CMakeLists.txt
 +add_dependencies(pki-cmsbundle pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore)
  install_jar(pki-cmsbundle ${JAVA_JAR_INSTALL_DIR}/pki)
  set(PKI_CMSBUNDLE_JAR ${pki-cmsbundle_JAR_FILE} CACHE INTERNAL "pki-cmsbundle jar file")
-Index: pki/pki/base/console/src/CMakeLists.txt
-===================================================================
---- pki.orig/pki/base/console/src/CMakeLists.txt	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/base/console/src/CMakeLists.txt	2012-03-17 08:19:04.965598773 +0200
+--- a/pki/base/console/src/CMakeLists.txt
++++ b/pki/base/console/src/CMakeLists.txt
 @@ -69,14 +69,6 @@
          /usr/share/java
  )
@@ -136,23 +134,19 @@ Index: pki/pki/base/console/src/CMakeLists.txt
 -        /usr/share/java
 -)
 -
- 
- # identify java sources
- set(pki-console_java_SRCS
-@@ -647,8 +639,7 @@
-     ${BASE_JAR} ${LDAPJDK_JAR} ${MMC_JAR}
+ find_file(COMMONS_CODEC_JAR
+     NAMES
+         commons-codec.jar
+@@ -655,7 +647,6 @@
      ${MMC_EN_JAR} ${NMCLF_JAR} ${NMCLF_EN_JAR}
      ${PKI_NSUTIL_JAR}
--    ${JSS_JAR}
--    ${OSUTIL_JAR})
-+    ${JSS_JAR})
+     ${JSS_JAR}
+-    ${OSUTIL_JAR}
+     ${COMMONS_CODEC_JAR})
  
  
- # set version
-Index: pki/pki/base/java-tools/src/CMakeLists.txt
-===================================================================
---- pki.orig/pki/base/java-tools/src/CMakeLists.txt	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/base/java-tools/src/CMakeLists.txt	2012-03-17 08:18:40.280847078 +0200
+--- a/pki/base/java-tools/src/CMakeLists.txt
++++ b/pki/base/java-tools/src/CMakeLists.txt
 @@ -8,14 +8,6 @@
          /usr/share/java
  )
@@ -165,15 +159,15 @@ Index: pki/pki/base/java-tools/src/CMakeLists.txt
 -        /usr/share/java
 -)
 -
- find_file(XALAN_JAR
+ find_file(COMMONS_CODEC_JAR
      NAMES
-         xalan-j2.jar
-@@ -60,13 +52,13 @@
+         commons-codec.jar
+@@ -67,13 +59,13 @@
  set(CMAKE_JAVA_INCLUDE_PATH
      ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
      ${XALAN_JAR} ${XERCES_JAR}
--    ${JSS_JAR} ${OSUTIL_JAR})
-+    ${JSS_JAR})
+-    ${JSS_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR})
++    ${JSS_JAR} ${COMMONS_CODEC_JAR})
  
  set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
  
@@ -184,10 +178,8 @@ Index: pki/pki/base/java-tools/src/CMakeLists.txt
  install(
      FILES
          com/netscape/cmstools/DRMTool.cfg
-Index: pki/pki/base/java-tools/templates/pki_java_command_wrapper.in
-===================================================================
---- pki.orig/pki/base/java-tools/templates/pki_java_command_wrapper.in	2012-03-16 15:59:26.000000000 +0200
-+++ pki/pki/base/java-tools/templates/pki_java_command_wrapper.in	2012-03-17 08:19:58.119220725 +0200
+--- a/pki/base/java-tools/templates/pki_java_command_wrapper.in
++++ b/pki/base/java-tools/templates/pki_java_command_wrapper.in
 @@ -74,15 +74,12 @@
      if [ "${ARCHITECTURE}" = "i386" ] ; then
          LD_LIBRARY_PATH=/usr/lib:/lib
@@ -215,13 +207,11 @@ Index: pki/pki/base/java-tools/templates/pki_java_command_wrapper.in
 -    # Fedora 16+
 -    CP=/usr/lib64/java/osutil.jar:${CP}
 -fi
+ CP=/usr/share/java/commons-codec.jar:${CP}
  CP=/usr/share/java/ldapjdk.jar:${CP}
  CP=/usr/share/java/${PRODUCT}/pki-nsutil.jar:${CP}
- CP=/usr/share/java/${PRODUCT}/pki-cmsutil.jar:${CP}
-Index: pki/pki/base/java-tools/templates/pretty_print_cert_command_wrapper.in
-===================================================================
---- pki.orig/pki/base/java-tools/templates/pretty_print_cert_command_wrapper.in	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/base/java-tools/templates/pretty_print_cert_command_wrapper.in	2012-03-17 08:20:32.648275857 +0200
+--- a/pki/base/java-tools/templates/pretty_print_cert_command_wrapper.in
++++ b/pki/base/java-tools/templates/pretty_print_cert_command_wrapper.in
 @@ -74,15 +74,12 @@
      if [ "${ARCHITECTURE}" = "i386" ] ; then
          LD_LIBRARY_PATH=/usr/lib:/lib
@@ -249,13 +239,11 @@ Index: pki/pki/base/java-tools/templates/pretty_print_cert_command_wrapper.in
 -    # Fedora 16+
 -    CP=/usr/lib64/java/osutil.jar:${CP}
 -fi
+ CP=/usr/share/java/commons-codec.jar:${CP}
  CP=/usr/share/java/ldapjdk.jar:${CP}
  CP=/usr/share/java/${PRODUCT}/pki-nsutil.jar:${CP}
- CP=/usr/share/java/${PRODUCT}/pki-cmsutil.jar:${CP}
-Index: pki/pki/base/java-tools/templates/pretty_print_crl_command_wrapper.in
-===================================================================
---- pki.orig/pki/base/java-tools/templates/pretty_print_crl_command_wrapper.in	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/base/java-tools/templates/pretty_print_crl_command_wrapper.in	2012-03-17 08:24:24.051346071 +0200
+--- a/pki/base/java-tools/templates/pretty_print_crl_command_wrapper.in
++++ b/pki/base/java-tools/templates/pretty_print_crl_command_wrapper.in
 @@ -74,15 +74,12 @@
      if [ "${ARCHITECTURE}" = "i386" ] ; then
          LD_LIBRARY_PATH=/usr/lib:/lib
@@ -283,13 +271,11 @@ Index: pki/pki/base/java-tools/templates/pretty_print_crl_command_wrapper.in
 -    # Fedora 16+
 -    CP=/usr/lib64/java/osutil.jar:${CP}
 -fi
+ CP=/usr/share/java/commons-codec.jar:${CP}
  CP=/usr/share/java/ldapjdk.jar:${CP}
  CP=/usr/share/java/${PRODUCT}/pki-nsutil.jar:${CP}
- CP=/usr/share/java/${PRODUCT}/pki-cmsutil.jar:${CP}
-Index: pki/pki/base/kra/src/CMakeLists.txt
-===================================================================
---- pki.orig/pki/base/kra/src/CMakeLists.txt	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/base/kra/src/CMakeLists.txt	2012-03-17 08:25:08.840714363 +0200
+--- a/pki/base/kra/src/CMakeLists.txt
++++ b/pki/base/kra/src/CMakeLists.txt
 @@ -55,13 +55,6 @@
          ${JAVA_LIB_INSTALL_DIR}
  )
@@ -301,19 +287,19 @@ Index: pki/pki/base/kra/src/CMakeLists.txt
 -        ${JAVA_LIB_INSTALL_DIR}
 -)
 -
- find_file(SYMKEY_JAR
+ find_file(COMMONS_CODEC_JAR
      NAMES
-         symkey.jar
-@@ -91,7 +84,7 @@
+         commons-codec.jar
+@@ -98,7 +91,7 @@
      ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
      ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
      ${LDAPJDK_JAR}
--    ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR})
-+    ${JSS_JAR} ${SYMKEY_JAR})
+-    ${JSS_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
++    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
  
  
  # set version
-@@ -100,7 +93,7 @@
+@@ -107,7 +100,7 @@
  
  # build pki-kra.jar
  add_jar(pki-kra ${pki-kra_java_SRCS})
@@ -322,10 +308,8 @@ Index: pki/pki/base/kra/src/CMakeLists.txt
  install_jar(pki-kra ${JAVA_JAR_INSTALL_DIR}/pki)
  set(PKI_KRA_JAR ${pki-kra_JAR_FILE} CACHE INTERNAL "pki-kra jar file")
  
-Index: pki/pki/base/ocsp/src/CMakeLists.txt
-===================================================================
---- pki.orig/pki/base/ocsp/src/CMakeLists.txt	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/base/ocsp/src/CMakeLists.txt	2012-03-17 08:26:29.235170224 +0200
+--- a/pki/base/ocsp/src/CMakeLists.txt
++++ b/pki/base/ocsp/src/CMakeLists.txt
 @@ -55,13 +55,6 @@
          ${JAVA_LIB_INSTALL_DIR}
  )
@@ -337,19 +321,19 @@ Index: pki/pki/base/ocsp/src/CMakeLists.txt
 -        ${JAVA_LIB_INSTALL_DIR}
 -)
 -
- find_file(SYMKEY_JAR
+ find_file(COMMONS_CODEC_JAR
      NAMES
-         symkey.jar
-@@ -84,7 +77,7 @@
+         commons-codec.jar
+@@ -91,7 +84,7 @@
      ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
      ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
      ${LDAPJDK_JAR}
--    ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR})
-+    ${JSS_JAR} ${SYMKEY_JAR})
+-    ${JSS_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
++    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
  
  
  # set version
-@@ -93,7 +86,7 @@
+@@ -100,7 +93,7 @@
  
  # build pki-ocsp.jar
  add_jar(pki-ocsp ${pki-ocsp_java_SRCS})
@@ -358,10 +342,8 @@ Index: pki/pki/base/ocsp/src/CMakeLists.txt
  install_jar(pki-ocsp ${JAVA_JAR_INSTALL_DIR}/pki)
  set(PKI_OCSP_JAR ${pki-ocsp_JAR_FILE} CACHE INTERNAL "pki-ocsp jar file")
  
-Index: pki/pki/base/scripts/pkicheck
-===================================================================
---- pki.orig/pki/base/scripts/pkicheck	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/base/scripts/pkicheck	2012-03-17 08:10:14.153433701 +0200
+--- a/pki/base/scripts/pkicheck
++++ b/pki/base/scripts/pkicheck
 @@ -9,5 +9,5 @@
  fi
  
@@ -369,28 +351,26 @@ Index: pki/pki/base/scripts/pkicheck
 -rpm -qa | egrep -i pki-\|osutil\|symkey | sort | cat -n
 +rpm -qa | egrep -i pki-\|symkey | sort | cat -n
  
-Index: pki/pki/base/setup/pkicreate
-===================================================================
---- pki.orig/pki/base/setup/pkicreate	2012-03-16 23:16:33.000000000 +0200
-+++ pki/pki/base/setup/pkicreate	2012-03-17 08:28:34.602999548 +0200
+--- a/pki/base/setup/pkicreate
++++ b/pki/base/setup/pkicreate
 @@ -180,7 +180,6 @@
  my $jss_jar_base_name             = "jss4.jar";            # CA, KRA, OCSP, TKS
  my $ldapjdk_jar_base_name         = "ldapjdk.jar";         # CA, KRA, OCSP, TKS
  my $pki_nsutil_jar_base_name      = "pki-nsutil.jar";      # CA, KRA, OCSP, TKS
 -my $osutil_jar_base_name          = "osutil.jar";          # CA, KRA, OCSP, TKS
+ my $commons_codec_jar_base_name   = "commons-codec.jar";   # CA, KRA, OCSP, TKS
  my $symkey_jar_base_name          = "symkey.jar";          # CA, KRA, OCSP, TKS
  my $tomcatjss_jar_base_name       = "tomcatjss.jar";       # CA, KRA, OCSP, TKS
- my $velocity_jar_base_name        = "velocity.jar";        # CA, KRA, OCSP, TKS
-@@ -477,8 +476,6 @@
+@@ -478,8 +477,6 @@
  my $ldapjdk_jar_symlink_path                     = undef;  # CA, KRA, OCSP, TKS
  my $pki_nsutil_jar_file_path                     = undef;  # CA, KRA, OCSP, TKS
  my $pki_nsutil_jar_symlink_path                  = undef;  # CA, KRA, OCSP, TKS
 -my $osutil_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
 -my $osutil_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
+ my $commons_codec_jar_file_path                  = undef;  # CA, KRA, OCSP, TKS
+ my $commons_codec_jar_symlink_path               = undef;  # CA, KRA, OCSP, TKS
  my $symkey_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
- my $symkey_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
- my $tomcatjss_jar_file_path                      = undef;  # CA, KRA, OCSP, TKS
-@@ -1810,11 +1807,6 @@
+@@ -1801,11 +1798,6 @@
              return 0;
          }
  
@@ -399,19 +379,19 @@ Index: pki/pki/base/setup/pkicreate
 -            return 0;
 -        }
 -
-         if (!defined($pki_subsystem_jar_file_path = find_jar($pki_subsystem_jar_base_name))) {
-             emit("could not find jar: $pki_subsystem_jar_base_name", "error");
+         if (!defined($commons_codec_jar_file_path = find_jar($commons_codec_jar_base_name))) {
+             emit("could not find jar: $commons_codec_jar_base_name", "error");
              return 0;
-@@ -1886,8 +1878,6 @@
+@@ -1882,8 +1874,6 @@
                                             . "/" . $ldapjdk_jar_base_name;
          $pki_nsutil_jar_symlink_path       = $webinf_lib_instance_path
                                             . "/" . $pki_nsutil_jar_base_name;
 -        $osutil_jar_symlink_path           = $webinf_lib_instance_path
 -                                           . "/" . $osutil_jar_base_name;
+         $commons_codec_jar_symlink_path    = $webinf_lib_instance_path
+                                            . "/" . $commons_codec_jar_base_name;
          $symkey_jar_symlink_path           = $webinf_lib_instance_path
-                                            . "/" . $symkey_jar_base_name;
-         $pki_subsystem_jar_symlink_path    = $webinf_lib_instance_path
-@@ -2887,10 +2877,6 @@
+@@ -2876,10 +2866,6 @@
          return 0 if !create_symlink($pki_nsutil_jar_symlink_path, $pki_nsutil_jar_file_path,
                                      $pki_user, $pki_group);
  
@@ -419,13 +399,11 @@ Index: pki/pki/base/setup/pkicreate
 -        return 0 if !create_symlink($osutil_jar_symlink_path, $osutil_jar_file_path,
 -                                    $pki_user, $pki_group);
 -
-         # create instance symlink to "${subsystem_type}.jar"
-         return 0 if !create_symlink($pki_subsystem_jar_symlink_path, $pki_subsystem_jar_file_path,
+         # create instance symlink to "commons_codec.jar"
+         return 0 if !create_symlink($commons_codec_jar_symlink_path, $commons_codec_jar_file_path,
                                      $pki_user, $pki_group);
-Index: pki/pki/base/silent/scripts/pkisilent
-===================================================================
---- pki.orig/pki/base/silent/scripts/pkisilent	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/base/silent/scripts/pkisilent	2012-03-17 08:10:14.153433701 +0200
+--- a/pki/base/silent/scripts/pkisilent
++++ b/pki/base/silent/scripts/pkisilent
 @@ -51,16 +51,13 @@
  if( $ARCHITECTURE eq "i386" ) {
      $libpath="/usr/lib";
@@ -445,7 +423,7 @@ Index: pki/pki/base/silent/scripts/pkisilent
                            . "/usr/lib/jss:"
                            . "/usr/lib:/lib";
  } else {
-@@ -89,13 +86,10 @@
+@@ -90,13 +87,10 @@
  if( $ARCHITECTURE eq "x86_64" ) {
      $ENV{CLASSPATH} = $ENV{CLASSPATH}
                      . "/usr/lib64/java/jss4.jar:"
@@ -461,16 +439,14 @@ Index: pki/pki/base/silent/scripts/pkisilent
  }
  
  
-Index: pki/pki/base/silent/src/CMakeLists.txt
-===================================================================
---- pki.orig/pki/base/silent/src/CMakeLists.txt	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/base/silent/src/CMakeLists.txt	2012-03-17 08:29:14.392214801 +0200
+--- a/pki/base/silent/src/CMakeLists.txt
++++ b/pki/base/silent/src/CMakeLists.txt
 @@ -76,11 +76,11 @@
      ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
      ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
      ${LDAPJDK_JAR} ${XERCES_JAR}
--    ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR})
-+    ${JSS_JAR} ${SYMKEY_JAR})
+-    ${JSS_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
++    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
  
  set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
  
@@ -479,10 +455,8 @@ Index: pki/pki/base/silent/src/CMakeLists.txt
 +add_dependencies(pki-silent symkey pki-cmsutil pki-nsutil pki-certsrv pki-cms)
  install_jar(pki-silent ${JAVA_JAR_INSTALL_DIR}/pki)
  set(PKI_SILENT_JAR ${pki-silent_JAR_FILE} CACHE INTERNAL "pki-silent jar file")
-Index: pki/pki/base/tks/src/CMakeLists.txt
-===================================================================
---- pki.orig/pki/base/tks/src/CMakeLists.txt	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/base/tks/src/CMakeLists.txt	2012-03-17 08:29:58.997577103 +0200
+--- a/pki/base/tks/src/CMakeLists.txt
++++ b/pki/base/tks/src/CMakeLists.txt
 @@ -55,13 +55,6 @@
          ${JAVA_LIB_INSTALL_DIR}
  )
@@ -494,19 +468,19 @@ Index: pki/pki/base/tks/src/CMakeLists.txt
 -        ${JAVA_LIB_INSTALL_DIR}
 -)
 -
- find_file(SYMKEY_JAR
+ find_file(COMMONS_CODEC_JAR
      NAMES
-         symkey.jar
-@@ -81,7 +74,7 @@
+         commons-codec.jar
+@@ -88,7 +81,7 @@
      ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
      ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
      ${LDAPJDK_JAR}
--    ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR})
-+    ${JSS_JAR} ${SYMKEY_JAR})
+-    ${JSS_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
++    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
  
  
  # set version
-@@ -90,7 +83,7 @@
+@@ -97,7 +90,7 @@
  
  # build pki-tks.jar
  add_jar(pki-tks ${pki-tks_java_SRCS})
@@ -515,10 +489,8 @@ Index: pki/pki/base/tks/src/CMakeLists.txt
  install_jar(pki-tks ${JAVA_JAR_INSTALL_DIR}/pki)
  set(PKI_TKS_JAR ${pki-tks_JAR_FILE} CACHE INTERNAL "pki-tks jar file")
  
-Index: pki/pki/base/util/src/CMakeLists.txt
-===================================================================
---- pki.orig/pki/base/util/src/CMakeLists.txt	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/base/util/src/CMakeLists.txt	2012-03-17 08:32:19.073854844 +0200
+--- a/pki/base/util/src/CMakeLists.txt
++++ b/pki/base/util/src/CMakeLists.txt
 @@ -16,14 +16,6 @@
          /usr/share/java
  )
@@ -531,15 +503,15 @@ Index: pki/pki/base/util/src/CMakeLists.txt
 -        /usr/share/java
 -)
 -
- find_file(XALAN_JAR
+ find_file(COMMONS_CODEC_JAR
      NAMES
-         xalan-j2.jar
-@@ -331,21 +323,20 @@
+         commons-codec.jar
+@@ -338,21 +330,20 @@
  
  set(CMAKE_JAVA_INCLUDE_PATH
      ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
--    ${JSS_JAR} ${OSUTIL_JAR})
-+    ${JSS_JAR})
+-    ${JSS_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR})
++    ${JSS_JAR} ${COMMONS_CODEC_JAR})
  
  set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
  
@@ -558,11 +530,9 @@ Index: pki/pki/base/util/src/CMakeLists.txt
  install_jar(pki-cmsutil ${JAVA_JAR_INSTALL_DIR}/pki)
  set(PKI_CMSUTIL_JAR ${pki-cmsutil_JAR_FILE} CACHE INTERNAL "pki-cmsutil jar file")
  
-Index: pki/pki/scripts/prepare_dogtag_pki
-===================================================================
---- pki.orig/pki/scripts/prepare_dogtag_pki	2012-03-16 11:50:09.945185653 +0200
-+++ pki/pki/scripts/prepare_dogtag_pki	2012-03-17 08:33:32.532097951 +0200
-@@ -245,9 +245,6 @@
+--- a/pki/scripts/prepare_dogtag_pki
++++ b/pki/scripts/prepare_dogtag_pki
+@@ -246,9 +246,6 @@
  OPENLDAP_CLIENTS="openldap-clients"
  OPENLDAP_DEVEL="openldap-devel"
  
@@ -572,19 +542,17 @@ Index: pki/pki/scripts/prepare_dogtag_pki
  # Perl Modules
  PERL_CRYPT_SSLEAY="perl-Crypt-SSLeay"
  PERL_DBD_SQLITE="perl-DBD-SQLite"
-@@ -293,7 +290,7 @@
+@@ -294,7 +291,7 @@
  XML_COMMONS_RESOLVER="xml-commons-resolver"
  
  # Create a catch-all variable for PKI Support Packages
--PKI_SUPPORT_PACKAGES="${APR} ${APR_DEVEL} ${APR_UTIL} ${APR_UTIL_DEVEL} ${EXPAT} ${EXPAT_DEVEL} ${HTTPD} ${HTTPD_DEVEL} ${HTTPD_TOOLS} ${PCRE} ${PCRE_DEVEL} ${TOMCAT6} ${TOMCAT6_LIB} ${APACHE_COMMONS_LANG} ${APACHE_COMMONS_LANG} ${APACHE_COMMONS_LOGGING} ${JAKARTA_COMMONS_COLLECTIONS} ${JAKARTA_COMMONS_DBCP} ${JAKARTA_COMMONS_POOL} ${NSPR} ${NSPR_DEVEL} ${NSS} ${NSS_DEVEL} ${NSS_TOOLS} ${JSS} ${JSS_JAVADOC} ${TOMCATJSS} ${MOD_NSS} ${MOD_PERL} ${MOD_REVOCATOR} ${IDM_CONSOLE_FRAMEWORK} ${CYRUS_SASL} ${CYRUS_SASL_DEVEL} ${LDAPJDK} ${OPENLDAP} ${OPENLDAP_CLIENTS} ${OPENLDAP_DEVEL} ${OSUTIL} ${PERL_CRYPT_SSLEAY} ${PERL_DBD_SQLITE} ${PERL_DBI} ${PERL_HTML_PARSER} ${PERL_HTML_TAGSET} ${PERL_LIBWWW_PERL} ${PERL_MOZILLA_LDAP} ${PERL_PARSE_RECDESCENT} ${PERL_URI} ${PERL_XML_NAMESPACESUPPORT} ${PERL_XML_PARSER} ${PERL_XML_SAX} ${PERL_XML_SIMPLE} ${ESC} ${SVRCORE} ${SVRCORE_DEVEL} ${POLICYCOREUTILS} ${SELINUX_POLICY_DEVEL} ${SELINUX_POLICY_TARGETED} ${SQLITE} ${SQLITE_DEVEL} ${VELOCITY} ${BCEL} ${JAKARTA_ORO} ${JDOM} ${LOG4J} ${REGEXP} ${WERKEN_XPATH} ${XALAN_J2} ${XERCES_J2} ${XML_COMMONS_APIS} ${XML_COMMONS_RESOLVER}"
-+PKI_SUPPORT_PACKAGES="${APR} ${APR_DEVEL} ${APR_UTIL} ${APR_UTIL_DEVEL} ${EXPAT} ${EXPAT_DEVEL} ${HTTPD} ${HTTPD_DEVEL} ${HTTPD_TOOLS} ${PCRE} ${PCRE_DEVEL} ${TOMCAT6} ${TOMCAT6_LIB} ${APACHE_COMMONS_LANG} ${APACHE_COMMONS_LANG} ${APACHE_COMMONS_LOGGING} ${JAKARTA_COMMONS_COLLECTIONS} ${JAKARTA_COMMONS_DBCP} ${JAKARTA_COMMONS_POOL} ${NSPR} ${NSPR_DEVEL} ${NSS} ${NSS_DEVEL} ${NSS_TOOLS} ${JSS} ${JSS_JAVADOC} ${TOMCATJSS} ${MOD_NSS} ${MOD_PERL} ${MOD_REVOCATOR} ${IDM_CONSOLE_FRAMEWORK} ${CYRUS_SASL} ${CYRUS_SASL_DEVEL} ${LDAPJDK} ${OPENLDAP} ${OPENLDAP_CLIENTS} ${OPENLDAP_DEVEL} ${PERL_CRYPT_SSLEAY} ${PERL_DBD_SQLITE} ${PERL_DBI} ${PERL_HTML_PARSER} ${PERL_HTML_TAGSET} ${PERL_LIBWWW_PERL} ${PERL_MOZILLA_LDAP} ${PERL_PARSE_RECDESCENT} ${PERL_URI} ${PERL_XML_NAMESPACESUPPORT} ${PERL_XML_PARSER} ${PERL_XML_SAX} ${PERL_XML_SIMPLE} ${ESC} ${SVRCORE} ${SVRCORE_DEVEL} ${POLICYCOREUTILS} ${SELINUX_POLICY_DEVEL} ${SELINUX_POLICY_TARGETED} ${SQLITE} ${SQLITE_DEVEL} ${VELOCITY} ${BCEL} ${JAKARTA_ORO} ${JDOM} ${LOG4J} ${REGEXP} ${WERKEN_XPATH} ${XALAN_J2} ${XERCES_J2} ${XML_COMMONS_APIS} ${XML_COMMONS_RESOLVER}"
+-PKI_SUPPORT_PACKAGES="${APR} ${APR_DEVEL} ${APR_UTIL} ${APR_UTIL_DEVEL} ${EXPAT} ${EXPAT_DEVEL} ${HTTPD} ${HTTPD_DEVEL} ${HTTPD_TOOLS} ${PCRE} ${PCRE_DEVEL} ${TOMCAT6} ${TOMCAT6_LIB} ${APACHE_COMMONS_LANG} ${APACHE_COMMONS_LANG} ${APACHE_COMMONS_LOGGING} ${APACHE_COMMONS_CODEC} ${JAKARTA_COMMONS_COLLECTIONS} ${JAKARTA_COMMONS_DBCP} ${JAKARTA_COMMONS_POOL} ${NSPR} ${NSPR_DEVEL} ${NSS} ${NSS_DEVEL} ${NSS_TOOLS} ${JSS} ${JSS_JAVADOC} ${TOMCATJSS} ${MOD_NSS} ${MOD_PERL} ${MOD_REVOCATOR} ${IDM_CONSOLE_FRAMEWORK} ${CYRUS_SASL} ${CYRUS_SASL_DEVEL} ${LDAPJDK} ${OPENLDAP} ${OPENLDAP_CLIENTS} ${OPENLDAP_DEVEL} ${OSUTIL} ${PERL_CRYPT_SSLEAY} ${PERL_DBD_SQLITE} ${PERL_DBI} ${PERL_HTML_PARSER} ${PERL_HTML_TAGSET} ${PERL_LIBWWW_PERL} ${PERL_MOZILLA_LDAP} ${PERL_PARSE_RECDESCENT} ${PERL_URI} ${PERL_XML_NAMESPACESUPPORT} ${PERL_XML_PARSER} ${PERL_XML_SAX} ${PERL_XML_SIMPLE} ${ESC} ${SVRCORE} ${SVRCORE_DEVEL} ${POLICYCOREUTILS} ${SELINUX_POLICY_DEVEL} ${SELINUX_POLICY_TARGETED} ${SQLITE} ${SQLITE_DEVEL} ${VELOCITY} ${BCEL} ${JAKARTA_ORO} ${JDOM} ${LOG4J} ${REGEXP} ${WERKEN_XPATH} ${XALAN_J2} ${XERCES_J2} ${XML_COMMONS_APIS} ${XML_COMMONS_RESOLVER}"
++PKI_SUPPORT_PACKAGES="${APR} ${APR_DEVEL} ${APR_UTIL} ${APR_UTIL_DEVEL} ${EXPAT} ${EXPAT_DEVEL} ${HTTPD} ${HTTPD_DEVEL} ${HTTPD_TOOLS} ${PCRE} ${PCRE_DEVEL} ${TOMCAT6} ${TOMCAT6_LIB} ${APACHE_COMMONS_LANG} ${APACHE_COMMONS_LANG} ${APACHE_COMMONS_LOGGING} ${APACHE_COMMONS_CODEC} ${JAKARTA_COMMONS_COLLECTIONS} ${JAKARTA_COMMONS_DBCP} ${JAKARTA_COMMONS_POOL} ${NSPR} ${NSPR_DEVEL} ${NSS} ${NSS_DEVEL} ${NSS_TOOLS} ${JSS} ${JSS_JAVADOC} ${TOMCATJSS} ${MOD_NSS} ${MOD_PERL} ${MOD_REVOCATOR} ${IDM_CONSOLE_FRAMEWORK} ${CYRUS_SASL} ${CYRUS_SASL_DEVEL} ${LDAPJDK} ${OPENLDAP} ${OPENLDAP_CLIENTS} ${OPENLDAP_DEVEL} ${PERL_CRYPT_SSLEAY} ${PERL_DBD_SQLITE} ${PERL_DBI} ${PERL_HTML_PARSER} ${PERL_HTML_TAGSET} ${PERL_LIBWWW_PERL} ${PERL_MOZILLA_LDAP} ${PERL_PARSE_RECDESCENT} ${PERL_URI} ${PERL_XML_NAMESPACESUPPORT} ${PERL_XML_PARSER} ${PERL_XML_SAX} ${PERL_XML_SIMPLE} ${ESC} ${SVRCORE} ${SVRCORE_DEVEL} ${POLICYCOREUTILS} ${SELINUX_POLICY_DEVEL} ${SELINUX_POLICY_TARGETED} ${SQLITE} ${SQLITE_DEVEL} ${VELOCITY} ${BCEL} ${JAKARTA_ORO} ${JDOM} ${LOG4J} ${REGEXP} ${WERKEN_XPATH} ${XALAN_J2} ${XERCES_J2} ${XML_COMMONS_APIS} ${XML_COMMONS_RESOLVER}"
  
  ###########################################
  # Establish PKI Installation Dependencies #
-Index: pki/pki/scripts/remove_pki_components
-===================================================================
---- pki.orig/pki/scripts/remove_pki_components	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/scripts/remove_pki_components	2012-03-17 08:10:14.157433823 +0200
+--- a/pki/scripts/remove_pki_components
++++ b/pki/scripts/remove_pki_components
 @@ -108,14 +108,7 @@
      # (1) grab all PKI components
      PKI_COMPONENTS=`rpm -qa --queryformat '%{NAME}\n' | grep pki`
@@ -601,43 +569,9 @@ Index: pki/pki/scripts/remove_pki_components
      `rpm -q --quiet symkey`
      SYMKEY_PRESENCE=$?
      if [ "${SYMKEY_PRESENCE}" = "0" ] ; then
-Index: pki/pki/specs/dogtag-pki.spec
-===================================================================
---- pki.orig/pki/specs/dogtag-pki.spec	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/specs/dogtag-pki.spec	2012-03-17 08:35:08.935041478 +0200
-@@ -14,7 +14,6 @@
- %define dogtag_pki_theme_version   9.0.9
- %define esc_version                1.1.0
- %define jss_version                4.2.6-21
--%define osutil_version             2.0.2
- %define pki_core_version           9.0.16
- %define pki_kra_version            9.0.9
- %define pki_ocsp_version           9.0.8
-@@ -28,7 +27,6 @@
- %define dogtag_pki_theme_version   9.0.9
- %define esc_version                1.1.0
- %define jss_version                4.2.6-19.1
--%define osutil_version             2.0.2
- %define pki_core_version           9.0.15
- %define pki_kra_version            9.0.8
- %define pki_ocsp_version           9.0.7
-@@ -42,7 +40,6 @@
- %define dogtag_pki_theme_version   9.0.0
- %define esc_version                1.1.0
- %define jss_version                4.2.6-17
--%define osutil_version             2.0.1
- %define pki_core_version           9.0.0
- %define pki_kra_version            9.0.0
- %define pki_ocsp_version           9.0.0
-@@ -55,7 +52,6 @@
- %define dogtag_pki_theme_version   9.0.0
- %define esc_version                1.1.0
- %define jss_version                4.2.6-17
--%define osutil_version             2.0.0
- %define pki_core_version           9.0.0
- %define pki_kra_version            9.0.0
- %define pki_ocsp_version           9.0.0
-@@ -71,7 +67,6 @@
+--- a/pki/specs/dogtag-pki.spec
++++ b/pki/specs/dogtag-pki.spec
+@@ -73,7 +73,6 @@
  # Make certain that this 'meta' package requires the latest version(s)
  # of ALL top-level Dogtag PKI support packages
  Requires:         jss >= %{jss_version}
@@ -645,31 +579,9 @@ Index: pki/pki/specs/dogtag-pki.spec
  Requires:         tomcatjss >= %{tomcatjss_version}
  
  # Make certain that this 'meta' package requires the latest version(s)
-Index: pki/pki/specs/pki-core.spec
-===================================================================
---- pki.orig/pki/specs/pki-core.spec	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/specs/pki-core.spec	2012-03-17 08:35:46.616191958 +0200
-@@ -29,19 +29,16 @@
- %if 0%{?fedora} >= 16
- BuildRequires:    jpackage-utils >= 0:1.7.5-10
- BuildRequires:    jss >= 4.2.6-19.1
--BuildRequires:    osutil >= 2.0.2
- BuildRequires:    systemd-units
- BuildRequires:    tomcatjss >= 6.0.2
- %else
- %if 0%{?fedora} >= 15
- BuildRequires:    jpackage-utils
- BuildRequires:    jss >= 4.2.6-17
--BuildRequires:    osutil >= 2.0.1
- BuildRequires:    tomcatjss >= 6.0.0
- %else
- BuildRequires:    jpackage-utils
- BuildRequires:    jss >= 4.2.6-17
--BuildRequires:    osutil
- BuildRequires:    tomcatjss >= 2.0.0
- %endif
- %endif
-@@ -183,16 +180,13 @@
+--- a/pki/specs/pki-core.spec
++++ b/pki/specs/pki-core.spec
+@@ -190,16 +190,13 @@
  %if 0%{?fedora} >= 16
  Requires:         jpackage-utils >= 0:1.7.5-10
  Requires:         jss >= 4.2.6-19.1
@@ -686,15 +598,45 @@ Index: pki/pki/specs/pki-core.spec
  %endif
  %endif
  
-Index: pki/pki/tools/jar/README.jar-tools
-===================================================================
---- pki.orig/pki/tools/jar/README.jar-tools	2012-03-16 11:50:09.000000000 +0200
-+++ pki/pki/tools/jar/README.jar-tools	2012-03-17 08:36:38.169766144 +0200
-@@ -227,7 +227,6 @@
+--- a/pki/tools/jar/README.jar-tools
++++ b/pki/tools/jar/README.jar-tools
+@@ -225,9 +225,8 @@
+ The summary is listed below:
+ 
  Summary:
- 21 Unique Jar's
+-22 Unique Jar's
++21 Unique Jar's
       /usr/lib/jss/jss4-4.2.6.jar
 -     /usr/lib/osutil/osutil-2.0.0.jar
+      /usr/share/java/commons-codec.jar
       /usr/lib/symkey/symkey-9.0.0.jar
       /usr/share/java/jakarta-taglibs-core-1.1.1.jar
-      /usr/share/java/ldapbeans-4.18.jar
+@@ -248,11 +247,10 @@
+      /usr/share/java/xerces-j2-2.9.0.jar
+      /usr/share/java/xml-commons-apis-1.4.01.jar
+      /usr/share/java/xml-commons-apis-ext-1.4.01.jar
+-16 Unique RPM's
++15 Unique RPM's
+      jakarta-taglibs-standard
+      jss
+      ldapjdk
+-     osutil
+      apache-commons-codec
+      pki-common
+      pki-console
+@@ -266,13 +264,13 @@
+      xerces-j2
+      xml-commons-apis
+ 
+-What this is telling us is that there are 22 jars which provide all
++What this is telling us is that there are 21 jars which provide all
+ the classes needed to satisfy the import statements. However there may
+ be some duplicates in the list. Also because of wildcard import
+ statements some classes and hence jars may have been included which
+ are not actually utilized in the code.
+ 
+-Those 22 jars are provided by the 16 RPM's listed. Once again there
++Those 21 jars are provided by the 15 RPM's listed. Once again there
+ may be some class duplication and/or unnecessary RPM's due to
+ wildcarding. But this gives a very small manageable list to manually
+ pick through and make our choices. For example, one thing we can
