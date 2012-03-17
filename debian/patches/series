@@ -1,7 +1,3 @@
-renamed-utils.diff
-consolidate-btoa.diff
-replace-btoa.diff
-remove-os-subsystem.diff
-remove-dep-on-osutil.diff
+get-rid-of-osutil.diff
 fix-include-paths.diff
 debian-support.diff
