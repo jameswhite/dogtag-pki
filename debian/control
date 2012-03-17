@@ -18,7 +18,6 @@ Build-Depends: debhelper (>= 8.0.0), pkg-config,
  libtomcatjss-java (>= 6.0.0),
  libxalan2-java,
  libxerces2-java,
- libosutil-java,
  policycoreutils,
  selinux-policy-dev,
  velocity,
@@ -32,7 +31,6 @@ Package: dogtag-pki
 Architecture: all
 Depends: ${misc:Depends},
  libjss-java,
- libosutil-java,
  libtomcatjss-java,
  pki-ca,
  pki-common,
@@ -106,7 +104,6 @@ Architecture: all
 Depends: ${java:Depends}, ${misc:Depends},
  libjss-java,
  libldap-java,
- libosutil-java,
 Suggests: libpki-util-java-doc (= ${binary:Version})
 Description: Certificate System - PKI Utility Framework - Java bindings
  The PKI Utility Framework is required by the following four PKI subsystems:

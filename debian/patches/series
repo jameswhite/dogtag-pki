@@ -1,2 +1,4 @@
+remove-os-subsystem.diff
+remove-dep-on-osutil.diff
 fix-include-paths.diff
 debian-support.diff
