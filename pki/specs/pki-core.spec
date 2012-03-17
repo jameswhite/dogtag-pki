@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.16
+Version:          9.0.18
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -47,6 +47,9 @@ BuildRequires:    tomcatjss >= 2.0.0
 %endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
+
+Patch0:	          %{name}-selinux-Dogtag-9-f16.patch
+Patch1:	          %{name}-selinux-Dogtag-9-f17.patch
 
 %if 0%{?rhel}
 ExcludeArch:      ppc ppc64 s390 s390x
@@ -116,6 +119,8 @@ Group:            System Environment/Base
 
 BuildArch:        noarch
 
+Requires:         perl(File::Slurp)
+Requires:         perl(XML::LibXML)
 Requires:         perl-Crypt-SSLeay
 Requires:         policycoreutils
 Requires:         openldap-clients
@@ -439,6 +444,15 @@ This package is a part of the PKI Core used by the Certificate System.
 %setup -q
 
 
+%if 0%{?fedora} >= 17
+%patch0 -p2 -b .f17
+%else
+%if 0%{?fedora} >= 16
+%patch0 -p2 -b .f16
+%endif
+%endif
+
+
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -446,7 +460,7 @@ This package is a part of the PKI Core used by the Certificate System.
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_CORE:BOOL=ON -DJAVA_LIB_INSTALL_DIR=%{_jnidir} ..
+%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_CORE:BOOL=ON -DJAVA_LIB_INSTALL_DIR=%{_jnidir} -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} ..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -721,6 +735,81 @@ fi
 
 
 %changelog
+* Fri Mar  9 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.18-1
+- Bugzilla Bug #796006 - Get DOGTAG_9_BRANCH GIT repository in-sync
+  with DOGTAG_9_BRANCH SVN repository . . .
+- 'pki-setup'
+- 'pki-symkey'
+- 'pki-native-tools'
+- 'pki-util'
+-      Bugzilla Bug #784387 - Configuration wizard does not provide option
+       to issue ECC credentials for admin during ECC CA configuration.
+- 'pki-java-tools'
+- 'pki-common'
+-      Bugzilla Bug #768138 - Make sure that paging works correctly in CA
+       and DRM
+-      Bugzilla Bug #771768 - "Agent-Authenticated File Signing" alters
+       file digest for "logo_header.gif"
+-      Bugzilla Bug #703608 - Enrollment Profile template Javascript code
+       problem for handling non-dual ECC
+-      Bugzilla Bug #223358 - new profile for ECC key generation
+-      Bugzilla Bug #787806 - RSA should be default selection for transport
+       key till "ECC phase 4" is implemented
+- 'pki-selinux'
+- 'pki-ca'
+-      Bugzilla Bug #703608 - Enrollment Profile template Javascript code
+       problem for handling non-dual ECC
+-      Bugzilla Bug #223358 - new profile for ECC key generation
+-      Bugzilla Bug #787806 - RSA should be default selection for transport
+       key till "ECC phase 4" is implemented
+- 'pki-silent'
+-      Bugzilla Bug #801840 - pki_silent.template missing opening brace for
+       ca_external variable
+
+* Fri Mar  2 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.17-4
+- For 'mock' purposes, removed platform-specific logic from around
+  the 'patch' files so that ALL 'patch' files will be included in
+  the SRPM.
+
+* Tue Feb 28 2012 Ade Lee <alee@redhat.com> 9.0.17-3
+- 'pki-selinux'
+-      Added platform-dependent patches for SELinux component
+-      Bugzilla Bug #739708 - Selinux fix for ephemeral ports (F16)
+-      Bugzilla Bug #795966 - pki-selinux policy is kind of a mess (F17)
+
+* Wed Feb 22 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.17-2
+- Add '-DSYSTEMD_LIB_INSTALL_DIR' override flag to 'cmake' to address changes
+  in fundamental path structure in Fedora 17
+- 'pki-setup'
+-      Hard-code Perl dependencies to protect against bugs such as
+       Bugzilla Bug #772699 - Adapt perl and python fileattrs to
+       changed file 5.10 magics
+- 'pki-selinux'
+-      Bugzilla Bug #795966 - pki-selinux policy is kind of a mess
+
+* Thu Jan  5 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.17-1
+- 'pki-setup'
+- 'pki-symkey'
+- 'pki-native-tools'
+-      Bugzilla Bug #771357 - sslget does not work after FEDORA-2011-17400
+       update, breaking FreeIPA install
+- 'pki-util'
+- 'pki-java-tools'
+-      Bugzilla Bug #757848 - DRM re-key tool: introduces a blank line in the
+       middle of an ldif entry.
+- 'pki-common'
+-      Bugzilla Bug #747019 - Migrated policy requests from 7.1->8.1 displays
+       issuedcerts and cert_Info params as base 64 blobs.
+-      Bugzilla Bug #756133 - Some DRM components are not referring properly
+       to DRM's request and key records.
+-      Bugzilla Bug #758505 - DRM's request list breaks after migration of
+       request records with big IDs.
+-      Bugzilla Bug #768138 - Make sure that paging works correctly in CA and
+       DRM
+- 'pki-selinux'
+- 'pki-ca'
+- 'pki-silent'
+
 * Fri Oct 28 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.16-1
 - 'pki-setup'
 - 'pki-symkey'
