@@ -131,4 +131,4 @@ override_dh_installinit:
 	dh_installinit -ppki-tps --name=pki-tpsd --error-handler=invoke_failure
 
 %:
-	dh $@ --with javahelper --builddirectory=build/
+	dh $@ --with javahelper,quilt --builddirectory=build/
