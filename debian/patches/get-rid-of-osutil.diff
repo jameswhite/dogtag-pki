@@ -267,15 +267,16 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
 +}
 --- a/pki/base/common/src/com/netscape/cms/servlet/base/CMSServlet.java
 +++ b/pki/base/common/src/com/netscape/cms/servlet/base/CMSServlet.java
-@@ -19,6 +19,7 @@
+@@ -19,6 +19,8 @@
  
  import com.netscape.cms.servlet.common.*;
  import com.netscape.cms.servlet.common.AuthCredentials;
++import com.netscape.cms.servlet.common.ServletUtils;
 +import com.netscape.cmsutil.util.Utils;
  import com.netscape.cmsutil.xml.*;
  import com.netscape.certsrv.base.SessionContext;
  import java.io.*;
-@@ -285,7 +286,7 @@
+@@ -285,7 +287,7 @@
          mId = sc.getInitParameter(PROP_ID);
  
          try {
@@ -284,7 +285,7 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          } catch (ServletException e) {
              log(ILogger.LL_FAILURE, e.toString());
              throw e;
-@@ -1578,7 +1579,7 @@
+@@ -1578,7 +1580,7 @@
      protected String hashPassword(String pwd) {
          String salt = generateSalt();
          byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
@@ -404,7 +405,15 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
 +}
 --- a/pki/base/common/src/com/netscape/cms/servlet/profile/ProfileServlet.java
 +++ b/pki/base/common/src/com/netscape/cms/servlet/profile/ProfileServlet.java
-@@ -177,7 +177,7 @@
+@@ -19,6 +19,7 @@
+ 
+ 
+ import com.netscape.cms.servlet.common.*;
++import com.netscape.cms.servlet.common.ServletUtils;
+ import com.netscape.cms.servlet.base.*;
+ 
+ import java.util.*;
+@@ -177,7 +178,7 @@
          mId = sc.getInitParameter(PROP_ID);
  
          try {
@@ -1034,7 +1043,15 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
              StringBuffer sb = new StringBuffer();
 --- a/pki/base/common/src/com/netscape/cms/servlet/profile/ProfileSubmitServlet.java
 +++ b/pki/base/common/src/com/netscape/cms/servlet/profile/ProfileSubmitServlet.java
-@@ -1566,7 +1566,7 @@
+@@ -41,6 +41,7 @@
+ import com.netscape.cms.servlet.common.AuthCredentials;
+ import com.netscape.cmsutil.xml.*;
+ import com.netscape.cmsutil.util.*;
++import com.netscape.cmsutil.util.Utils;
+ import org.w3c.dom.*;
+ import netscape.security.x509.*;
+ 
+@@ -1566,7 +1567,7 @@
          if (rawData != null) {
              String base64Data = null;
  
@@ -2904,14 +2921,16 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  set(PKI_SILENT_JAR ${pki-silent_JAR_FILE} CACHE INTERNAL "pki-silent jar file")
 --- a/pki/base/silent/src/ca/ConfigureCA.java
 +++ b/pki/base/silent/src/ca/ConfigureCA.java
-@@ -45,7 +45,6 @@
+@@ -45,8 +45,7 @@
  import com.netscape.cmsutil.ocsp.*;
  import com.netscape.cmsutil.ocsp.Request;
  
 -import com.netscape.osutil.OSUtil;
- 
+-
++import com.netscape.cmsutil.util.Utils;
  
  public class ConfigureCA {
+ 
 @@ -1061,7 +1060,7 @@
                  // Convert a byte array to base64 string
                  // cert_to_import = new sun.misc.BASE64Encoder().encode(
@@ -3088,16 +3107,16 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  		catch (Exception e)
 --- a/pki/base/silent/src/subca/ConfigureSubCA.java
 +++ b/pki/base/silent/src/subca/ConfigureSubCA.java
-@@ -42,8 +42,6 @@
+@@ -42,7 +42,7 @@
  import com.netscape.cmsutil.ocsp.*;
  import com.netscape.cmsutil.ocsp.Request;
  
 -import com.netscape.osutil.OSUtil;
--
++import com.netscape.cmsutil.util.Utils;
+ 
  public class ConfigureSubCA
  {
- 
-@@ -777,7 +775,7 @@
+@@ -777,7 +777,7 @@
          // String cert_to_import = 
          //         new sun.misc.BASE64Encoder().encode(hr.getResponseData());
          String cert_to_import = 
