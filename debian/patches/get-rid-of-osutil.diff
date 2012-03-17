@@ -2297,7 +2297,15 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                          // Unformat the ASCII BASE 64 certificate
 --- a/pki/base/java-tools/src/com/netscape/cmstools/ExtJoiner.java
 +++ b/pki/base/java-tools/src/com/netscape/cmstools/ExtJoiner.java
-@@ -81,7 +81,7 @@
+@@ -23,6 +23,7 @@
+ import netscape.security.x509.*;
+ import netscape.security.util.*;
+ 
++import com.netscape.cmsutil.util.Utils;
+ 
+ /**
+  * This program joins a sequence of extensions together 
+@@ -81,7 +82,7 @@
              DerOutputStream out = new DerOutputStream();
  
              out.putSequence(exts);
@@ -2306,7 +2314,7 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          } catch (IOException e) {
              System.out.println(e.toString());
          }
-@@ -97,6 +97,6 @@
+@@ -97,6 +98,6 @@
          } finally {
              fis.close();
          }
