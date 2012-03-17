@@ -1,17 +1,19 @@
-pki (9.0-0ubuntu0.4) precise; urgency=low
-
-  * Merge from debian git.
-
- -- Timo Aaltonen <tjaalton@ubuntu.com>  Fri, 16 Mar 2012 23:04:49 +0200
-
-pki (9.0-0ubuntu0.3) precise; urgency=low
-
-  * Merge from debian git.
-
- -- Timo Aaltonen <tjaalton@ubuntu.com>  Mon, 20 Feb 2012 02:11:29 +0200
-
-pki (9.0-1) UNRELEASED; urgency=low
+pki (9.0+git20120312-1) UNRELEASED; urgency=low
 
   * Initial release (Closes: #653606)
+  * Snapshot from the stable DOGTAG_9_BRANCH, includes these subsystem
+    versions:
+    - dogtag-pki-theme 9.0.11
+    - ipa-pki-theme 9.0.5
+    - pki-console 9.0.5
+    - pki-core 9.0.18
+    - pki-kra 9.0.10
+    - pki-migrate 9.0.2
+    - pki-ocsp 9.0.9
+    - pki-ra 9.0.4
+    - pki-tks 9.0.9
+    - pki-tps 9.0.7
+  * get-rid-of-osutil.diff: Backported patches from upstream in order
+    to not need libosutil-java.
 
  -- Timo Aaltonen <tjaalton@ubuntu.com>  Tue, 27 Dec 2011 01:10:12 +0200

@@ -110,7 +110,7 @@
  
  my $conf_base_name                = "conf";                   # CA, KRA, OCSP, TKS,
  my $catalina_properties_base_name = "catalina.properties";    # CA, KRA, OCSP, TKS
-@@ -596,7 +596,7 @@
+@@ -588,7 +588,7 @@
      }
  
      # Tomcat instance config directory
@@ -119,7 +119,7 @@
  
      # Superuser and group to give to PKI installed files
      $root_user = "root";
-@@ -3316,7 +3316,7 @@
+@@ -3295,7 +3295,7 @@
              "/bin/systemctl restart $pki_instance_systemd_service_name";
      } else {
          $pki_registry_initscript_command = 

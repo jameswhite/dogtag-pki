@@ -1,8 +1,6 @@
-diff --git a/pki/base/tps/src/engine/RA.cpp b/pki/base/tps/src/engine/RA.cpp
-index 862b9e1..2b503b0 100644
 --- a/pki/base/tps/src/engine/RA.cpp
 +++ b/pki/base/tps/src/engine/RA.cpp
-@@ -29,7 +29,7 @@ extern "C"
+@@ -29,7 +29,7 @@
  #include <string.h>
  #include <unistd.h>
  
@@ -11,24 +9,21 @@ index 862b9e1..2b503b0 100644
  #include "prmem.h"
  #include "prsystem.h"
  #include "plstr.h"
-diff --git a/pki/base/tps/src/modules/tokendb/mod_tokendb.cpp b/pki/base/tps/src/modules/tokendb/mod_tokendb.cpp
-index 3e411c9..46a6f67 100644
 --- a/pki/base/tps/src/modules/tokendb/mod_tokendb.cpp
 +++ b/pki/base/tps/src/modules/tokendb/mod_tokendb.cpp
-@@ -55,14 +55,14 @@ extern "C"
+@@ -55,14 +55,14 @@
  #include "prthread.h"
  #include "cert.h"
  #include "regex.h"
 -#include "nss3/base64.h"
--
++#include "nss/base64.h"
+ 
 -#include "httpd/httpd.h"
 -#include "httpd/http_config.h"
 -#include "httpd/http_log.h"
 -#include "httpd/http_protocol.h"
 -#include "httpd/http_main.h"
 -#include "httpd/http_request.h"
-+#include "nss/base64.h"
-+
 +#include "apache2/httpd.h"
 +#include "apache2/http_config.h"
 +#include "apache2/http_log.h"
@@ -38,11 +33,9 @@ index 3e411c9..46a6f67 100644
  
  #include "apr_strings.h"
  
-diff --git a/pki/base/tps/src/modules/tps/AP_Context.cpp b/pki/base/tps/src/modules/tps/AP_Context.cpp
-index cde3142..1bd9074 100644
 --- a/pki/base/tps/src/modules/tps/AP_Context.cpp
 +++ b/pki/base/tps/src/modules/tps/AP_Context.cpp
-@@ -23,8 +23,8 @@ extern "C"
+@@ -23,8 +23,8 @@
  {
  #endif
  
@@ -53,11 +46,9 @@ index cde3142..1bd9074 100644
  #include "nspr.h"
  
  #include "modules/tps/AP_Context.h"
-diff --git a/pki/base/tps/src/modules/tps/AP_Session.cpp b/pki/base/tps/src/modules/tps/AP_Session.cpp
-index 36f4553..1749c6c 100644
 --- a/pki/base/tps/src/modules/tps/AP_Session.cpp
 +++ b/pki/base/tps/src/modules/tps/AP_Session.cpp
-@@ -27,8 +27,8 @@ extern "C"
+@@ -27,8 +27,8 @@
  #include <stdlib.h>
  #include <stdarg.h>
  #include "nspr.h"
@@ -68,11 +59,9 @@ index 36f4553..1749c6c 100644
  
  #include "engine/RA.h"
  #include "main/Util.h"
-diff --git a/pki/base/tps/src/modules/tps/mod_tps.cpp b/pki/base/tps/src/modules/tps/mod_tps.cpp
-index dc6cc95..393a0b3 100644
 --- a/pki/base/tps/src/modules/tps/mod_tps.cpp
 +++ b/pki/base/tps/src/modules/tps/mod_tps.cpp
-@@ -41,11 +41,11 @@ extern "C"
+@@ -41,11 +41,11 @@
  #include <unistd.h>
  #include "nspr.h"
  
@@ -89,8 +78,6 @@ index dc6cc95..393a0b3 100644
  
  #include "apr_strings.h"
  
-diff --git a/pki/base/tps/stubs/modules/nss/mod_nss_stub.c b/pki/base/tps/stubs/modules/nss/mod_nss_stub.c
-index b47fa0e..68f811e 100644
 --- a/pki/base/tps/stubs/modules/nss/mod_nss_stub.c
 +++ b/pki/base/tps/stubs/modules/nss/mod_nss_stub.c
 @@ -35,12 +35,12 @@

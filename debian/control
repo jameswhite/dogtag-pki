@@ -2,11 +2,12 @@ Source: pki
 Section: java
 Priority: extra
 Maintainer: Timo Aaltonen <tjaalton@ubuntu.com>
-Build-Depends: debhelper (>= 8.0.0), pkg-config,
+Build-Depends: debhelper (>= 8.0.0), pkg-config, quilt,
  cmake,
  javahelper,
  default-jdk,
  libapr1-dev,
+ libcommons-codec-java,
  libidm-console-framework-java,
  libjss-java,
  libldap2-dev,
@@ -18,12 +19,11 @@ Build-Depends: debhelper (>= 8.0.0), pkg-config,
  libtomcatjss-java (>= 6.0.0),
  libxalan2-java,
  libxerces2-java,
- libosutil-java,
  policycoreutils,
  selinux-policy-dev,
  velocity,
  apache2-threaded-dev,
-Standards-Version: 3.9.2
+Standards-Version: 3.9.3
 Homepage: http://pki.fedoraproject.org
 Vcs-Git: git://git.debian.org/collab-maint/pki-core.git
 Vcs-Browser: http://git.debian.org/?p=collab-maint/pki-core.git;a=summary
@@ -32,7 +32,6 @@ Package: dogtag-pki
 Architecture: all
 Depends: ${misc:Depends},
  libjss-java,
- libosutil-java,
  libtomcatjss-java,
  pki-ca,
  pki-common,
@@ -106,7 +105,6 @@ Architecture: all
 Depends: ${java:Depends}, ${misc:Depends},
  libjss-java,
  libldap-java,
- libosutil-java,
 Suggests: libpki-util-java-doc (= ${binary:Version})
 Description: Certificate System - PKI Utility Framework - Java bindings
  The PKI Utility Framework is required by the following four PKI subsystems:
@@ -168,6 +166,7 @@ Depends: ${java:Depends}, ${misc:Depends},
  pki-common-theme,
  pki-java-tools (= ${binary:Version}),
  pki-setup (= ${binary:Version}),
+ libcommons-codec-java,
  libcommons-lang-java,
  libcommons-logging-java,
  libjss-java,
