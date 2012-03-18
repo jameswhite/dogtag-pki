@@ -1,7 +1,8 @@
 Source: pki
 Section: java
 Priority: extra
-Maintainer: Timo Aaltonen <tjaalton@ubuntu.com>
+Maintainer: Debian FreeIPA Team <pkg-freeipa-devel@lists.alioth.debian.org>
+Uploaders: Timo Aaltonen <tjaalton@ubuntu.com>
 Build-Depends: debhelper (>= 8.0.0), pkg-config, quilt,
  cmake,
  javahelper,
@@ -25,8 +26,8 @@ Build-Depends: debhelper (>= 8.0.0), pkg-config, quilt,
  apache2-threaded-dev,
 Standards-Version: 3.9.3
 Homepage: http://pki.fedoraproject.org
-Vcs-Git: git://git.debian.org/collab-maint/pki-core.git
-Vcs-Browser: http://git.debian.org/?p=collab-maint/pki-core.git;a=summary
+Vcs-Git: git://git.debian.org/pkg-freeipa/pki-core.git
+Vcs-Browser: http://git.debian.org/?p=pkg-freeipa/pki-core.git;a=summary
 
 Package: dogtag-pki
 Architecture: all
