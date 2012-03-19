@@ -1,7 +1,8 @@
 Source: pki
 Section: java
 Priority: extra
-Maintainer: Debian FreeIPA Team <pkg-freeipa-devel@lists.alioth.debian.org>
+Maintainer: Ubuntu FreeIPA <freeipa@lists.launchpad.net>
+XSBC-Original-Maintainer: Debian FreeIPA Team <pkg-freeipa-devel@lists.alioth.debian.org>
 Uploaders: Timo Aaltonen <tjaalton@ubuntu.com>
 Build-Depends: debhelper (>= 8.0.0), pkg-config, quilt,
  cmake,
