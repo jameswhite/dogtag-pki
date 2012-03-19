@@ -115,7 +115,7 @@
  
      # Tomcat instance config directory
 -    $tomcat6_instance_config_path = "/etc/sysconfig";
-+    $tomcat6_instance_config_path = "/etc/dogtag";
++    $tomcat6_instance_config_path = "/etc/default";
  
      # Superuser and group to give to PKI installed files
      $root_user = "root";
