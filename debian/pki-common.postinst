@@ -9,8 +9,8 @@ if [ "$1" = configure ]; then
     # lets give them a user/group in all cases.
     if ! getent passwd pkiuser  > $OUT; then
         adduser --quiet --system --home /var/lib \
-            --disabled-password --group \
-            --gecos "CA System User" \
+            --shell /usr/sbin/nologin --group \
+            --no-create-home --gecos "CA System User" \
             pkiuser > $OUT
     fi
 fi
