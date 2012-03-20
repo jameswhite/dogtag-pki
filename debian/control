@@ -26,8 +26,8 @@ Build-Depends: debhelper (>= 8.0.0), pkg-config, quilt,
  apache2-threaded-dev,
 Standards-Version: 3.9.3
 Homepage: http://pki.fedoraproject.org
-Vcs-Git: git://git.debian.org/pkg-freeipa/pki-core.git
-Vcs-Browser: http://git.debian.org/?p=pkg-freeipa/pki-core.git;a=summary
+Vcs-Git: git://git.debian.org/pkg-freeipa/pki.git
+Vcs-Browser: http://git.debian.org/?p=pkg-freeipa/pki.git;a=summary
 
 Package: dogtag-pki
 Architecture: all
