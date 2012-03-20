@@ -1,7 +1,5 @@
-Index: pki/pki/base/setup/pkicommon.pm
-===================================================================
---- pki.orig/pki/base/setup/pkicommon.pm	2012-03-17 13:04:53.327629661 +0200
-+++ pki/pki/base/setup/pkicommon.pm	2012-03-20 19:44:24.498986495 +0200
+--- a/pki/base/setup/pkicommon.pm
++++ b/pki/base/setup/pkicommon.pm
 @@ -49,7 +49,7 @@
   format_install_info get_install_info_description
   parse_install_info parse_old_cleanup read_old_cleanup
@@ -87,10 +85,8 @@ Index: pki/pki/base/setup/pkicommon.pm
  # no args
  # no return value
  sub setup_platform_dependent_parameters
-Index: pki/pki/base/setup/pkicreate
-===================================================================
---- pki.orig/pki/base/setup/pkicreate	2012-03-20 19:44:24.466985574 +0200
-+++ pki/pki/base/setup/pkicreate	2012-03-20 19:44:24.498986495 +0200
+--- a/pki/base/setup/pkicreate
++++ b/pki/base/setup/pkicreate
 @@ -184,16 +184,16 @@
  my $symkey_jar_base_name          = "symkey.jar";          # CA, KRA, OCSP, TKS
  my $tomcatjss_jar_base_name       = "tomcatjss.jar";       # CA, KRA, OCSP, TKS
@@ -132,10 +128,8 @@ Index: pki/pki/base/setup/pkicreate
      }
  
      $command = "${pki_registry_initscript_command}";
-Index: pki/pki/base/setup/pkiremove
-===================================================================
---- pki.orig/pki/base/setup/pkiremove	2012-03-17 13:04:53.291628550 +0200
-+++ pki/pki/base/setup/pkiremove	2012-03-20 19:44:24.498986495 +0200
+--- a/pki/base/setup/pkiremove
++++ b/pki/base/setup/pkiremove
 @@ -502,10 +502,10 @@
                  "/bin/systemctl stop $pki_instance_systemd_service_name";
          } else {
@@ -149,10 +143,8 @@ Index: pki/pki/base/setup/pkiremove
              }
          }
      } else {
-Index: pki/pki/base/setup/scripts/pkicontrol
-===================================================================
---- pki.orig/pki/base/setup/scripts/pkicontrol	2012-03-17 13:04:53.311629167 +0200
-+++ pki/pki/base/setup/scripts/pkicontrol	2012-03-20 19:44:24.498986495 +0200
+--- a/pki/base/setup/scripts/pkicontrol
++++ b/pki/base/setup/scripts/pkicontrol
 @@ -28,7 +28,7 @@
  pki_instance="$3"
  
@@ -162,10 +154,8 @@ Index: pki/pki/base/setup/scripts/pkicontrol
  PKI_TYPE="pki-${pki_subsystem_type}"
  PKI_SYSTEMD_TARGET="pki-${pki_subsystem_type}d"
  SYSTEMD=1
-Index: pki/pki/base/ca/shared/conf/tomcat6.conf
-===================================================================
---- pki.orig/pki/base/ca/shared/conf/tomcat6.conf	2012-03-17 13:04:53.351630400 +0200
-+++ pki/pki/base/ca/shared/conf/tomcat6.conf	2012-03-20 19:44:24.498986495 +0200
+--- a/pki/base/ca/shared/conf/tomcat6.conf
++++ b/pki/base/ca/shared/conf/tomcat6.conf
 @@ -30,7 +30,8 @@
  #JAVA_OPTS="-Djava.library.path=/usr/lib64"
  
@@ -176,10 +166,8 @@ Index: pki/pki/base/ca/shared/conf/tomcat6.conf
  
  # You can change your tomcat locale here
  #LANG="en_US"
-Index: pki/pki/base/kra/shared/conf/tomcat6.conf
-===================================================================
---- pki.orig/pki/base/kra/shared/conf/tomcat6.conf	2012-03-17 13:04:53.363630772 +0200
-+++ pki/pki/base/kra/shared/conf/tomcat6.conf	2012-03-20 19:44:24.498986495 +0200
+--- a/pki/base/kra/shared/conf/tomcat6.conf
++++ b/pki/base/kra/shared/conf/tomcat6.conf
 @@ -30,7 +30,8 @@
  #JAVA_OPTS="-Djava.library.path=/usr/lib64"
  
@@ -190,10 +178,8 @@ Index: pki/pki/base/kra/shared/conf/tomcat6.conf
  
  # You can change your tomcat locale here
  #LANG="en_US"
-Index: pki/pki/base/ocsp/shared/conf/tomcat6.conf
-===================================================================
---- pki.orig/pki/base/ocsp/shared/conf/tomcat6.conf	2012-03-17 13:04:53.339630031 +0200
-+++ pki/pki/base/ocsp/shared/conf/tomcat6.conf	2012-03-20 19:44:24.498986495 +0200
+--- a/pki/base/ocsp/shared/conf/tomcat6.conf
++++ b/pki/base/ocsp/shared/conf/tomcat6.conf
 @@ -30,7 +30,8 @@
  #JAVA_OPTS="-Djava.library.path=/usr/lib64"
  
@@ -204,10 +190,8 @@ Index: pki/pki/base/ocsp/shared/conf/tomcat6.conf
  
  # You can change your tomcat locale here
  #LANG="en_US"
-Index: pki/pki/base/tks/shared/conf/tomcat6.conf
-===================================================================
---- pki.orig/pki/base/tks/shared/conf/tomcat6.conf	2012-03-17 13:04:53.287628426 +0200
-+++ pki/pki/base/tks/shared/conf/tomcat6.conf	2012-03-20 19:44:24.498986495 +0200
+--- a/pki/base/tks/shared/conf/tomcat6.conf
++++ b/pki/base/tks/shared/conf/tomcat6.conf
 @@ -30,7 +30,8 @@
  #JAVA_OPTS="-Djava.library.path=/usr/lib64"
  
@@ -218,10 +202,8 @@ Index: pki/pki/base/tks/shared/conf/tomcat6.conf
  
  # You can change your tomcat locale here
  #LANG="en_US"
-Index: pki/pki/base/setup/scripts/functions
-===================================================================
---- pki.orig/pki/base/setup/scripts/functions	2012-03-17 13:04:53.303628920 +0200
-+++ pki/pki/base/setup/scripts/functions	2012-03-20 19:48:18.477732175 +0200
+--- a/pki/base/setup/scripts/functions
++++ b/pki/base/setup/scripts/functions
 @@ -826,6 +826,9 @@
              #
              case $PKI_SUBSYSTEM_TYPE in
@@ -232,7 +214,7 @@ Index: pki/pki/base/setup/scripts/functions
                      if [ -h ${PKI_PIDFILE} ]; then
                          rm -f ${PKI_PIDFILE}
                      fi
-@@ -833,6 +836,9 @@
+@@ -833,12 +836,15 @@
                          ln -s ${TOMCAT_PIDFILE} ${PKI_PIDFILE}
                          chown -h ${TOMCAT_USER}:${TOMCAT_GROUP} ${PKI_PIDFILE}
                      fi
@@ -242,6 +224,15 @@ Index: pki/pki/base/setup/scripts/functions
                      if [ -h ${PKI_LOCKFILE} ]; then
                          rm -f ${PKI_LOCKFILE}
                      fi
+-                    if [ -f ${TOMCAT_LOCKFILE} ]; then
+-                        ln -s ${TOMCAT_LOCKFILE} ${PKI_LOCKFILE}
+-                    fi
++                    # unconditionally create the symlink, since the target
++                    # is created later.. also match $SERVICE_NAME
++                    ln -s ${TOMCAT_LOCKFILE}d ${PKI_LOCKFILE}
+                     ;;
+             esac
+ 
 @@ -923,6 +929,9 @@
      done
  
