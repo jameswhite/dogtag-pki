@@ -180,6 +180,7 @@ Depends: ${java:Depends}, ${misc:Depends},
  libxml-commons-external-java,
  libxml-commons-resolver1.1-java,
  adduser,
+ tomcat6,
 Description: Certificate System - PKI Common Framework
  The PKI Common Framework is required by the following four PKI subsystems:
  .
