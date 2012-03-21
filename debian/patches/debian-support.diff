@@ -1,3 +1,6 @@
+Author: Timo Aaltonen <tjaalton@ubuntu.com>
+Description: fix various hardcoded values to match debian & ubuntu
+
 --- a/pki/base/setup/pkicommon.pm
 +++ b/pki/base/setup/pkicommon.pm
 @@ -49,7 +49,7 @@
