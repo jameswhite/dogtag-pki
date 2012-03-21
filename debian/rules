@@ -132,6 +132,8 @@ override_dh_installinit:
 
 override_dh_install:
 	dh_install
+
+	mkdir -p $(CURDIR)/debian/pki-setup/usr/share/pki/scripts
 	install -m 755 $(CURDIR)/debian/local/pki_apache_initscript \
 		$(CURDIR)/debian/pki-setup/usr/share/pki/scripts
 
