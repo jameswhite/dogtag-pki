@@ -1,3 +1,9 @@
+pki (9.0+git20120312+dfsg1-0ubuntu1) UNRELEASED; urgency=low
+
+  * Merge from debian git.
+
+ -- Timo Aaltonen <tjaalton@ubuntu.com>  Wed, 21 Mar 2012 19:41:05 +0200
+
 pki (9.0+git20120312+dfsg1-1) UNRELEASED; urgency=low
 
   * Initial release (Closes: #653606)
