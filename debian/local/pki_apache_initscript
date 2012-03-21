@@ -1,0 +1,138 @@
+#!/bin/sh
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+OS=`uname -s`
+ARCHITECTURE=`uname -i`
+
+PKI_REGISTRY_FILE=[PKI_REGISTRY_FILE]
+
+# Define LSB log_* functions.
+. /lib/lsb/init-functions
+
+if [ -f $PKI_REGISTRY_FILE ]; then
+    . $PKI_REGISTRY_FILE
+else
+    echo "No PKI registry file ($PKI_REGISTRY_FILE)"
+    exit 1
+fi
+
+SUBSYSTEM=`echo $PKI_SUBSYSTEM_TYPE | tr [a-z] [A-Z]`
+DESC="PKI $SUBSYSTEM instance"
+NAME="$PKI_INSTANCE_ID"
+DAEMON="$PKI_HTTPD"
+DAEMON_ARGS="$PKI_OPTIONS"
+PIDDIR="/var/run/pki/$PKI_SUBSYSTEM_TYPE"
+PIDFILE="$PKI_PID_FILE"
+LOCKDIR="/var/lock/pki/$PKI_SUBSYSTEM_TYPE"
+LOCKFILE="$PKI_LOCK_FILE"
+
+do_start()
+{
+        if [ ! -d $PIDDIR ]; then
+	    mkdir -p $PIDDIR
+	fi
+	LANG=$PKI_HTTPD_LANG start-stop-daemon --start --quiet \
+	    -d $PKI_SERVER_ROOT \
+	    --pidfile $PIDFILE --exec $DAEMON --test > /dev/null \
+		|| return 1
+	LANG=$PKI_HTTPD_LANG start-stop-daemon --start --quiet \
+	    -d $PKI_SERVER_ROOT \
+	    --pidfile $PIDFILE --exec $DAEMON -- \
+		$DAEMON_ARGS \
+		|| return 2
+	count=0
+	until [ -s $PIDFILE ] || [ $count -gt 20 ]
+	do
+	    sleep 1
+	    count=$(($count+1))
+	done
+        if [ ! -d $LOCKDIR ]; then
+	    mkdir -p $LOCKDIR
+	fi
+	touch $LOCKFILE
+}
+
+do_stop()
+{
+        if [ -f $PKI_LOCK_FILE ]; then
+            $DAEMON $PKI_OPTIONS -k stop
+            RETVAL="$?"
+            if [ $RETVAL = 0 ]; then
+		if [ -f $PIDFILE ]; then
+		    count=0
+		    PID=`pidofproc -p $PIDFILE $DAEMON`
+		    until [ `ps -p $PID | grep -c $PID` = "0" ] ||
+		    [ $count -gt 20 ]
+		    do
+			sleep 1
+			count=$(($count+1))
+		    done
+		fi
+	    else
+		RETVAL="2"
+            fi
+        else
+            RETVAL="1"
+        fi
+        [ "$RETVAL" = 2 ] && return 2
+
+        rm -f $PIDFILE
+        rm -f $LOCKFILE
+        return "$RETVAL"
+}
+
+do_reload() {
+	start-stop-daemon --stop --signal 1 --quiet --pidfile $PIDFILE
+	return 0
+}
+
+case "$1" in
+  start)
+	log_daemon_msg "Starting $DESC" "$NAME"
+	do_start
+	case "$?" in
+		0|1) log_end_msg 0 ;;
+		2)   log_end_msg 1 ;;
+	esac
+	;;
+  stop)
+	log_daemon_msg "Stopping $DESC" "$NAME"
+	do_stop
+	case "$?" in
+		0|1) log_end_msg 0 ;;
+		2)   log_end_msg 1 ;;
+	esac
+	;;
+  status)
+       status_of_proc "$DAEMON" "$NAME" && exit 0 || exit $?
+       ;;
+  reload|force-reload)
+        log_daemon_msg "Reloading $DESC" "$NAME"
+        do_reload
+        log_end_msg $?
+        ;;
+  restart)
+	log_daemon_msg "Restarting $DESC" "$NAME"
+	do_stop
+	case "$?" in
+	  0|1)
+		do_start
+		case "$?" in
+			0) log_end_msg 0 ;;
+			1) log_end_msg 1 ;; # Old process is still running
+			*) log_end_msg 1 ;; # Failed to start
+		esac
+		;;
+	  *)
+	  	# Failed to stop
+		log_end_msg 1
+		;;
+	esac
+	;;
+  *)
+	echo "unknown action ($1)"
+	exit 3
+	;;
+esac
+
+:

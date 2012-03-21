@@ -1,3 +1,6 @@
+Author: Timo Aaltonen <tjaalton@ubuntu.com>
+Description: fix include paths for debian & ubuntu
+
 --- a/pki/base/tps/src/engine/RA.cpp
 +++ b/pki/base/tps/src/engine/RA.cpp
 @@ -29,7 +29,7 @@

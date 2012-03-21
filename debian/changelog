@@ -21,5 +21,11 @@ pki (9.0+git20120312-1) UNRELEASED; urgency=low
     - pki-tps 9.0.7
   * get-rid-of-osutil.diff: Backported patches from upstream in order
     to not need libosutil-java.
+  * Add soft dependencies (Suggests):
+    - pki-ca needs a 389 instance
+    - pki-kra, pki-ocsp, pki-ra, pki-tks need a pki-ca instance
+    - pki-tps needs a pki-ca, pki-tks and optionally a pki-kra instance
+    These can be run on separate machines, so a hard dependency isn't
+    necessary.
 
  -- Timo Aaltonen <tjaalton@ubuntu.com>  Tue, 27 Dec 2011 01:10:12 +0200

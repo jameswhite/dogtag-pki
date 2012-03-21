@@ -27,8 +27,8 @@ Build-Depends: debhelper (>= 8.0.0), pkg-config, quilt,
  apache2-threaded-dev,
 Standards-Version: 3.9.3
 Homepage: http://pki.fedoraproject.org
-Vcs-Git: git://git.debian.org/pkg-freeipa/pki-core.git
-Vcs-Browser: http://git.debian.org/?p=pkg-freeipa/pki-core.git;a=summary
+Vcs-Git: git://git.debian.org/pkg-freeipa/pki.git
+Vcs-Browser: http://git.debian.org/?p=pkg-freeipa/pki.git;a=summary
 
 Package: dogtag-pki
 Architecture: all
@@ -233,6 +233,7 @@ Depends: ${java:Depends}, ${misc:Depends},
  dogtag-pki-ca-theme | pki-ca-theme,
  pki-common,
 # pki-selinux,
+Suggests: 389-ds-base
 Description: Certificate System - Certificate Authority
  The Certificate Authority (CA) is a required PKI subsystem which issues,
  renews, revokes, and publishes certificates as well as compiling and
@@ -395,6 +396,7 @@ Depends: ${java:Depends}, ${misc:Depends},
  pki-common,
  pki-kra-theme,
 # pki-selinux,
+Suggests: pki-ca
 Description: Certificate System - Data Recovery Manager
  Certificate System (CS) is an enterprise software system designed
  to manage enterprise Public Key Infrastructure (PKI) deployments.
@@ -419,6 +421,7 @@ Depends: ${java:Depends}, ${misc:Depends},
  pki-common,
  pki-ocsp-theme,
 # pki-selinux,
+Suggests: pki-ca
 Description: Certificate System - Online Certificate Status Protocol Manager
  Certificate System (CS) is an enterprise software system designed
  to manage enterprise Public Key Infrastructure (PKI) deployments.
@@ -455,6 +458,10 @@ Depends: ${java:Depends}, ${misc:Depends}, ${perl:Depends},
  libapache2-mod-perl2,
  libapache2-mod-rev,
  libdbd-sqlite3-perl,
+ libparse-recdescent-perl,
+ libxml-simple-perl,
+ apache2-mpm-worker,
+Suggests: pki-ca
 Description: Certificate System - Registration Authority
  Certificate System (CS) is an enterprise software system designed
  to manage enterprise Public Key Infrastructure (PKI) deployments.
@@ -474,6 +481,7 @@ Depends: ${java:Depends}, ${misc:Depends},
  pki-common,
 # pki-selinux,
  pki-tks-theme,
+Suggests: pki-ca
 Description: Certificate System - Token Key Service
  Certificate System (CS) is an enterprise software system designed
  to manage enterprise Public Key Infrastructure (PKI) deployments.
@@ -506,6 +514,10 @@ Depends: ${shlibs:Depends}, ${java:Depends}, ${misc:Depends}, ${perl:Depends},
  libapache2-mod-perl2,
  libapache2-mod-rev,
  libmozilla-ldap-perl,
+ libparse-recdescent-perl,
+ libxml-simple-perl,
+ apache2-mpm-worker,
+Suggests: pki-ca, pki-tks, pki-kra
 Description: Certificate System - Token Processing System
  Certificate System (CS) is an enterprise software system designed
  to manage enterprise Public Key Infrastructure (PKI) deployments.
