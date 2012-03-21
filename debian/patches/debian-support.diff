@@ -119,7 +119,43 @@
  
      # Superuser and group to give to PKI installed files
      $root_user = "root";
-@@ -3295,7 +3295,7 @@
+@@ -2377,6 +2377,24 @@
+ LoadModule nss_module  /etc/httpd/modules/libmodnss.so
+ ";
+         }
++        elsif (is_Debian()) {
++            $slot_hash{$FORTITUDE_APACHE}  = "Apache2";
++            $slot_hash{$FORTITUDE_DIR}     = "/usr";
++            $slot_hash{$FORTITUDE_LIB_DIR} = "/usr/lib/apache2";
++            $slot_hash{$FORTITUDE_MODULE}  = "/usr/lib/apache2/modules";
++            $slot_hash{$FORTITUDE_AUTH_MODULES} =
++"
++LoadModule auth_basic_module /usr/lib/apache2/modules/mod_auth_basic.so
++LoadModule authn_file_module /usr/lib/apache2/modules/mod_authn_file.so
++LoadModule authz_user_module /usr/lib/apache2/modules/mod_authz_user.so
++LoadModule authz_groupfile_module /usr/lib/apache2/modules/mod_authz_groupfile.so
++LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
++";
++            $slot_hash{$FORTITUDE_NSS_MODULES} =
++"
++LoadModule nss_module  /usr/lib/apache2/modules/mod_nss.so
++";
++        }
+         else {
+             $slot_hash{$FORTITUDE_APACHE}  = "Apache";
+             $slot_hash{$FORTITUDE_DIR}     = "/opt/fortitude";
+@@ -2789,6 +2807,10 @@
+         return 0 if !create_symlink($perl_instance_symlink_path, $perl_subsystem_path,
+                                     $pki_user, $pki_group);
+ 
++        # need to create this here, or the install fails
++        return 0 if !create_directory("${default_apache_pids_path}/${subsystem_type}",
++                                      0775, "root", "root");
++
+         return 0 if !create_symlink($run_instance_symlink_path,
+                                     "${default_apache_pids_path}/${subsystem_type}",
+                                     $pki_user, $pki_group);
+@@ -3295,7 +3317,7 @@
              "/bin/systemctl restart $pki_instance_systemd_service_name";
      } else {
          $pki_registry_initscript_command = 
@@ -243,3 +279,47 @@
          touch ${lockfile}
          chmod 00600 ${lockfile}
      fi
+--- a/pki/base/ra/apache/conf/httpd.conf
++++ b/pki/base/ra/apache/conf/httpd.conf
+@@ -240,8 +240,6 @@
+ LoadModule dir_module [FORTITUDE_LIB_DIR]/modules/mod_dir.so
+ # Required module for command 'TypesConfig':
+ LoadModule mime_module [FORTITUDE_LIB_DIR]/modules/mod_mime.so
+-# Required module for command 'LogFormat':
+-LoadModule log_config_module [FORTITUDE_LIB_DIR]/modules/mod_log_config.so
+ # Required module for command 'Alias':
+ LoadModule alias_module [FORTITUDE_LIB_DIR]/modules/mod_alias.so
+ # Required module for command 'SetEnvIf':
+--- a/pki/base/tps/apache/conf/httpd.conf
++++ b/pki/base/tps/apache/conf/httpd.conf
+@@ -240,8 +240,6 @@
+ LoadModule dir_module [FORTITUDE_LIB_DIR]/modules/mod_dir.so
+ # Required module for command 'TypesConfig':
+ LoadModule mime_module [FORTITUDE_LIB_DIR]/modules/mod_mime.so
+-# Required module for command 'LogFormat':
+-LoadModule log_config_module [FORTITUDE_LIB_DIR]/modules/mod_log_config.so
+ # Required module for command 'Alias':
+ LoadModule alias_module [FORTITUDE_LIB_DIR]/modules/mod_alias.so
+ # Required module for command 'SetEnvIf':
+--- a/pki/base/ra/setup/registry_instance
++++ b/pki/base/ra/setup/registry_instance
+@@ -62,7 +62,7 @@
+ # available, but does not work with some modules (such as PHP).
+ # The service must be stopped before changing this variable.
+ #
+-PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/httpd.worker
++PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/apache2
+ export PKI_HTTPD
+ 
+ #
+--- a/pki/base/tps/setup/registry_instance
++++ b/pki/base/tps/setup/registry_instance
+@@ -62,7 +62,7 @@
+ # available, but does not work with some modules (such as PHP).
+ # The service must be stopped before changing this variable.
+ #
+-PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/httpd.worker
++PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/apache2
+ export PKI_HTTPD
+ 
+ #

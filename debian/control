@@ -457,6 +457,9 @@ Depends: ${java:Depends}, ${misc:Depends}, ${perl:Depends},
  libapache2-mod-perl2,
  libapache2-mod-rev,
  libdbd-sqlite3-perl,
+ libparse-recdescent-perl,
+ libxml-simple-perl,
+ apache2-mpm-worker,
 Suggests: pki-ca
 Description: Certificate System - Registration Authority
  Certificate System (CS) is an enterprise software system designed
@@ -510,6 +513,9 @@ Depends: ${shlibs:Depends}, ${java:Depends}, ${misc:Depends}, ${perl:Depends},
  libapache2-mod-perl2,
  libapache2-mod-rev,
  libmozilla-ldap-perl,
+ libparse-recdescent-perl,
+ libxml-simple-perl,
+ apache2-mpm-worker,
 Suggests: pki-ca, pki-tks, pki-kra
 Description: Certificate System - Token Processing System
  Certificate System (CS) is an enterprise software system designed
