@@ -1,0 +1,15 @@
+------------------------------------------------------
+Quick Guide To Patching This Package For The Impatient
+------------------------------------------------------
+
+1. Make sure you have quilt installed
+2. Unpack the package as usual with "dpkg-source -x"
+3. Run the "patch" target in debian/rules
+4. Create a new patch with "quilt new" (see quilt(1))
+5. Edit all the files you want to include in the patch with "quilt edit" 
+   (see quilt(1)).
+6. Write the patch with "quilt refresh" (see quilt(1))
+7. Run the "clean" target in debian/rules
+
+Alternatively, instead of using quilt directly, you can drop the patch in to 
+debian/patches and add the name of the patch to debian/patches/series.
