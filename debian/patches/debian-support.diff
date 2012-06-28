@@ -1,0 +1,328 @@
+Author: Timo Aaltonen <tjaalton@ubuntu.com>
+Description: fix various hardcoded values to match debian & ubuntu
+
+--- a/pki/base/setup/pkicommon.pm
++++ b/pki/base/setup/pkicommon.pm
+@@ -49,7 +49,7 @@
+  format_install_info get_install_info_description
+  parse_install_info parse_old_cleanup read_old_cleanup
+  read_install_info read_install_info_from_dir write_install_info_to_dir uninstall
+- is_Windows is_Linux is_Fedora is_RHEL is_RHEL4 setup_platform_dependent_parameters
++ is_Windows is_Linux is_Fedora is_RHEL is_RHEL4 is_Debian setup_platform_dependent_parameters
+  set_library_path get_library_path fedora_release
+  check_for_root_UID user_disallows_shell
+  user_exists create_user
+@@ -175,6 +175,7 @@
+ our $default_system_user_libraries = undef;
+ our $default_java_path             = undef;
+ our $default_pki_java_path         = undef;
++our $default_i386_jni_java_path    = undef;
+ our $default_x86_64_jni_java_path  = undef;
+ our $default_system_jni_java_path  = undef;
+ our @default_jar_path              = undef;
+@@ -203,9 +204,9 @@
+ # Compute "hardware platform" of Operating System
+ if ($^O eq "linux") {
+     $pki_flavor = "pki";
+-    $default_registry_path = "/etc/sysconfig";
++    $default_registry_path = "/etc/dogtag";
+     $pki_registry_path = "$default_registry_path/$pki_flavor";
+-    $default_initscripts_path = "/etc/rc.d/init.d";
++    $default_initscripts_path = "/etc/init.d";
+     $default_lockdir = "/var/lock/$pki_flavor";
+     $default_hardware_platform = `uname -i`;
+     $default_hardware_platform =~ s/\s+$//g;
+@@ -217,19 +218,20 @@
+         $default_system_user_binaries  = "/usr/bin";
+         $default_system_user_libraries = "/usr/lib";
+         $default_java_path             = "/usr/share/java";
+-        $default_pki_java_path         = "/usr/share/java/pki";
+-        $default_system_jni_java_path  = "/usr/lib/java";
+-        @default_jar_path = ($default_pki_java_path, $default_java_path, $default_system_jni_java_path);
++        $default_pki_java_path         = "/usr/share/java";
++        $default_i386_jni_java_path    = "/usr/lib/i386-linux-gnu/jni";
++        $default_system_jni_java_path  = "/usr/lib/jni";
++        @default_jar_path = ($default_pki_java_path, $default_java_path, $default_i386_jni_java_path, $default_system_jni_java_path);
+     } elsif ($default_hardware_platform eq "x86_64") {
+         # 64-bit Linux
+         $default_system_binaries       = "/bin";
+-        $default_system_libraries      = "/lib64";
++        $default_system_libraries      = "/lib";
+         $default_system_user_binaries  = "/usr/bin";
+-        $default_system_user_libraries = "/usr/lib64";
++        $default_system_user_libraries = "/usr/lib";
+         $default_java_path             = "/usr/share/java";
+-        $default_pki_java_path         = "/usr/share/java/pki";
+-        $default_x86_64_jni_java_path  = "/usr/lib64/java";
+-        $default_system_jni_java_path  = "/usr/lib/java";
++        $default_pki_java_path         = "/usr/share/java";
++        $default_x86_64_jni_java_path  = "/usr/lib/x86_64-linux-gnu/jni";
++        $default_system_jni_java_path  = "/usr/lib/jni";
+         @default_jar_path = ($default_pki_java_path, $default_java_path, $default_x86_64_jni_java_path, $default_system_jni_java_path);
+     } else {
+         emit("Unsupported '$^O' hardware platform '$default_hardware_platform'!", "error");
+@@ -816,6 +818,18 @@
+ }
+ 
+ # no args
++# return 1 - true, or
++# return 0 - false
++sub is_Debian
++{
++    if (is_Linux() && (-e "/etc/debian_version")) {
++        return 1;
++    }
++
++    return 0;
++}
++
++# no args
+ # return release_number
+ # return 0 if not found
+ sub fedora_release {
+@@ -830,7 +844,6 @@
+     return 0;
+ }
+ 
+-
+ # no args
+ # no return value
+ sub setup_platform_dependent_parameters
+--- a/pki/base/setup/pkicreate
++++ b/pki/base/setup/pkicreate
+@@ -184,16 +184,16 @@
+ my $symkey_jar_base_name          = "symkey.jar";          # CA, KRA, OCSP, TKS
+ my $tomcatjss_jar_base_name       = "tomcatjss.jar";       # CA, KRA, OCSP, TKS
+ my $velocity_jar_base_name        = "velocity.jar";        # CA, KRA, OCSP, TKS
+-my $xerces_jar_base_name          = "xerces-j2.jar";       # CA, KRA, OCSP, TKS
++my $xerces_jar_base_name          = "xercesImpl.jar";       # CA, KRA, OCSP, TKS
+ 
+-my $apache_commons_collections_jar_base_name  = "apache-commons-collections.jar";
++my $apache_commons_collections_jar_base_name  = "commons-collections3.jar";
+ my $jakarta_commons_collections_jar_base_name = "jakarta-commons-collections.jar";
+-my $apache_commons_logging_jar_base_name  = "apache-commons-logging.jar";
++my $apache_commons_logging_jar_base_name  = "commons-logging.jar";
+ my $jakarta_commons_logging_jar_base_name = "jakarta-commons-logging.jar";
+-my $apache_commons_lang_jar_base_name     = "apache-commons-lang.jar";
++my $apache_commons_lang_jar_base_name     = "commons-lang.jar";
+ my $jakarta_commons_lang_jar_base_name    = "jakarta-commons-lang.jar";
+-my $xml_commons_apis_jar_base_name        = "xml-commons-apis.jar";
+-my $xml_commons_resolver_jar_base_name    = "xml-commons-resolver.jar";
++my $xml_commons_apis_jar_base_name        = "jaxp-1.4.jar";
++my $xml_commons_resolver_jar_base_name    = "xml-resolver.jar";
+ 
+ my $conf_base_name                = "conf";                   # CA, KRA, OCSP, TKS,
+ my $catalina_properties_base_name = "catalina.properties";    # CA, KRA, OCSP, TKS
+@@ -588,7 +588,7 @@
+     }
+ 
+     # Tomcat instance config directory
+-    $tomcat6_instance_config_path = "/etc/sysconfig";
++    $tomcat6_instance_config_path = "/etc/default";
+ 
+     # Superuser and group to give to PKI installed files
+     $root_user = "root";
+@@ -2377,6 +2377,24 @@
+ LoadModule nss_module  /etc/httpd/modules/libmodnss.so
+ ";
+         }
++        elsif (is_Debian()) {
++            $slot_hash{$FORTITUDE_APACHE}  = "Apache2";
++            $slot_hash{$FORTITUDE_DIR}     = "/usr";
++            $slot_hash{$FORTITUDE_LIB_DIR} = "/usr/lib/apache2";
++            $slot_hash{$FORTITUDE_MODULE}  = "/usr/lib/apache2/modules";
++            $slot_hash{$FORTITUDE_AUTH_MODULES} =
++"
++LoadModule auth_basic_module /usr/lib/apache2/modules/mod_auth_basic.so
++LoadModule authn_file_module /usr/lib/apache2/modules/mod_authn_file.so
++LoadModule authz_user_module /usr/lib/apache2/modules/mod_authz_user.so
++LoadModule authz_groupfile_module /usr/lib/apache2/modules/mod_authz_groupfile.so
++LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
++";
++            $slot_hash{$FORTITUDE_NSS_MODULES} =
++"
++LoadModule nss_module  /usr/lib/apache2/modules/mod_nss.so
++";
++        }
+         else {
+             $slot_hash{$FORTITUDE_APACHE}  = "Apache";
+             $slot_hash{$FORTITUDE_DIR}     = "/opt/fortitude";
+@@ -2789,6 +2807,10 @@
+         return 0 if !create_symlink($perl_instance_symlink_path, $perl_subsystem_path,
+                                     $pki_user, $pki_group);
+ 
++        # need to create this here, or the install fails
++        return 0 if !create_directory("${default_apache_pids_path}/${subsystem_type}",
++                                      0775, "root", "root");
++
+         return 0 if !create_symlink($run_instance_symlink_path,
+                                     "${default_apache_pids_path}/${subsystem_type}",
+                                     $pki_user, $pki_group);
+@@ -3295,7 +3317,7 @@
+             "/bin/systemctl restart $pki_instance_systemd_service_name";
+     } else {
+         $pki_registry_initscript_command = 
+-            "/sbin/service $pki_registry_initscript restart $pki_instance_name";
++            "/usr/sbin/service $pki_registry_initscript restart $pki_instance_name";
+     }
+ 
+     $command = "${pki_registry_initscript_command}";
+--- a/pki/base/setup/pkiremove
++++ b/pki/base/setup/pkiremove
+@@ -502,10 +502,10 @@
+                 "/bin/systemctl stop $pki_instance_systemd_service_name";
+         } else {
+             if (entity_exists("$default_initscripts_path/$pki_instance_name")) {
+-                $pki_registry_initscript_command = "/sbin/service $pki_instance_name stop";
++                $pki_registry_initscript_command = "/usr/sbin/service $pki_instance_name stop";
+             } else {
+                 $pki_registry_initscript_command = 
+-                    "/sbin/service $pki_registry_initscript stop $pki_instance_name";
++                    "/usr/sbin/service $pki_registry_initscript stop $pki_instance_name";
+             }
+         }
+     } else {
+--- a/pki/base/setup/scripts/pkicontrol
++++ b/pki/base/setup/scripts/pkicontrol
+@@ -28,7 +28,7 @@
+ pki_instance="$3"
+ 
+ PKI_PATH="/usr/share/pki/${pki_subsystem_type}"
+-PKI_REGISTRY="/etc/sysconfig/pki/${pki_subsystem_type}"
++PKI_REGISTRY="/etc/dogtag/pki/${pki_subsystem_type}"
+ PKI_TYPE="pki-${pki_subsystem_type}"
+ PKI_SYSTEMD_TARGET="pki-${pki_subsystem_type}d"
+ SYSTEMD=1
+--- a/pki/base/ca/shared/conf/tomcat6.conf
++++ b/pki/base/ca/shared/conf/tomcat6.conf
+@@ -30,7 +30,8 @@
+ #JAVA_OPTS="-Djava.library.path=/usr/lib64"
+ 
+ # What user should run tomcat
+-TOMCAT_USER="[PKI_USER]"
++TOMCAT6_USER="[PKI_USER]"
++TOMCAT6_GROUP="[PKI_GROUP]"
+ 
+ # You can change your tomcat locale here
+ #LANG="en_US"
+--- a/pki/base/kra/shared/conf/tomcat6.conf
++++ b/pki/base/kra/shared/conf/tomcat6.conf
+@@ -30,7 +30,8 @@
+ #JAVA_OPTS="-Djava.library.path=/usr/lib64"
+ 
+ # What user should run tomcat
+-TOMCAT_USER="[PKI_USER]"
++TOMCAT6_USER="[PKI_USER]"
++TOMCAT6_GROUP="[PKI_GROUP]"
+ 
+ # You can change your tomcat locale here
+ #LANG="en_US"
+--- a/pki/base/ocsp/shared/conf/tomcat6.conf
++++ b/pki/base/ocsp/shared/conf/tomcat6.conf
+@@ -30,7 +30,8 @@
+ #JAVA_OPTS="-Djava.library.path=/usr/lib64"
+ 
+ # What user should run tomcat
+-TOMCAT_USER="[PKI_USER]"
++TOMCAT6_USER="[PKI_USER]"
++TOMCAT6_GROUP="[PKI_GROUP]"
+ 
+ # You can change your tomcat locale here
+ #LANG="en_US"
+--- a/pki/base/tks/shared/conf/tomcat6.conf
++++ b/pki/base/tks/shared/conf/tomcat6.conf
+@@ -30,7 +30,8 @@
+ #JAVA_OPTS="-Djava.library.path=/usr/lib64"
+ 
+ # What user should run tomcat
+-TOMCAT_USER="[PKI_USER]"
++TOMCAT6_USER="[PKI_USER]"
++TOMCAT6_GROUP="[PKI_GROUP]"
+ 
+ # You can change your tomcat locale here
+ #LANG="en_US"
+--- a/pki/base/setup/scripts/functions
++++ b/pki/base/setup/scripts/functions
+@@ -826,6 +826,9 @@
+             #
+             case $PKI_SUBSYSTEM_TYPE in
+                 ca|kra|ocsp|tks)
++                    if [ ! -d ${PKI_PIDDIR} ]; then
++                        mkdir -p ${PKI_PIDDIR}
++                    fi
+                     if [ -h ${PKI_PIDFILE} ]; then
+                         rm -f ${PKI_PIDFILE}
+                     fi
+@@ -833,12 +836,15 @@
+                         ln -s ${TOMCAT_PIDFILE} ${PKI_PIDFILE}
+                         chown -h ${TOMCAT_USER}:${TOMCAT_GROUP} ${PKI_PIDFILE}
+                     fi
++                    if [ ! -d ${PKI_LOCKDIR} ]; then
++                        mkdir -p ${PKI_LOCKDIR}
++                    fi
+                     if [ -h ${PKI_LOCKFILE} ]; then
+                         rm -f ${PKI_LOCKFILE}
+                     fi
+-                    if [ -f ${TOMCAT_LOCKFILE} ]; then
+-                        ln -s ${TOMCAT_LOCKFILE} ${PKI_LOCKFILE}
+-                    fi
++                    # unconditionally create the symlink, since the target
++                    # is created later.. also match $SERVICE_NAME
++                    ln -s ${TOMCAT_LOCKFILE}d ${PKI_LOCKFILE}
+                     ;;
+             esac
+ 
+@@ -923,6 +929,9 @@
+     done
+ 
+     if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt ${errors} ] ; then
++        if [ ! -d "/var/lock/subsys" ]; then
++            mkdir /var/lock/subsys
++        fi
+         touch ${lockfile}
+         chmod 00600 ${lockfile}
+     fi
+--- a/pki/base/ra/apache/conf/httpd.conf
++++ b/pki/base/ra/apache/conf/httpd.conf
+@@ -240,8 +240,6 @@
+ LoadModule dir_module [FORTITUDE_LIB_DIR]/modules/mod_dir.so
+ # Required module for command 'TypesConfig':
+ LoadModule mime_module [FORTITUDE_LIB_DIR]/modules/mod_mime.so
+-# Required module for command 'LogFormat':
+-LoadModule log_config_module [FORTITUDE_LIB_DIR]/modules/mod_log_config.so
+ # Required module for command 'Alias':
+ LoadModule alias_module [FORTITUDE_LIB_DIR]/modules/mod_alias.so
+ # Required module for command 'SetEnvIf':
+--- a/pki/base/tps/apache/conf/httpd.conf
++++ b/pki/base/tps/apache/conf/httpd.conf
+@@ -240,8 +240,6 @@
+ LoadModule dir_module [FORTITUDE_LIB_DIR]/modules/mod_dir.so
+ # Required module for command 'TypesConfig':
+ LoadModule mime_module [FORTITUDE_LIB_DIR]/modules/mod_mime.so
+-# Required module for command 'LogFormat':
+-LoadModule log_config_module [FORTITUDE_LIB_DIR]/modules/mod_log_config.so
+ # Required module for command 'Alias':
+ LoadModule alias_module [FORTITUDE_LIB_DIR]/modules/mod_alias.so
+ # Required module for command 'SetEnvIf':
+--- a/pki/base/ra/setup/registry_instance
++++ b/pki/base/ra/setup/registry_instance
+@@ -62,7 +62,7 @@
+ # available, but does not work with some modules (such as PHP).
+ # The service must be stopped before changing this variable.
+ #
+-PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/httpd.worker
++PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/apache2
+ export PKI_HTTPD
+ 
+ #
+--- a/pki/base/tps/setup/registry_instance
++++ b/pki/base/tps/setup/registry_instance
+@@ -62,7 +62,7 @@
+ # available, but does not work with some modules (such as PHP).
+ # The service must be stopped before changing this variable.
+ #
+-PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/httpd.worker
++PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/apache2
+ export PKI_HTTPD
+ 
+ #

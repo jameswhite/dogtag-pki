@@ -1,0 +1,18 @@
+README
+------
+
+To successfully deploy instances of a CA, DRM, OCSP, or TKS,
+a Tomcat Web Server must be up and running locally on this machine.
+
+To successfully deploy instances of an RA, or TPS,
+an Apache Web Server must be up and running locally on this machine.
+
+To meet the database storage requirements of each CA, DRM, OCSP, TKS, or TPS
+instance, a 389 Directory Server must be up and running either locally on
+this machine, or remotely over the attached network connection.
+
+To meet the database storage requirements of an RA, an SQLite database will
+be created locally on this machine each time a new RA instance is created.
+
+After installation of this package, use the 'pkicreate' and 'pkiremove'
+utilities to respectively create and remove PKI instances.

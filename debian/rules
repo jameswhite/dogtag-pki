@@ -1,0 +1,141 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+VER :=  $(shell dpkg-parsechangelog | sed -n 's/^Version: *\(.*\)-.*$$/\1/ p' | sed -e 's/~.*//')
+
+JAVA_HOME=/usr/lib/jvm/default-java
+CFLAGS += -I/usr/include/nss
+CXXFLAGS += -I/usr/include/nss
+DEB_BUILD_DIR ?= $(CURDIR)/build
+
+CONFIGS = core \
+	  console \
+	  kra \
+	  ocsp \
+	  ra \
+	  tks \
+	  tps \
+	  dogtag-pki-theme \
+	  ipa-pki-theme
+
+STAMP_DIR = debian/stamp
+STAMP = $(STAMP_DIR)/$(DEB_BUILD_GNU_TYPE)
+BUILD_STAMPS = $(addprefix $(STAMP)-build-, $(CONFIGS))
+
+confflags = 
+
+confflags-common = $(confflags) \
+	-DPKI_CERTSRV_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-certsrv.jar \
+	-DPKI_CMS_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-cms.jar \
+	-DPKI_CMSCORE_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-cmscore.jar \
+	-DPKI_CMSUTIL_JAR=$(DEB_BUILD_DIR)/core/base/util/src/pki-cmsutil.jar \
+	-DPKI_NSUTIL_JAR=$(DEB_BUILD_DIR)/core/base/util/src/pki-nsutil.jar \
+
+confflags-core = \
+	-DBUILD_PKI_CORE:BOOL=ON \
+	-DSERVLET_JAR=/usr/share/java/servlet-api.jar \
+	-DXERCES_JAR=/usr/share/java/xercesImpl.jar \
+	-DXALAN_JAR=/usr/share/java/xalan2.jar \
+	$(confflags)
+
+confflags-console = \
+	-DBUILD_PKI_CONSOLE:BOOL=ON \
+	$(confflags-common)
+
+confflags-kra = \
+	-DBUILD_PKI_KRA:BOOL=ON \
+	$(confflags-common)
+
+confflags-ocsp = \
+	-DBUILD_PKI_OCSP:BOOL=ON \
+	$(confflags-common)
+
+confflags-ra = \
+	-DBUILD_PKI_RA:BOOL=ON
+
+confflags-tks = \
+	-DBUILD_PKI_TKS:BOOL=ON \
+	$(confflags-common)
+
+confflags-tps = \
+	-DBUILD_PKI_TPS:BOOL=ON
+
+confflags-dogtag-pki-theme = \
+	-DBUILD_DOGTAG_PKI_THEME:BOOL=ON \
+	$(confflags-common)
+
+confflags-ipa-pki-theme = \
+	-DBUILD_IPA_PKI_THEME:BOOL=ON \
+	$(confflags-common)
+
+override_dh_auto_clean:
+	rm -rf $(CURDIR)/build
+
+override_dh_auto_configure:
+
+build-stamp: $(BUILD_STAMPS)
+	>$@
+
+$(STAMP)-build-%:
+	mkdir -p $(DEB_BUILD_DIR)/$*
+	cd $(DEB_BUILD_DIR)/$* && \
+	cmake -DCMAKE_INSTALL_PREFIX=/usr \
+		-DSYSCONF_INSTALL_DIR:PATH=/etc \
+		-DVAR_INSTALL_DIR:PATH=/var \
+		-DJAVA_LIB_INSTALL_DIR=/usr/share/java \
+		$(confflags-$*) \
+		../../pki
+	cd $(DEB_BUILD_DIR)/$* && make VERBOSE=1
+
+override_dh_auto_build: build-stamp
+
+override_dh_auto_install:
+	set -e; for config in $(filter-out ipa-pki-theme, $(CONFIGS)); do \
+		make -C $(DEB_BUILD_DIR)/$$config DESTDIR=$(CURDIR)/debian/tmp install; \
+	done
+
+	make -C $(DEB_BUILD_DIR)/ipa-pki-theme DESTDIR=$(CURDIR)/debian/tmp/ipa install
+
+	find $(CURDIR)/debian/tmp/usr/share/pki -name '*.cgi' -exec chmod 755 '{}' ';'
+	find $(CURDIR)/debian/tmp/usr/share/pki -name '*.pl' -exec chmod 755 '{}' ';'
+	cd $(CURDIR)/debian/tmp/usr/share/pki/tps/docroot && \
+		ln -s tokendb tus
+
+	mkdir -p $(CURDIR)/debian/libpki-symkey-java/usr/lib/jni
+	install -m 0755 $(DEB_BUILD_DIR)/core/base/symkey/src/com/netscape/symkey/libsymkey.so \
+		$(CURDIR)/debian/libpki-symkey-java/usr/lib/jni/
+
+override_jh_installlibs:
+	jh_installlibs --no-mangle -plibpki-symkey-java \
+		$(DEB_BUILD_DIR)/core/base/symkey/src/symkey.jar
+
+override_jh_installjavadoc:
+	jh_installjavadoc -plibpki-common-java-doc \
+		$(DEB_BUILD_DIR)/core/base/common/src/javadoc/pki-common-*
+	jh_installjavadoc -plibpki-tools-java-doc \
+		$(DEB_BUILD_DIR)/core/base/java-tools/src/javadoc/pki-java-tools-*
+	jh_installjavadoc -plibpki-util-java-doc \
+		$(DEB_BUILD_DIR)/core/base/util/src/javadoc/pki-util-*
+
+override_dh_installinit:
+	dh_installinit -ppki-ca --name=pki-cad --error-handler=invoke_failure
+	dh_installinit -ppki-kra --name=pki-krad --error-handler=invoke_failure
+	dh_installinit -ppki-ocsp --name=pki-ocspd --error-handler=invoke_failure
+	dh_installinit -ppki-ra --name=pki-rad --error-handler=invoke_failure
+	dh_installinit -ppki-tks --name=pki-tksd --error-handler=invoke_failure
+	dh_installinit -ppki-tps --name=pki-tpsd --error-handler=invoke_failure
+
+override_dh_install:
+	dh_install
+
+	mkdir -p $(CURDIR)/debian/pki-setup/usr/share/pki/scripts
+	install -m 755 $(CURDIR)/debian/local/pki_apache_initscript \
+		$(CURDIR)/debian/pki-setup/usr/share/pki/scripts
+
+%:
+	dh $@ --with javahelper,quilt --builddirectory=build/
