@@ -6,12 +6,12 @@ pki (9.0+git20120312+dfsg1-1) UNRELEASED; urgency=low
     - dogtag-pki-theme 9.0.11
     - ipa-pki-theme 9.0.5
     - pki-console 9.0.5
-    - pki-core 9.0.18
-    - pki-kra 9.0.10
+    - pki-core 9.0.20
+    - pki-kra 9.0.11
     - pki-migrate 9.0.2
-    - pki-ocsp 9.0.9
+    - pki-ocsp 9.0.10
     - pki-ra 9.0.4
-    - pki-tks 9.0.9
+    - pki-tks 9.0.10
     - pki-tps 9.0.7
   * get-rid-of-osutil.diff: Backported patches from upstream in order
     to not need libosutil-java.
