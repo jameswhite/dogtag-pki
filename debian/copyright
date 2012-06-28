@@ -6,32 +6,32 @@ Files: *
 Copyright: 2006-2011, Red Hat, Inc.
 License: GPL-2
 
-Files: pki/base/ca/shared/webapps/ROOT/WEB-INF/web.xml
- pki/base/kra/shared/webapps/ROOT/WEB-INF/web.xml
- pki/base/ocsp/shared/webapps/ROOT/WEB-INF/web.xml
- pki/base/tks/shared/webapps/ROOT/WEB-INF/web.xml
+Files: base/ca/shared/webapps/ROOT/WEB-INF/web.xml
+ base/kra/shared/webapps/ROOT/WEB-INF/web.xml
+ base/ocsp/shared/webapps/ROOT/WEB-INF/web.xml
+ base/tks/shared/webapps/ROOT/WEB-INF/web.xml
 Copyright: 2004, The Apache Software Foundation
 License: Apache-2 or GPL-2
 
-Files: pki/base/native-tools/src/bulkissuance/getopt.c
- pki/base/native-tools/src/revoker/getopt.c
- pki/base/native-tools/src/sslget/getopt.c
+Files: base/native-tools/src/bulkissuance/getopt.c
+ base/native-tools/src/revoker/getopt.c
+ base/native-tools/src/sslget/getopt.c
 Copyright: 1994-2000, Netscape Communications Corporation
 License: MPL-1.1 or GPL-2
 
-Files: pki/base/native-tools/src/p7tool/*.?
- pki/base/native-tools/src/tkstool/*.?
- pki/base/tps/src/include/httpClient/httpc/NSPRerrs.h
- pki/base/tps/src/include/httpClient/httpc/SECerrs.h
- pki/base/tps/src/include/httpClient/httpc/SSLerrs.h
+Files: base/native-tools/src/p7tool/*.?
+ base/native-tools/src/tkstool/*.?
+ base/tps/src/include/httpClient/httpc/NSPRerrs.h
+ base/tps/src/include/httpClient/httpc/SECerrs.h
+ base/tps/src/include/httpClient/httpc/SSLerrs.h
 Copyright: 1994-2000, Netscape Communications Corporation
            2007, Red Hat, Inc.
 License: MPL-1.1 or GPL-2 or LGPL-2.1
 
-Files: pki/base/silent/src/argparser/ArgParser.java
- pki/base/silent/src/argparser/ArgParserTest.java
- pki/base/silent/src/argparser/StringScanException.java
- pki/base/silent/src/argparser/StringScanner.java
+Files: base/silent/src/argparser/ArgParser.java
+ base/silent/src/argparser/ArgParserTest.java
+ base/silent/src/argparser/StringScanException.java
+ base/silent/src/argparser/StringScanner.java
 Copyright: 2004, John E. Lloyd
            2007, Red Hat, Inc.
 License: GPL-2 and permissive
@@ -46,67 +46,67 @@ License: GPL-2 and permissive
  whatsoever, arising out of or in connection with the use of this
  software.
 
-Files: pki/base/silent/src/common/CMSProperties.java
+Files: base/silent/src/common/CMSProperties.java
 Copyright: 1995-2000, Sun Microsystems, Inc.
            2007, Red Hat, Inc.
 License: GPL-2
 
-Files: pki/base/util/src/com/netscape/cmsutil/util/Fmt.java
+Files: base/util/src/com/netscape/cmsutil/util/Fmt.java
 Copyright: 1996, Jef Poskanzer <jef@acme.com>
            2007, Red Hat, Inc.
 License: GPL-2 and BSD-2-clause
 
-Files: pki/cmake/Modules/CMakeDetermineJavaCompiler.cmake
- pki/cmake/Modules/CMakeJavaInformation.cmake
- pki/cmake/Modules/CMakeTestJavaCompiler.cmake
- pki/cmake/Modules/FindJNI.cmake pki/cmake/Modules/FindJava.cmake
+Files: cmake/Modules/CMakeDetermineJavaCompiler.cmake
+ cmake/Modules/CMakeJavaInformation.cmake
+ cmake/Modules/CMakeTestJavaCompiler.cmake
+ cmake/Modules/FindJNI.cmake cmake/Modules/FindJava.cmake
 Copyright: 2004-2009, Kitware, Inc.
 License: BSD
 
-Files: pki/cmake/Modules/FindAPR.cmake pki/cmake/Modules/FindMozLDAP.cmake
- pki/cmake/Modules/FindNSPR.cmake pki/cmake/Modules/FindNSS.cmake
- pki/cmake/Modules/FindOpenSSL.cmake pki/cmake/Modules/FindZLIB.cmake
+Files: cmake/Modules/FindAPR.cmake cmake/Modules/FindMozLDAP.cmake
+ cmake/Modules/FindNSPR.cmake cmake/Modules/FindNSS.cmake
+ cmake/Modules/FindOpenSSL.cmake cmake/Modules/FindZLIB.cmake
 Copyright: 2006-2010, Andreas Schneider <asn@redhat.com>
 License: BSD
 
-Files: pki/cmake/Modules/FindLdap.cmake
- pki/cmake/Modules/FindSvrcore.cmake
+Files: cmake/Modules/FindLdap.cmake
+ cmake/Modules/FindSvrcore.cmake
 Copyright: 2010, Matthew Harmsen <mharmsen@redhat.com>
 License: BSD
 
-Files: pki/cmake/Modules/MacroCheckCCompilerFlagSSP.cmake
- pki/cmake/Modules/MacroEnsureOutOfSourceBuild.cmake
+Files: cmake/Modules/MacroCheckCCompilerFlagSSP.cmake
+ cmake/Modules/MacroEnsureOutOfSourceBuild.cmake
 Copyright: 2006, Alexander Neundorf, <neundorf@kde.org>
 License: BSD
 
-Files: pki/cmake/Modules/MacroCopyFile.cmake
+Files: cmake/Modules/MacroCopyFile.cmake
 Copyright: 2006-2007, Wengo
            2006-2008, Andreas Schneider <mail@cynapses.org>
 License: BSD
 
-Files: pki/cmake/Modules/UseJava.cmake
+Files: cmake/Modules/UseJava.cmake
 Copyright: 2010, Andreas schneider <asn@redhat.com>
            2010, Ben Boeckel <ben.boeckel@kitware.com>
 License: BSD
 
-Files: pki/cmake/Modules/UseJavaClassFilelist.cmake
+Files: cmake/Modules/UseJavaClassFilelist.cmake
 Copyright: 2010, Andreas schneider <asn@redhat.com>
 License: BSD
 
-Files: pki/dogtag/tps-ui/shared/docroot/esc/sow/js/ajax-dynamic-list.js
+Files: dogtag/tps-ui/shared/docroot/esc/sow/js/ajax-dynamic-list.js
 Copyright: 2006, DTHMLGoodies.com, Alf Magne Kalleland
 License: LGPL-2.1
 
-Files: pki/dogtag/tps-ui/shared/docroot/esc/sow/js/ajax.js
+Files: dogtag/tps-ui/shared/docroot/esc/sow/js/ajax.js
 Copyright: 2005, Gregory Wild-Smith
 License: MIT
 
-Files: pki/dogtag/tps-ui/shared/docroot/esc/sow/js/effects.js
+Files: dogtag/tps-ui/shared/docroot/esc/sow/js/effects.js
  pki/dogtag/tps-ui/shared/docroot/esc/sow/js/scriptaculous.js
 Copyright: 2005, Thomas Fuchs
 License: MIT
 
-Files: pki/dogtag/tps-ui/shared/docroot/esc/sow/js/lightbox.js
+Files: dogtag/tps-ui/shared/docroot/esc/sow/js/lightbox.js
 Copyright: 2006, Lokesh Dhakar
 License: CC-BY
  Creative Commons Attribution 2.5
@@ -349,11 +349,11 @@ License: CC-BY
  usage guidelines, as may be published on its website or otherwise made
  available upon request from time to time.
 
-Files: pki/dogtag/tps-ui/shared/docroot/esc/sow/js/prototype.js
+Files: dogtag/tps-ui/shared/docroot/esc/sow/js/prototype.js
 Copyright: 2005 Sam Stephenson <sam@conio.net>
 License: MIT
 
-Files: pki/base/common/setup/web-app_2_3.dtd
+Files: base/common/setup/web-app_2_3.dtd
 Copyright: 2000 Sun Microsystems, Inc.
 License: Other
  Sun Microsystems, Inc. has intellectual property rights relating to

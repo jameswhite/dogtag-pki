@@ -1,4 +1,4 @@
-pki (9.0+git20120312+dfsg1-1) UNRELEASED; urgency=low
+pki (9.0+git20120530+dfsg1-1) UNRELEASED; urgency=low
 
   * Initial release (Closes: #653606)
   * Snapshot from the stable DOGTAG_9_BRANCH, includes these subsystem

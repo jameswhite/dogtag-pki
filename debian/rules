@@ -89,7 +89,7 @@ $(STAMP)-build-%:
 		-DVAR_INSTALL_DIR:PATH=/var \
 		-DJAVA_LIB_INSTALL_DIR=/usr/share/java \
 		$(confflags-$*) \
-		../../pki
+		../../
 	cd $(DEB_BUILD_DIR)/$* && make VERBOSE=1
 
 override_dh_auto_build: build-stamp
