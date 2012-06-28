@@ -1,8 +1,8 @@
 Author: Timo Aaltonen <tjaalton@ubuntu.com>
 Description: fix include paths for debian & ubuntu
 
---- a/pki/base/tps/src/engine/RA.cpp
-+++ b/pki/base/tps/src/engine/RA.cpp
+--- a/base/tps/src/engine/RA.cpp
++++ b/base/tps/src/engine/RA.cpp
 @@ -29,7 +29,7 @@
  #include <string.h>
  #include <unistd.h>
@@ -12,8 +12,8 @@ Description: fix include paths for debian & ubuntu
  #include "prmem.h"
  #include "prsystem.h"
  #include "plstr.h"
---- a/pki/base/tps/src/modules/tokendb/mod_tokendb.cpp
-+++ b/pki/base/tps/src/modules/tokendb/mod_tokendb.cpp
+--- a/base/tps/src/modules/tokendb/mod_tokendb.cpp
++++ b/base/tps/src/modules/tokendb/mod_tokendb.cpp
 @@ -55,14 +55,14 @@
  #include "prthread.h"
  #include "cert.h"
@@ -36,8 +36,8 @@ Description: fix include paths for debian & ubuntu
  
  #include "apr_strings.h"
  
---- a/pki/base/tps/src/modules/tps/AP_Context.cpp
-+++ b/pki/base/tps/src/modules/tps/AP_Context.cpp
+--- a/base/tps/src/modules/tps/AP_Context.cpp
++++ b/base/tps/src/modules/tps/AP_Context.cpp
 @@ -23,8 +23,8 @@
  {
  #endif
@@ -49,8 +49,8 @@ Description: fix include paths for debian & ubuntu
  #include "nspr.h"
  
  #include "modules/tps/AP_Context.h"
---- a/pki/base/tps/src/modules/tps/AP_Session.cpp
-+++ b/pki/base/tps/src/modules/tps/AP_Session.cpp
+--- a/base/tps/src/modules/tps/AP_Session.cpp
++++ b/base/tps/src/modules/tps/AP_Session.cpp
 @@ -27,8 +27,8 @@
  #include <stdlib.h>
  #include <stdarg.h>
@@ -62,8 +62,8 @@ Description: fix include paths for debian & ubuntu
  
  #include "engine/RA.h"
  #include "main/Util.h"
---- a/pki/base/tps/src/modules/tps/mod_tps.cpp
-+++ b/pki/base/tps/src/modules/tps/mod_tps.cpp
+--- a/base/tps/src/modules/tps/mod_tps.cpp
++++ b/base/tps/src/modules/tps/mod_tps.cpp
 @@ -41,11 +41,11 @@
  #include <unistd.h>
  #include "nspr.h"
@@ -81,8 +81,8 @@ Description: fix include paths for debian & ubuntu
  
  #include "apr_strings.h"
  
---- a/pki/base/tps/stubs/modules/nss/mod_nss_stub.c
-+++ b/pki/base/tps/stubs/modules/nss/mod_nss_stub.c
+--- a/base/tps/stubs/modules/nss/mod_nss_stub.c
++++ b/base/tps/stubs/modules/nss/mod_nss_stub.c
 @@ -35,12 +35,12 @@
  #include <windows.h>
  #endif /* XP_WIN32 */

@@ -1,8 +1,8 @@
 Author: Timo Aaltonen <tjaalton@ubuntu.com>
 Description: fix various hardcoded values to match debian & ubuntu
 
---- a/pki/base/setup/pkicommon.pm
-+++ b/pki/base/setup/pkicommon.pm
+--- a/base/setup/pkicommon.pm
++++ b/base/setup/pkicommon.pm
 @@ -49,7 +49,7 @@
   format_install_info get_install_info_description
   parse_install_info parse_old_cleanup read_old_cleanup
@@ -61,10 +61,13 @@ Description: fix various hardcoded values to match debian & ubuntu
          @default_jar_path = ($default_pki_java_path, $default_java_path, $default_x86_64_jni_java_path, $default_system_jni_java_path);
      } else {
          emit("Unsupported '$^O' hardware platform '$default_hardware_platform'!", "error");
-@@ -816,6 +818,18 @@
- }
+@@ -813,6 +815,18 @@
+     }
  
- # no args
+     return 0;
++}
++
++# no args
 +# return 1 - true, or
 +# return 0 - false
 +sub is_Debian
@@ -74,22 +77,11 @@ Description: fix various hardcoded values to match debian & ubuntu
 +    }
 +
 +    return 0;
-+}
-+
-+# no args
- # return release_number
- # return 0 if not found
- sub fedora_release {
-@@ -830,7 +844,6 @@
-     return 0;
  }
  
--
  # no args
- # no return value
- sub setup_platform_dependent_parameters
---- a/pki/base/setup/pkicreate
-+++ b/pki/base/setup/pkicreate
+--- a/base/setup/pkicreate
++++ b/base/setup/pkicreate
 @@ -184,16 +184,16 @@
  my $symkey_jar_base_name          = "symkey.jar";          # CA, KRA, OCSP, TKS
  my $tomcatjss_jar_base_name       = "tomcatjss.jar";       # CA, KRA, OCSP, TKS
@@ -167,8 +159,8 @@ Description: fix various hardcoded values to match debian & ubuntu
      }
  
      $command = "${pki_registry_initscript_command}";
---- a/pki/base/setup/pkiremove
-+++ b/pki/base/setup/pkiremove
+--- a/base/setup/pkiremove
++++ b/base/setup/pkiremove
 @@ -502,10 +502,10 @@
                  "/bin/systemctl stop $pki_instance_systemd_service_name";
          } else {
@@ -182,8 +174,8 @@ Description: fix various hardcoded values to match debian & ubuntu
              }
          }
      } else {
---- a/pki/base/setup/scripts/pkicontrol
-+++ b/pki/base/setup/scripts/pkicontrol
+--- a/base/setup/scripts/pkicontrol
++++ b/base/setup/scripts/pkicontrol
 @@ -28,7 +28,7 @@
  pki_instance="$3"
  
@@ -193,8 +185,8 @@ Description: fix various hardcoded values to match debian & ubuntu
  PKI_TYPE="pki-${pki_subsystem_type}"
  PKI_SYSTEMD_TARGET="pki-${pki_subsystem_type}d"
  SYSTEMD=1
---- a/pki/base/ca/shared/conf/tomcat6.conf
-+++ b/pki/base/ca/shared/conf/tomcat6.conf
+--- a/base/ca/shared/conf/tomcat6.conf
++++ b/base/ca/shared/conf/tomcat6.conf
 @@ -30,7 +30,8 @@
  #JAVA_OPTS="-Djava.library.path=/usr/lib64"
  
@@ -205,8 +197,8 @@ Description: fix various hardcoded values to match debian & ubuntu
  
  # You can change your tomcat locale here
  #LANG="en_US"
---- a/pki/base/kra/shared/conf/tomcat6.conf
-+++ b/pki/base/kra/shared/conf/tomcat6.conf
+--- a/base/kra/shared/conf/tomcat6.conf
++++ b/base/kra/shared/conf/tomcat6.conf
 @@ -30,7 +30,8 @@
  #JAVA_OPTS="-Djava.library.path=/usr/lib64"
  
@@ -217,8 +209,8 @@ Description: fix various hardcoded values to match debian & ubuntu
  
  # You can change your tomcat locale here
  #LANG="en_US"
---- a/pki/base/ocsp/shared/conf/tomcat6.conf
-+++ b/pki/base/ocsp/shared/conf/tomcat6.conf
+--- a/base/ocsp/shared/conf/tomcat6.conf
++++ b/base/ocsp/shared/conf/tomcat6.conf
 @@ -30,7 +30,8 @@
  #JAVA_OPTS="-Djava.library.path=/usr/lib64"
  
@@ -229,8 +221,8 @@ Description: fix various hardcoded values to match debian & ubuntu
  
  # You can change your tomcat locale here
  #LANG="en_US"
---- a/pki/base/tks/shared/conf/tomcat6.conf
-+++ b/pki/base/tks/shared/conf/tomcat6.conf
+--- a/base/tks/shared/conf/tomcat6.conf
++++ b/base/tks/shared/conf/tomcat6.conf
 @@ -30,7 +30,8 @@
  #JAVA_OPTS="-Djava.library.path=/usr/lib64"
  
@@ -241,8 +233,8 @@ Description: fix various hardcoded values to match debian & ubuntu
  
  # You can change your tomcat locale here
  #LANG="en_US"
---- a/pki/base/setup/scripts/functions
-+++ b/pki/base/setup/scripts/functions
+--- a/base/setup/scripts/functions
++++ b/base/setup/scripts/functions
 @@ -826,6 +826,9 @@
              #
              case $PKI_SUBSYSTEM_TYPE in
@@ -282,8 +274,8 @@ Description: fix various hardcoded values to match debian & ubuntu
          touch ${lockfile}
          chmod 00600 ${lockfile}
      fi
---- a/pki/base/ra/apache/conf/httpd.conf
-+++ b/pki/base/ra/apache/conf/httpd.conf
+--- a/base/ra/apache/conf/httpd.conf
++++ b/base/ra/apache/conf/httpd.conf
 @@ -240,8 +240,6 @@
  LoadModule dir_module [FORTITUDE_LIB_DIR]/modules/mod_dir.so
  # Required module for command 'TypesConfig':
@@ -293,8 +285,8 @@ Description: fix various hardcoded values to match debian & ubuntu
  # Required module for command 'Alias':
  LoadModule alias_module [FORTITUDE_LIB_DIR]/modules/mod_alias.so
  # Required module for command 'SetEnvIf':
---- a/pki/base/tps/apache/conf/httpd.conf
-+++ b/pki/base/tps/apache/conf/httpd.conf
+--- a/base/tps/apache/conf/httpd.conf
++++ b/base/tps/apache/conf/httpd.conf
 @@ -240,8 +240,6 @@
  LoadModule dir_module [FORTITUDE_LIB_DIR]/modules/mod_dir.so
  # Required module for command 'TypesConfig':
@@ -304,8 +296,8 @@ Description: fix various hardcoded values to match debian & ubuntu
  # Required module for command 'Alias':
  LoadModule alias_module [FORTITUDE_LIB_DIR]/modules/mod_alias.so
  # Required module for command 'SetEnvIf':
---- a/pki/base/ra/setup/registry_instance
-+++ b/pki/base/ra/setup/registry_instance
+--- a/base/ra/setup/registry_instance
++++ b/base/ra/setup/registry_instance
 @@ -62,7 +62,7 @@
  # available, but does not work with some modules (such as PHP).
  # The service must be stopped before changing this variable.
@@ -315,8 +307,8 @@ Description: fix various hardcoded values to match debian & ubuntu
  export PKI_HTTPD
  
  #
---- a/pki/base/tps/setup/registry_instance
-+++ b/pki/base/tps/setup/registry_instance
+--- a/base/tps/setup/registry_instance
++++ b/base/tps/setup/registry_instance
 @@ -62,7 +62,7 @@
  # available, but does not work with some modules (such as PHP).
  # The service must be stopped before changing this variable.

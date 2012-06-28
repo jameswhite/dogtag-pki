@@ -11,8 +11,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
     
     Ticket #90
 
---- a/pki/base/common/src/CMakeLists.txt
-+++ b/pki/base/common/src/CMakeLists.txt
+--- a/base/common/src/CMakeLists.txt
++++ b/base/common/src/CMakeLists.txt
 @@ -16,11 +16,10 @@
          /usr/share/java
  )
@@ -93,8 +93,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
 +add_dependencies(pki-cmsbundle pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore)
  install_jar(pki-cmsbundle ${JAVA_JAR_INSTALL_DIR}/pki)
  set(PKI_CMSBUNDLE_JAR ${pki-cmsbundle_JAR_FILE} CACHE INTERNAL "pki-cmsbundle jar file")
---- a/pki/base/common/src/com/netscape/cms/publish/publishers/LdapCertSubjPublisher.java
-+++ b/pki/base/common/src/com/netscape/cms/publish/publishers/LdapCertSubjPublisher.java
+--- a/base/common/src/com/netscape/cms/publish/publishers/LdapCertSubjPublisher.java
++++ b/base/common/src/com/netscape/cms/publish/publishers/LdapCertSubjPublisher.java
 @@ -244,7 +244,7 @@
  
                  while (vals.hasMoreElements()) {
@@ -104,8 +104,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                          hasCert = true;
                          continue;
                      }
---- a/pki/base/common/src/com/netscape/cms/publish/publishers/LdapEncryptCertPublisher.java
-+++ b/pki/base/common/src/com/netscape/cms/publish/publishers/LdapEncryptCertPublisher.java
+--- a/base/common/src/com/netscape/cms/publish/publishers/LdapEncryptCertPublisher.java
++++ b/base/common/src/com/netscape/cms/publish/publishers/LdapEncryptCertPublisher.java
 @@ -312,7 +312,7 @@
  
          while (vals.hasMoreElements()) {
@@ -115,8 +115,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                  return true;
              }
          }
---- a/pki/base/common/src/com/netscape/cms/publish/publishers/LdapUserCertPublisher.java
-+++ b/pki/base/common/src/com/netscape/cms/publish/publishers/LdapUserCertPublisher.java
+--- a/base/common/src/com/netscape/cms/publish/publishers/LdapUserCertPublisher.java
++++ b/base/common/src/com/netscape/cms/publish/publishers/LdapUserCertPublisher.java
 @@ -286,7 +286,7 @@
              val = (byte[]) vals.nextElement();
              if (val.length == 0)
@@ -127,7 +127,7 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
              }
          }
 --- /dev/null
-+++ b/pki/base/common/src/com/netscape/cms/publish/publishers/PublisherUtils.java
++++ b/base/common/src/com/netscape/cms/publish/publishers/PublisherUtils.java
 @@ -0,0 +1,136 @@
 +// --- BEGIN COPYRIGHT BLOCK ---
 +// This program is free software; you can redistribute it and/or modify
@@ -265,8 +265,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
 +    }
 +
 +}
---- a/pki/base/common/src/com/netscape/cms/servlet/base/CMSServlet.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/base/CMSServlet.java
+--- a/base/common/src/com/netscape/cms/servlet/base/CMSServlet.java
++++ b/base/common/src/com/netscape/cms/servlet/base/CMSServlet.java
 @@ -19,6 +19,8 @@
  
  import com.netscape.cms.servlet.common.*;
@@ -295,7 +295,7 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          return "{SHA}" + salt + ";" + b64E;
      }
 --- /dev/null
-+++ b/pki/base/common/src/com/netscape/cms/servlet/common/ServletUtils.java
++++ b/base/common/src/com/netscape/cms/servlet/common/ServletUtils.java
 @@ -0,0 +1,106 @@
 +// --- BEGIN COPYRIGHT BLOCK ---
 +// This program is free software; you can redistribute it and/or modify
@@ -403,8 +403,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
 +        }
 +    }
 +}
---- a/pki/base/common/src/com/netscape/cms/servlet/profile/ProfileServlet.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/profile/ProfileServlet.java
+--- a/base/common/src/com/netscape/cms/servlet/profile/ProfileServlet.java
++++ b/base/common/src/com/netscape/cms/servlet/profile/ProfileServlet.java
 @@ -19,6 +19,7 @@
  
  
@@ -422,8 +422,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          } catch (ServletException e) {
              log(ILogger.LL_FAILURE, e.toString());
              throw e;
---- a/pki/.classpath
-+++ b/pki/.classpath
+--- a/.classpath
++++ b/.classpath
 @@ -25,10 +25,10 @@
  	<classpathentry kind="lib" path="/usr/share/java/ldapjdk.jar"/>
  	<classpathentry kind="lib" path="/usr/share/java/idm-console-nmclf.jar"/>
@@ -436,8 +436,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
 +	<classpathentry kind="lib" path="/usr/share/java/commons-codec.jar"/>
  	<classpathentry kind="output" path="build/classes"/>
  </classpath>
---- a/pki/base/CMakeLists.txt
-+++ b/pki/base/CMakeLists.txt
+--- a/base/CMakeLists.txt
++++ b/base/CMakeLists.txt
 @@ -1,7 +1,6 @@
  project(base)
  
@@ -446,8 +446,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  if (APPLICATION_FLAVOR_PKI_CORE)
      add_subdirectory(setup)
      add_subdirectory(symkey)
---- a/pki/base/ca/shared/conf/CS.cfg.in
-+++ b/pki/base/ca/shared/conf/CS.cfg.in
+--- a/base/ca/shared/conf/CS.cfg.in
++++ b/base/ca/shared/conf/CS.cfg.in
 @@ -40,6 +40,7 @@
  instanceRoot=[PKI_INSTANCE_PATH]
  machineName=[PKI_MACHINE_NAME]
@@ -456,8 +456,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  service.machineName=[PKI_MACHINE_NAME]
  service.instanceDir=[PKI_INSTANCE_ROOT]
  service.securePort=[PKI_AGENT_SECURE_PORT]
---- a/pki/base/ca/src/CMakeLists.txt
-+++ b/pki/base/ca/src/CMakeLists.txt
+--- a/base/ca/src/CMakeLists.txt
++++ b/base/ca/src/CMakeLists.txt
 @@ -17,11 +17,11 @@
          ${JAVA_LIB_INSTALL_DIR}
  )
@@ -491,8 +491,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  install_jar(pki-ca ${JAVA_JAR_INSTALL_DIR}/pki)
  set(PKI_CA_JAR ${pki-ca_JAR_FILE} CACHE INTERNAL "pki-ca jar file")
  
---- a/pki/base/ca/src/com/netscape/ca/CAService.java
-+++ b/pki/base/ca/src/com/netscape/ca/CAService.java
+--- a/base/ca/src/com/netscape/ca/CAService.java
++++ b/base/ca/src/com/netscape/ca/CAService.java
 @@ -35,6 +35,7 @@
  import com.netscape.cmscore.dbs.*;
  import com.netscape.cmscore.crmf.*;
@@ -510,8 +510,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
          return "{SHA}" + b64E;
      }
---- a/pki/base/common/src/com/netscape/certsrv/apps/CMS.java
-+++ b/pki/base/common/src/com/netscape/certsrv/apps/CMS.java
+--- a/base/common/src/com/netscape/certsrv/apps/CMS.java
++++ b/base/common/src/com/netscape/certsrv/apps/CMS.java
 @@ -309,8 +309,8 @@
       *
       * @return process id of the server
@@ -523,8 +523,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
      }
  
      /**
---- a/pki/base/common/src/com/netscape/certsrv/apps/ICMSEngine.java
-+++ b/pki/base/common/src/com/netscape/certsrv/apps/ICMSEngine.java
+--- a/base/common/src/com/netscape/certsrv/apps/ICMSEngine.java
++++ b/base/common/src/com/netscape/certsrv/apps/ICMSEngine.java
 @@ -92,7 +92,7 @@
       *
       * @return process id of the server
@@ -534,8 +534,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
      public void reinit(String id) throws EBaseException;
      public int getCSState();
---- a/pki/base/common/src/com/netscape/certsrv/base/KeyGenInfo.java
-+++ b/pki/base/common/src/com/netscape/certsrv/base/KeyGenInfo.java
+--- a/base/common/src/com/netscape/certsrv/base/KeyGenInfo.java
++++ b/base/common/src/com/netscape/certsrv/base/KeyGenInfo.java
 @@ -17,7 +17,7 @@
  // --- END COPYRIGHT BLOCK ---
  package com.netscape.certsrv.base;
@@ -554,8 +554,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
      }
  
      private void derDecode(byte spkac[])
---- a/pki/base/common/src/com/netscape/cms/authentication/HashAuthentication.java
-+++ b/pki/base/common/src/com/netscape/cms/authentication/HashAuthentication.java
+--- a/base/common/src/com/netscape/cms/authentication/HashAuthentication.java
++++ b/base/common/src/com/netscape/cms/authentication/HashAuthentication.java
 @@ -203,7 +203,7 @@
      public String hashFingerprint(String host, String pageID, String uid) {
          byte[] hash = 
@@ -565,8 +565,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
          return "{SHA}" + b64E;
      }
---- a/pki/base/common/src/com/netscape/cms/crl/CMSIssuerAlternativeNameExtension.java
-+++ b/pki/base/common/src/com/netscape/cms/crl/CMSIssuerAlternativeNameExtension.java
+--- a/base/common/src/com/netscape/cms/crl/CMSIssuerAlternativeNameExtension.java
++++ b/base/common/src/com/netscape/cms/crl/CMSIssuerAlternativeNameExtension.java
 @@ -45,7 +45,7 @@
  import com.netscape.certsrv.dbs.crldb.*;
  import com.netscape.certsrv.logging.*;
@@ -585,8 +585,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                                  DerValue derVal = new DerValue(new ByteArrayInputStream(val));
                                  GeneralName generalName = new GeneralName(derVal);
  
---- a/pki/base/common/src/com/netscape/cms/logging/LogFile.java
-+++ b/pki/base/common/src/com/netscape/cms/logging/LogFile.java
+--- a/base/common/src/com/netscape/cms/logging/LogFile.java
++++ b/base/common/src/com/netscape/cms/logging/LogFile.java
 @@ -148,11 +148,6 @@
      private Thread mFlushThread = null;
  
@@ -614,8 +614,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                      + mLogDateFormat.format(mDate) + "] [" +
                      Integer.toString(ev.getSource()) + "] [" + Integer.toString(ev.getLevel())
                      + "] " + ev.toString();
---- a/pki/base/common/src/com/netscape/cms/policy/constraints/RenewalValidityConstraints.java
-+++ b/pki/base/common/src/com/netscape/cms/policy/constraints/RenewalValidityConstraints.java
+--- a/base/common/src/com/netscape/cms/policy/constraints/RenewalValidityConstraints.java
++++ b/base/common/src/com/netscape/cms/policy/constraints/RenewalValidityConstraints.java
 @@ -27,6 +27,7 @@
  import com.netscape.certsrv.common.*;
  import netscape.security.x509.*;
@@ -633,8 +633,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
                  sb.append(CERT_HEADER + encodedCert + CERT_TRAILER);
              } catch (Exception e) {
---- a/pki/base/common/src/com/netscape/cms/publish/publishers/FileBasedPublisher.java
-+++ b/pki/base/common/src/com/netscape/cms/publish/publishers/FileBasedPublisher.java
+--- a/base/common/src/com/netscape/cms/publish/publishers/FileBasedPublisher.java
++++ b/base/common/src/com/netscape/cms/publish/publishers/FileBasedPublisher.java
 @@ -30,6 +30,7 @@
  import com.netscape.certsrv.ldap.*;
  import com.netscape.certsrv.publish.*;
@@ -652,8 +652,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                  fos.close();
                  destName = baseName + ".b64";
                  destFile = new File(destName);
---- a/pki/base/common/src/com/netscape/cms/servlet/admin/AdminServlet.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/admin/AdminServlet.java
+--- a/base/common/src/com/netscape/cms/servlet/admin/AdminServlet.java
++++ b/base/common/src/com/netscape/cms/servlet/admin/AdminServlet.java
 @@ -36,6 +36,7 @@
  import com.netscape.certsrv.usrgrp.*;
  import com.netscape.certsrv.apps.*;
@@ -671,8 +671,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                      String userid = authCode.substring(0,
                              authCode.lastIndexOf(':'));
                      String password = authCode.substring(
---- a/pki/base/common/src/com/netscape/cms/servlet/admin/CMSAdminServlet.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/admin/CMSAdminServlet.java
+--- a/base/common/src/com/netscape/cms/servlet/admin/CMSAdminServlet.java
++++ b/base/common/src/com/netscape/cms/servlet/admin/CMSAdminServlet.java
 @@ -2612,7 +2612,7 @@
              byte[] bCert = null;
  
@@ -691,8 +691,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
              // extract all line separators from the "base64Data"
              for (int i = 0; i < base64Data.length(); i++) {
---- a/pki/base/common/src/com/netscape/cms/servlet/admin/UsrGrpAdminServlet.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/admin/UsrGrpAdminServlet.java
+--- a/base/common/src/com/netscape/cms/servlet/admin/UsrGrpAdminServlet.java
++++ b/base/common/src/com/netscape/cms/servlet/admin/UsrGrpAdminServlet.java
 @@ -1064,7 +1064,7 @@
              // Base64 decode cert
  
@@ -711,8 +711,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
                  try {
                      CryptoManager manager = CryptoManager.getInstance();
---- a/pki/base/common/src/com/netscape/cms/servlet/cert/CMCRevReqServlet.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/cert/CMCRevReqServlet.java
+--- a/base/common/src/com/netscape/cms/servlet/cert/CMCRevReqServlet.java
++++ b/base/common/src/com/netscape/cms/servlet/cert/CMCRevReqServlet.java
 @@ -56,7 +56,7 @@
  import com.netscape.certsrv.logging.*;
  
@@ -731,8 +731,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                          X509CertImpl cert = new X509CertImpl(certBytes);
                          IArgBlock rarg = CMS.createArgBlock();
  
---- a/pki/base/common/src/com/netscape/cms/servlet/cert/ChallengeRevocationServlet1.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/cert/ChallengeRevocationServlet1.java
+--- a/base/common/src/com/netscape/cms/servlet/cert/ChallengeRevocationServlet1.java
++++ b/base/common/src/com/netscape/cms/servlet/cert/ChallengeRevocationServlet1.java
 @@ -49,7 +49,7 @@
  import com.netscape.certsrv.authentication.*;
  import com.netscape.certsrv.logging.*;
@@ -751,8 +751,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                          X509CertImpl cert = new X509CertImpl(certBytes);
                          IArgBlock rarg = CMS.createArgBlock();
  
---- a/pki/base/common/src/com/netscape/cms/servlet/cert/DisplayBySerial.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/cert/DisplayBySerial.java
+--- a/base/common/src/com/netscape/cms/servlet/cert/DisplayBySerial.java
++++ b/base/common/src/com/netscape/cms/servlet/cert/DisplayBySerial.java
 @@ -48,7 +48,7 @@
  import com.netscape.certsrv.authentication.*;
  import com.netscape.certsrv.authorization.*;
@@ -780,8 +780,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                  header.addStringValue("pkcs7ChainBase64", p7Str);
              } catch (Exception e) {
                  //p7Str = "PKCS#7 B64 Encoding error - " + e.toString() 
---- a/pki/base/common/src/com/netscape/cms/servlet/cert/DisplayCRL.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/cert/DisplayCRL.java
+--- a/base/common/src/com/netscape/cms/servlet/cert/DisplayCRL.java
++++ b/base/common/src/com/netscape/cms/servlet/cert/DisplayCRL.java
 @@ -43,7 +43,7 @@
  import com.netscape.certsrv.authorization.*;
  
@@ -809,8 +809,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                                      int length = crlBase64Encoded.length();
                                      int i = 0;
                                      int j = 0;
---- a/pki/base/common/src/com/netscape/cms/servlet/cert/EnrollServlet.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/cert/EnrollServlet.java
+--- a/base/common/src/com/netscape/cms/servlet/cert/EnrollServlet.java
++++ b/base/common/src/com/netscape/cms/servlet/cert/EnrollServlet.java
 @@ -66,7 +66,7 @@
  import com.netscape.certsrv.ca.*;
  import com.netscape.certsrv.dbs.certdb.*;
@@ -829,8 +829,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
              StringBuffer sb = new StringBuffer();
              // extract all line separators from the "base64Data"
---- a/pki/base/common/src/com/netscape/cms/servlet/cert/GetCRL.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/cert/GetCRL.java
+--- a/base/common/src/com/netscape/cms/servlet/cert/GetCRL.java
++++ b/base/common/src/com/netscape/cms/servlet/cert/GetCRL.java
 @@ -46,7 +46,7 @@
  import com.netscape.certsrv.authentication.*;
  import com.netscape.certsrv.authorization.*;
@@ -858,8 +858,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                          int length = crlBase64Encoded.length();
                          int i = 0;
                          int j = 0;
---- a/pki/base/common/src/com/netscape/cms/servlet/cert/ImportCertsTemplateFiller.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/cert/ImportCertsTemplateFiller.java
+--- a/base/common/src/com/netscape/cms/servlet/cert/ImportCertsTemplateFiller.java
++++ b/base/common/src/com/netscape/cms/servlet/cert/ImportCertsTemplateFiller.java
 @@ -20,7 +20,8 @@
  
  import com.netscape.cms.servlet.common.*;
@@ -879,8 +879,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
              // add CR to each return as required by cartman
              BufferedReader certRepB64lines = 
                  new BufferedReader(new StringReader(certRepB64));
---- a/pki/base/common/src/com/netscape/cms/servlet/cert/RevocationServlet.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/cert/RevocationServlet.java
+--- a/base/common/src/com/netscape/cms/servlet/cert/RevocationServlet.java
++++ b/base/common/src/com/netscape/cms/servlet/cert/RevocationServlet.java
 @@ -20,6 +20,7 @@
  
  import com.netscape.cms.servlet.common.*;
@@ -898,8 +898,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
              } catch (CertificateEncodingException e) {
              }
          }
---- a/pki/base/common/src/com/netscape/cms/servlet/cert/scep/CRSEnrollment.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/cert/scep/CRSEnrollment.java
+--- a/base/common/src/com/netscape/cms/servlet/cert/scep/CRSEnrollment.java
++++ b/base/common/src/com/netscape/cms/servlet/cert/scep/CRSEnrollment.java
 @@ -49,6 +49,7 @@
  import org.mozilla.jss.crypto.*;
  import org.mozilla.jss.pkix.cert.Certificate;
@@ -935,8 +935,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          return "{SHA}"+b64E;
      }
  
---- a/pki/base/common/src/com/netscape/cms/servlet/connector/ConnectorServlet.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/connector/ConnectorServlet.java
+--- a/base/common/src/com/netscape/cms/servlet/connector/ConnectorServlet.java
++++ b/base/common/src/com/netscape/cms/servlet/connector/ConnectorServlet.java
 @@ -19,6 +19,7 @@
  
  import com.netscape.cms.servlet.common.*;
@@ -954,8 +954,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
              StringBuffer sb = new StringBuffer();
              // extract all line separators from the "base64Data"
---- a/pki/base/common/src/com/netscape/cms/servlet/csadmin/RegisterUser.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/csadmin/RegisterUser.java
+--- a/base/common/src/com/netscape/cms/servlet/csadmin/RegisterUser.java
++++ b/base/common/src/com/netscape/cms/servlet/csadmin/RegisterUser.java
 @@ -20,6 +20,7 @@
  
  import com.netscape.cms.servlet.common.*;
@@ -973,8 +973,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
            cert = new X509CertImpl(bCert);
            certs[0] = (X509Certificate)cert;
  
---- a/pki/base/common/src/com/netscape/cms/servlet/ocsp/OCSPServlet.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/ocsp/OCSPServlet.java
+--- a/base/common/src/com/netscape/cms/servlet/ocsp/OCSPServlet.java
++++ b/base/common/src/com/netscape/cms/servlet/ocsp/OCSPServlet.java
 @@ -52,7 +52,7 @@
  import com.netscape.certsrv.authorization.*;
  import com.netscape.cmsutil.ocsp.*;
@@ -993,8 +993,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
              }
  
              // (1) retrieve OCSP request
---- a/pki/base/common/src/com/netscape/cms/servlet/profile/ProfileProcessServlet.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/profile/ProfileProcessServlet.java
+--- a/base/common/src/com/netscape/cms/servlet/profile/ProfileProcessServlet.java
++++ b/base/common/src/com/netscape/cms/servlet/profile/ProfileProcessServlet.java
 @@ -35,6 +35,7 @@
  import com.netscape.certsrv.logging.*;
  import com.netscape.certsrv.ca.*;
@@ -1012,8 +1012,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
              // extract all line separators from the "base64Data"
              StringBuffer sb = new StringBuffer();
---- a/pki/base/common/src/com/netscape/cms/servlet/profile/ProfileSubmitCMCServlet.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/profile/ProfileSubmitCMCServlet.java
+--- a/base/common/src/com/netscape/cms/servlet/profile/ProfileSubmitCMCServlet.java
++++ b/base/common/src/com/netscape/cms/servlet/profile/ProfileSubmitCMCServlet.java
 @@ -38,7 +38,7 @@
  import org.mozilla.jss.pkix.cmc.*;
  
@@ -1041,8 +1041,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
              // extract all line separators from the "base64Data"
              StringBuffer sb = new StringBuffer();
---- a/pki/base/common/src/com/netscape/cms/servlet/profile/ProfileSubmitServlet.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/profile/ProfileSubmitServlet.java
+--- a/base/common/src/com/netscape/cms/servlet/profile/ProfileSubmitServlet.java
++++ b/base/common/src/com/netscape/cms/servlet/profile/ProfileSubmitServlet.java
 @@ -41,6 +41,7 @@
  import com.netscape.cms.servlet.common.AuthCredentials;
  import com.netscape.cmsutil.xml.*;
@@ -1060,8 +1060,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
              // extract all line separators from the "base64Data"
              StringBuffer sb = new StringBuffer();
---- a/pki/base/common/src/com/netscape/cms/servlet/request/ProcessCertReq.java
-+++ b/pki/base/common/src/com/netscape/cms/servlet/request/ProcessCertReq.java
+--- a/base/common/src/com/netscape/cms/servlet/request/ProcessCertReq.java
++++ b/base/common/src/com/netscape/cms/servlet/request/ProcessCertReq.java
 @@ -44,7 +44,7 @@
  import com.netscape.certsrv.usrgrp.*;
  import com.netscape.certsrv.common.*;
@@ -1089,8 +1089,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
              // extract all line separators from the "base64Data"
              StringBuffer sb = new StringBuffer();
---- a/pki/base/common/src/com/netscape/cmscore/apps/CMSEngine.java
-+++ b/pki/base/common/src/com/netscape/cmscore/apps/CMSEngine.java
+--- a/base/common/src/com/netscape/cmscore/apps/CMSEngine.java
++++ b/base/common/src/com/netscape/cmscore/apps/CMSEngine.java
 @@ -84,7 +84,6 @@
  import com.netscape.cmscore.logging.LogSubsystem;
  import com.netscape.cmscore.logging.Logger;
@@ -1226,8 +1226,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
      }
  
      public Date getCurrentDate() {
---- a/pki/base/common/src/com/netscape/cmscore/apps/Upgrade.java
-+++ b/pki/base/common/src/com/netscape/cmscore/apps/Upgrade.java
+--- a/base/common/src/com/netscape/cmscore/apps/Upgrade.java
++++ b/base/common/src/com/netscape/cmscore/apps/Upgrade.java
 @@ -28,7 +28,7 @@
  import org.mozilla.jss.util.ConsolePasswordCallback;
  import java.io.File;
@@ -1246,8 +1246,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
              c.putString("log.impl.NTEventLog.class",
                  "com.netscape.certsrv.logging.NTEventLog");
  
---- a/pki/base/common/src/com/netscape/cmscore/authentication/ChallengePhraseAuthentication.java
-+++ b/pki/base/common/src/com/netscape/cmscore/authentication/ChallengePhraseAuthentication.java
+--- a/base/common/src/com/netscape/cmscore/authentication/ChallengePhraseAuthentication.java
++++ b/base/common/src/com/netscape/cmscore/authentication/ChallengePhraseAuthentication.java
 @@ -35,7 +35,7 @@
  import com.netscape.certsrv.apps.*;
  import com.netscape.cmscore.dbs.*;
@@ -1266,8 +1266,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
          return "{SHA}" + b64E;
      }
---- a/pki/base/common/src/com/netscape/cmscore/base/ArgBlock.java
-+++ b/pki/base/common/src/com/netscape/cmscore/base/ArgBlock.java
+--- a/base/common/src/com/netscape/cmscore/base/ArgBlock.java
++++ b/base/common/src/com/netscape/cmscore/base/ArgBlock.java
 @@ -25,7 +25,7 @@
  import java.math.BigInteger;
  import com.netscape.certsrv.base.*;
@@ -1286,8 +1286,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
              pkcs10 = new PKCS10(decodedBytes);
          } catch (NoSuchProviderException e) { 
---- a/pki/base/common/src/com/netscape/cmscore/base/PropConfigStore.java
-+++ b/pki/base/common/src/com/netscape/cmscore/base/PropConfigStore.java
+--- a/base/common/src/com/netscape/cmscore/base/PropConfigStore.java
++++ b/base/common/src/com/netscape/cmscore/base/PropConfigStore.java
 @@ -24,7 +24,7 @@
  import org.mozilla.jss.util.Base64OutputStream;
  import com.netscape.certsrv.base.*;
@@ -1306,8 +1306,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  			}
      }
  
---- a/pki/base/common/src/com/netscape/cmscore/cert/CertUtils.java
-+++ b/pki/base/common/src/com/netscape/cmscore/cert/CertUtils.java
+--- a/base/common/src/com/netscape/cmscore/cert/CertUtils.java
++++ b/base/common/src/com/netscape/cmscore/cert/CertUtils.java
 @@ -26,7 +26,7 @@
  import netscape.security.extensions.*;
  import netscape.security.util.*;
@@ -1371,8 +1371,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          X509CRL crl = null;
  
          try {
---- a/pki/base/common/src/com/netscape/cmscore/connector/HttpRequestEncoder.java
-+++ b/pki/base/common/src/com/netscape/cmscore/connector/HttpRequestEncoder.java
+--- a/base/common/src/com/netscape/cmscore/connector/HttpRequestEncoder.java
++++ b/base/common/src/com/netscape/cmscore/connector/HttpRequestEncoder.java
 @@ -21,6 +21,7 @@
  import com.netscape.certsrv.request.*;
  import com.netscape.certsrv.connector.*;
@@ -1399,8 +1399,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
              ByteArrayInputStream ba = new ByteArrayInputStream(serial);
              ObjectInputStream is = new ObjectInputStream(ba);
  
---- a/pki/base/common/src/com/netscape/cmscore/policy/GeneralNameUtil.java
-+++ b/pki/base/common/src/com/netscape/cmscore/policy/GeneralNameUtil.java
+--- a/base/common/src/com/netscape/cmscore/policy/GeneralNameUtil.java
++++ b/base/common/src/com/netscape/cmscore/policy/GeneralNameUtil.java
 @@ -29,6 +29,7 @@
  import com.netscape.certsrv.base.*;
  import com.netscape.certsrv.policy.*;
@@ -1418,8 +1418,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
                  derVal = new DerValue(new ByteArrayInputStream(val));
                  Debug.trace("otherName formed");
---- a/pki/base/common/src/com/netscape/cmscore/security/JssSubsystem.java
-+++ b/pki/base/common/src/com/netscape/cmscore/security/JssSubsystem.java
+--- a/base/common/src/com/netscape/cmscore/security/JssSubsystem.java
++++ b/base/common/src/com/netscape/cmscore/security/JssSubsystem.java
 @@ -54,7 +54,7 @@
  import com.netscape.cmscore.util.Debug;
  import netscape.ldap.util.*;
@@ -1447,8 +1447,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
                  ContentInfo ci = (ContentInfo)
                      ASN1Util.decode(ContentInfo.getTemplate(), data);
---- a/pki/base/common/src/com/netscape/cmscore/security/KeyCertUtil.java
-+++ b/pki/base/common/src/com/netscape/cmscore/security/KeyCertUtil.java
+--- a/base/common/src/com/netscape/cmscore/security/KeyCertUtil.java
++++ b/base/common/src/com/netscape/cmscore/security/KeyCertUtil.java
 @@ -60,7 +60,7 @@
  import com.netscape.cmscore.util.*;
  import com.netscape.cmscore.dbs.*;
@@ -1485,8 +1485,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
              // this b can be "Extension" Or "SEQUENCE OF Extension"
              try {
---- a/pki/base/common/src/com/netscape/cmscore/security/PWsdrCache.java
-+++ b/pki/base/common/src/com/netscape/cmscore/security/PWsdrCache.java
+--- a/base/common/src/com/netscape/cmscore/security/PWsdrCache.java
++++ b/base/common/src/com/netscape/cmscore/security/PWsdrCache.java
 @@ -180,7 +180,7 @@
      }
  
@@ -1496,7 +1496,7 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
           return d;
      }
  
---- a/pki/base/common/src/com/netscape/cmscore/util/OsSubsystem.java
+--- a/base/common/src/com/netscape/cmscore/util/OsSubsystem.java
 +++ /dev/null
 @@ -1,488 +0,0 @@
 -// --- BEGIN COPYRIGHT BLOCK ---
@@ -1987,8 +1987,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
 -        //PKIServer.getPKIServer().shutdown();
 -    }
 -}
---- a/pki/base/common/test/com/netscape/certsrv/app/CMSEngineDefaultStub.java
-+++ b/pki/base/common/test/com/netscape/certsrv/app/CMSEngineDefaultStub.java
+--- a/base/common/test/com/netscape/certsrv/app/CMSEngineDefaultStub.java
++++ b/base/common/test/com/netscape/certsrv/app/CMSEngineDefaultStub.java
 @@ -66,7 +66,7 @@
          return null;
      }
@@ -1998,8 +1998,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          return 0;
      }
  
---- a/pki/base/console/src/CMakeLists.txt
-+++ b/pki/base/console/src/CMakeLists.txt
+--- a/base/console/src/CMakeLists.txt
++++ b/base/console/src/CMakeLists.txt
 @@ -69,11 +69,10 @@
          /usr/share/java
  )
@@ -2023,8 +2023,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
  
  # set version
---- a/pki/base/java-tools/src/CMakeLists.txt
-+++ b/pki/base/java-tools/src/CMakeLists.txt
+--- a/base/java-tools/src/CMakeLists.txt
++++ b/base/java-tools/src/CMakeLists.txt
 @@ -8,11 +8,10 @@
          /usr/share/java
  )
@@ -2055,8 +2055,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  install(
      FILES
          com/netscape/cmstools/DRMTool.cfg
---- a/pki/base/java-tools/src/com/netscape/cmstools/AtoB.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/AtoB.java
+--- a/base/java-tools/src/com/netscape/cmstools/AtoB.java
++++ b/base/java-tools/src/com/netscape/cmstools/AtoB.java
 @@ -21,6 +21,8 @@
  import java.io.*;
  
@@ -2075,8 +2075,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
          // (6) Finally, print the actual AtoB blob to the
          //     specified output file
---- a/pki/base/java-tools/src/com/netscape/cmstools/AuditVerify.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/AuditVerify.java
+--- a/base/java-tools/src/com/netscape/cmstools/AuditVerify.java
++++ b/base/java-tools/src/com/netscape/cmstools/AuditVerify.java
 @@ -28,6 +28,8 @@
  import java.security.interfaces.*;
  import netscape.security.x509.X509CertImpl;
@@ -2095,8 +2095,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
      }
  
      // We always sign 0x0a as the line separator, regardless of what
---- a/pki/base/java-tools/src/com/netscape/cmstools/BtoA.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/BtoA.java
+--- a/base/java-tools/src/com/netscape/cmstools/BtoA.java
++++ b/base/java-tools/src/com/netscape/cmstools/BtoA.java
 @@ -21,6 +21,8 @@
  import java.io.*;
  
@@ -2115,8 +2115,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
              outputBlob.write(out.getBytes());
          } catch (IOException e) {
              System.out.println("BtoA():  Unexpected BASE64 " +
---- a/pki/base/java-tools/src/com/netscape/cmstools/CMCEnroll.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/CMCEnroll.java
+--- a/base/java-tools/src/com/netscape/cmstools/CMCEnroll.java
++++ b/base/java-tools/src/com/netscape/cmstools/CMCEnroll.java
 @@ -49,6 +49,8 @@
  
  
@@ -2162,8 +2162,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                  
                  // (6) Finally, print the actual CMCEnroll blob to the
                  //     specified output file
---- a/pki/base/java-tools/src/com/netscape/cmstools/CMCRequest.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/CMCRequest.java
+--- a/base/java-tools/src/com/netscape/cmstools/CMCRequest.java
++++ b/base/java-tools/src/com/netscape/cmstools/CMCRequest.java
 @@ -153,7 +153,7 @@
              try {
                  for (int k=0; k<rValue.length; k++) {
@@ -2191,8 +2191,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          }
          byte bb[] = sn.getBytes(); 
          System.out.println("SenderNonce control: ");
---- a/pki/base/java-tools/src/com/netscape/cmstools/CMCRevoke.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/CMCRevoke.java
+--- a/base/java-tools/src/com/netscape/cmstools/CMCRevoke.java
++++ b/base/java-tools/src/com/netscape/cmstools/CMCRevoke.java
 @@ -49,6 +49,8 @@
  
  
@@ -2220,8 +2220,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                  ////fullEnrollmentReq.print(ps); // no header/trailer
              } 
  
---- a/pki/base/java-tools/src/com/netscape/cmstools/CRMFPopClient.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/CRMFPopClient.java
+--- a/base/java-tools/src/com/netscape/cmstools/CRMFPopClient.java
++++ b/base/java-tools/src/com/netscape/cmstools/CRMFPopClient.java
 @@ -309,7 +309,7 @@
                  System.out.println("."); //key pair generated");
  
@@ -2240,8 +2240,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
                      if(OUTPUT_CERT_REQ != null)
                      {
---- a/pki/base/java-tools/src/com/netscape/cmstools/DRMTool.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/DRMTool.java
+--- a/base/java-tools/src/com/netscape/cmstools/DRMTool.java
++++ b/base/java-tools/src/com/netscape/cmstools/DRMTool.java
 @@ -36,6 +36,8 @@
  import org.mozilla.jss.util.Password;
  import org.mozilla.jss.*;
@@ -2312,8 +2312,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                                             target_wrappedKeyData );
  
                          // Unformat the ASCII BASE 64 certificate
---- a/pki/base/java-tools/src/com/netscape/cmstools/ExtJoiner.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/ExtJoiner.java
+--- a/base/java-tools/src/com/netscape/cmstools/ExtJoiner.java
++++ b/base/java-tools/src/com/netscape/cmstools/ExtJoiner.java
 @@ -23,6 +23,7 @@
  import netscape.security.x509.*;
  import netscape.security.util.*;
@@ -2339,8 +2339,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
 +        return  Utils.base64decode(new String(data));
      }
  }
---- a/pki/base/java-tools/src/com/netscape/cmstools/GenExtKeyUsage.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/GenExtKeyUsage.java
+--- a/base/java-tools/src/com/netscape/cmstools/GenExtKeyUsage.java
++++ b/base/java-tools/src/com/netscape/cmstools/GenExtKeyUsage.java
 @@ -22,7 +22,7 @@
  import java.util.Vector;
  import netscape.security.x509.*;
@@ -2359,8 +2359,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
          } catch (Exception e) {
              e.printStackTrace();
---- a/pki/base/java-tools/src/com/netscape/cmstools/GenIssuerAltNameExt.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/GenIssuerAltNameExt.java
+--- a/base/java-tools/src/com/netscape/cmstools/GenIssuerAltNameExt.java
++++ b/base/java-tools/src/com/netscape/cmstools/GenIssuerAltNameExt.java
 @@ -22,7 +22,7 @@
  import java.net.*;
  import netscape.security.x509.*;
@@ -2379,8 +2379,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          );
      }
  
---- a/pki/base/java-tools/src/com/netscape/cmstools/GenSubjectAltNameExt.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/GenSubjectAltNameExt.java
+--- a/base/java-tools/src/com/netscape/cmstools/GenSubjectAltNameExt.java
++++ b/base/java-tools/src/com/netscape/cmstools/GenSubjectAltNameExt.java
 @@ -22,7 +22,7 @@
  import java.net.*;
  import netscape.security.x509.*;
@@ -2399,8 +2399,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          );
      }
  
---- a/pki/base/java-tools/src/com/netscape/cmstools/HttpClient.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/HttpClient.java
+--- a/base/java-tools/src/com/netscape/cmstools/HttpClient.java
++++ b/base/java-tools/src/com/netscape/cmstools/HttpClient.java
 @@ -41,6 +41,8 @@
  import com.netscape.cmsutil.ocsp.Request;
  
@@ -2419,8 +2419,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          System.out.println(bs.toString());
  
          System.out.println("");
---- a/pki/base/java-tools/src/com/netscape/cmstools/OCSPClient.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/OCSPClient.java
+--- a/base/java-tools/src/com/netscape/cmstools/OCSPClient.java
++++ b/base/java-tools/src/com/netscape/cmstools/OCSPClient.java
 @@ -38,7 +38,7 @@
  
  import com.netscape.cmsutil.ocsp.*;
@@ -2439,8 +2439,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
          InputStream iiss = socket.getInputStream(); 
          FileOutputStream fof = new FileOutputStream(output);
---- a/pki/base/java-tools/src/com/netscape/cmstools/PKCS10Client.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/PKCS10Client.java
+--- a/base/java-tools/src/com/netscape/cmstools/PKCS10Client.java
++++ b/base/java-tools/src/com/netscape/cmstools/PKCS10Client.java
 @@ -165,7 +165,7 @@
              certRequest.encode(bos);
              byte[] bb = bos.toByteArray();
@@ -2450,8 +2450,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
   
              System.out.println("");
              System.out.println(b64E);
---- a/pki/base/java-tools/src/com/netscape/cmstools/PasswordCache.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/PasswordCache.java
+--- a/base/java-tools/src/com/netscape/cmstools/PasswordCache.java
++++ b/base/java-tools/src/com/netscape/cmstools/PasswordCache.java
 @@ -31,6 +31,8 @@
  import org.mozilla.jss.SecretDecoderRing.Decryptor;
  import org.mozilla.jss.util.Base64OutputStream;
@@ -2470,8 +2470,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
           return d;
      }
  
---- a/pki/base/java-tools/src/com/netscape/cmstools/PrettyPrintCert.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/PrettyPrintCert.java
+--- a/base/java-tools/src/com/netscape/cmstools/PrettyPrintCert.java
++++ b/base/java-tools/src/com/netscape/cmstools/PrettyPrintCert.java
 @@ -24,7 +24,7 @@
  import java.security.cert.*;
  import netscape.security.x509.*;
@@ -2490,8 +2490,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
          // (6) Create an X509CertImpl() object from the BINARY BASE 64
          //     byte[] object
---- a/pki/base/java-tools/src/com/netscape/cmstools/PrettyPrintCrl.java
-+++ b/pki/base/java-tools/src/com/netscape/cmstools/PrettyPrintCrl.java
+--- a/base/java-tools/src/com/netscape/cmstools/PrettyPrintCrl.java
++++ b/base/java-tools/src/com/netscape/cmstools/PrettyPrintCrl.java
 @@ -24,7 +24,7 @@
  import java.security.cert.*;
  import netscape.security.x509.*;
@@ -2510,8 +2510,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
          // (6) Create an X509CRLImpl() object from the BINARY BASE 64
          //     byte[] object
---- a/pki/base/java-tools/templates/pki_java_command_wrapper.in
-+++ b/pki/base/java-tools/templates/pki_java_command_wrapper.in
+--- a/base/java-tools/templates/pki_java_command_wrapper.in
++++ b/base/java-tools/templates/pki_java_command_wrapper.in
 @@ -74,15 +74,12 @@
      if [ "${ARCHITECTURE}" = "i386" ] ; then
          LD_LIBRARY_PATH=/usr/lib:/lib
@@ -2543,8 +2543,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  CP=/usr/share/java/ldapjdk.jar:${CP}
  CP=/usr/share/java/${PRODUCT}/pki-nsutil.jar:${CP}
  CP=/usr/share/java/${PRODUCT}/pki-cmsutil.jar:${CP}
---- a/pki/base/java-tools/templates/pretty_print_cert_command_wrapper.in
-+++ b/pki/base/java-tools/templates/pretty_print_cert_command_wrapper.in
+--- a/base/java-tools/templates/pretty_print_cert_command_wrapper.in
++++ b/base/java-tools/templates/pretty_print_cert_command_wrapper.in
 @@ -74,15 +74,12 @@
      if [ "${ARCHITECTURE}" = "i386" ] ; then
          LD_LIBRARY_PATH=/usr/lib:/lib
@@ -2576,8 +2576,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  CP=/usr/share/java/ldapjdk.jar:${CP}
  CP=/usr/share/java/${PRODUCT}/pki-nsutil.jar:${CP}
  CP=/usr/share/java/${PRODUCT}/pki-cmsutil.jar:${CP}
---- a/pki/base/java-tools/templates/pretty_print_crl_command_wrapper.in
-+++ b/pki/base/java-tools/templates/pretty_print_crl_command_wrapper.in
+--- a/base/java-tools/templates/pretty_print_crl_command_wrapper.in
++++ b/base/java-tools/templates/pretty_print_crl_command_wrapper.in
 @@ -74,15 +74,12 @@
      if [ "${ARCHITECTURE}" = "i386" ] ; then
          LD_LIBRARY_PATH=/usr/lib:/lib
@@ -2609,8 +2609,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  CP=/usr/share/java/ldapjdk.jar:${CP}
  CP=/usr/share/java/${PRODUCT}/pki-nsutil.jar:${CP}
  CP=/usr/share/java/${PRODUCT}/pki-cmsutil.jar:${CP}
---- a/pki/base/kra/shared/conf/CS.cfg.in
-+++ b/pki/base/kra/shared/conf/CS.cfg.in
+--- a/base/kra/shared/conf/CS.cfg.in
++++ b/base/kra/shared/conf/CS.cfg.in
 @@ -31,6 +31,7 @@
  instanceRoot=[PKI_INSTANCE_PATH]
  machineName=[PKI_MACHINE_NAME]
@@ -2619,8 +2619,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  service.machineName=[PKI_MACHINE_NAME]
  service.instanceDir=[PKI_INSTANCE_ROOT]
  service.securePort=[PKI_AGENT_SECURE_PORT]
---- a/pki/base/kra/src/CMakeLists.txt
-+++ b/pki/base/kra/src/CMakeLists.txt
+--- a/base/kra/src/CMakeLists.txt
++++ b/base/kra/src/CMakeLists.txt
 @@ -55,11 +55,11 @@
          ${JAVA_LIB_INSTALL_DIR}
  )
@@ -2654,18 +2654,18 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  install_jar(pki-kra ${JAVA_JAR_INSTALL_DIR}/pki)
  set(PKI_KRA_JAR ${pki-kra_JAR_FILE} CACHE INTERNAL "pki-kra jar file")
  
---- a/pki/base/kra/src/com/netscape/kra/EnrollmentService.java
-+++ b/pki/base/kra/src/com/netscape/kra/EnrollmentService.java
-@@ -55,7 +55,7 @@
- import com.netscape.certsrv.request.*;
+--- a/base/kra/src/com/netscape/kra/EnrollmentService.java
++++ b/base/kra/src/com/netscape/kra/EnrollmentService.java
+@@ -60,7 +60,7 @@
  import com.netscape.certsrv.authentication.*;
  import com.netscape.certsrv.apps.CMS;
+ import com.netscape.cms.servlet.key.KeyRecordParser;
 -
 +import com.netscape.cmsutil.util.Utils;
  
  /**
   * A class represents archival request processor. It 
-@@ -563,7 +563,7 @@
+@@ -659,7 +659,7 @@
              CMS.debug("EnrollmentService::getPKIArchiveOptions> crmfBlob=" + crmfBlob);
          byte[] crmfBerBlob = null;
  
@@ -2674,8 +2674,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          ByteArrayInputStream crmfBerBlobIn = new 	
              ByteArrayInputStream(crmfBerBlob);
          SEQUENCE crmfmsgs = null;
---- a/pki/base/kra/src/com/netscape/kra/StorageKeyUnit.java
-+++ b/pki/base/kra/src/com/netscape/kra/StorageKeyUnit.java
+--- a/base/kra/src/com/netscape/kra/StorageKeyUnit.java
++++ b/base/kra/src/com/netscape/kra/StorageKeyUnit.java
 @@ -44,7 +44,7 @@
  import org.mozilla.jss.util.Password;
  import org.mozilla.jss.crypto.*;
@@ -2696,8 +2696,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          } catch (NoSuchAlgorithmException e) {
              throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
                          e.toString()));
---- a/pki/base/ocsp/shared/conf/CS.cfg.in
-+++ b/pki/base/ocsp/shared/conf/CS.cfg.in
+--- a/base/ocsp/shared/conf/CS.cfg.in
++++ b/base/ocsp/shared/conf/CS.cfg.in
 @@ -1,6 +1,7 @@
  _000=##
  _001=## Online Certificate Status Protocol (OCSP) Responder Configuration File
@@ -2706,8 +2706,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  pkicreate.pki_instance_root=[PKI_INSTANCE_ROOT]
  pkicreate.pki_instance_name=[PKI_INSTANCE_ID]
  pkicreate.subsystem_type=[PKI_SUBSYSTEM_TYPE]
---- a/pki/base/ocsp/src/CMakeLists.txt
-+++ b/pki/base/ocsp/src/CMakeLists.txt
+--- a/base/ocsp/src/CMakeLists.txt
++++ b/base/ocsp/src/CMakeLists.txt
 @@ -55,11 +55,11 @@
          ${JAVA_LIB_INSTALL_DIR}
  )
@@ -2741,8 +2741,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  install_jar(pki-ocsp ${JAVA_JAR_INSTALL_DIR}/pki)
  set(PKI_OCSP_JAR ${pki-ocsp_JAR_FILE} CACHE INTERNAL "pki-ocsp jar file")
  
---- a/pki/base/ra/doc/CS.cfg.in
-+++ b/pki/base/ra/doc/CS.cfg.in
+--- a/base/ra/doc/CS.cfg.in
++++ b/base/ra/doc/CS.cfg.in
 @@ -1,6 +1,7 @@
  _000=##
  _001=## Registration Authority (RA) Configuration File
@@ -2751,8 +2751,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  pkicreate.pki_instance_root=[PKI_INSTANCE_ROOT]
  pkicreate.pki_instance_name=[PKI_INSTANCE_ID]
  pkicreate.subsystem_type=[PKI_SUBSYSTEM_TYPE]
---- a/pki/base/scripts/pkicheck
-+++ b/pki/base/scripts/pkicheck
+--- a/base/scripts/pkicheck
++++ b/base/scripts/pkicheck
 @@ -9,5 +9,5 @@
  fi
  
@@ -2760,8 +2760,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
 -rpm -qa | egrep -i pki-\|osutil\|symkey | sort | cat -n
 +rpm -qa | egrep -i pki-\|symkey | sort | cat -n
  
---- a/pki/base/setup/pkicreate
-+++ b/pki/base/setup/pkicreate
+--- a/base/setup/pkicreate
++++ b/base/setup/pkicreate
 @@ -180,7 +180,7 @@
  my $jss_jar_base_name             = "jss4.jar";            # CA, KRA, OCSP, TKS
  my $ldapjdk_jar_base_name         = "ldapjdk.jar";         # CA, KRA, OCSP, TKS
@@ -2859,8 +2859,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                                      $pki_user, $pki_group);
  
          # create instance symlink to "${subsystem_type}.jar"
---- a/pki/base/silent/scripts/pkisilent
-+++ b/pki/base/silent/scripts/pkisilent
+--- a/base/silent/scripts/pkisilent
++++ b/base/silent/scripts/pkisilent
 @@ -51,16 +51,13 @@
  if( $ARCHITECTURE eq "i386" ) {
      $libpath="/usr/lib";
@@ -2903,8 +2903,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  }
  
  
---- a/pki/base/silent/src/CMakeLists.txt
-+++ b/pki/base/silent/src/CMakeLists.txt
+--- a/base/silent/src/CMakeLists.txt
++++ b/base/silent/src/CMakeLists.txt
 @@ -76,11 +76,11 @@
      ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
      ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
@@ -2919,8 +2919,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
 +add_dependencies(pki-silent symkey pki-cmsutil pki-nsutil pki-certsrv pki-cms)
  install_jar(pki-silent ${JAVA_JAR_INSTALL_DIR}/pki)
  set(PKI_SILENT_JAR ${pki-silent_JAR_FILE} CACHE INTERNAL "pki-silent jar file")
---- a/pki/base/silent/src/ca/ConfigureCA.java
-+++ b/pki/base/silent/src/ca/ConfigureCA.java
+--- a/base/silent/src/ca/ConfigureCA.java
++++ b/base/silent/src/ca/ConfigureCA.java
 @@ -45,8 +45,7 @@
  import com.netscape.cmsutil.ocsp.*;
  import com.netscape.cmsutil.ocsp.Request;
@@ -2940,8 +2940,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
                  // Convert base64 string to a byte array
                  // buf = new sun.misc.BASE64Decoder().decodeBuffer(s);
---- a/pki/base/silent/src/common/ComCrypto.java
-+++ b/pki/base/silent/src/common/ComCrypto.java
+--- a/base/silent/src/common/ComCrypto.java
++++ b/base/silent/src/common/ComCrypto.java
 @@ -57,8 +57,7 @@
  //import sun.misc.BASE64Encoder;
  //import sun.misc.BASE64Decoder;
@@ -2979,8 +2979,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
              System.out.println("Generated crmf request: ...... ");
              System.out.println("");
---- a/pki/base/silent/src/common/PostQuery.java
-+++ b/pki/base/silent/src/common/PostQuery.java
+--- a/base/silent/src/common/PostQuery.java
++++ b/base/silent/src/common/PostQuery.java
 @@ -19,8 +19,7 @@
  import java.net.*;
  import java.io.*;
@@ -3000,8 +3000,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                      userPassword.getBytes());
              HttpURLConnection URLCon = (HttpURLConnection) myUrl.openConnection();
  
---- a/pki/base/silent/src/common/Utilities.java
-+++ b/pki/base/silent/src/common/Utilities.java
+--- a/base/silent/src/common/Utilities.java
++++ b/base/silent/src/common/Utilities.java
 @@ -25,8 +25,7 @@
  import sun.misc.*;
  import netscape.security.x509.*;
@@ -3021,8 +3021,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
              X509CertImpl x509_cert = new X509CertImpl(decodedBASE64Cert);
              X509CertInfo certinfo = (X509CertInfo) x509_cert.get("x509.INFO");
  
---- a/pki/base/silent/src/drm/ConfigureDRM.java
-+++ b/pki/base/silent/src/drm/ConfigureDRM.java
+--- a/base/silent/src/drm/ConfigureDRM.java
++++ b/base/silent/src/drm/ConfigureDRM.java
 @@ -41,8 +41,7 @@
  import netscape.security.x509.X509CertImpl;
  import netscape.security.x509.X509Key;
@@ -3042,8 +3042,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          System.out.println("Imported Cert=" + cert_to_import);
  
          ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
---- a/pki/base/silent/src/http/HTTPClient.java
-+++ b/pki/base/silent/src/http/HTTPClient.java
+--- a/base/silent/src/http/HTTPClient.java
++++ b/base/silent/src/http/HTTPClient.java
 @@ -24,8 +24,7 @@
  
  //import sun.misc.BASE64Encoder;
@@ -3063,8 +3063,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  			 			":" + user_password).getBytes());
  
  			// note: temp already contains \r and \n. 
---- a/pki/base/silent/src/ocsp/ConfigureOCSP.java
-+++ b/pki/base/silent/src/ocsp/ConfigureOCSP.java
+--- a/base/silent/src/ocsp/ConfigureOCSP.java
++++ b/base/silent/src/ocsp/ConfigureOCSP.java
 @@ -41,8 +41,7 @@
  import netscape.security.x509.X509CertImpl;
  import netscape.security.x509.X509Key;
@@ -3084,8 +3084,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          System.out.println("Imported Cert=" + cert_to_import);
  
          ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
---- a/pki/base/silent/src/ra/ConfigureRA.java
-+++ b/pki/base/silent/src/ra/ConfigureRA.java
+--- a/base/silent/src/ra/ConfigureRA.java
++++ b/base/silent/src/ra/ConfigureRA.java
 @@ -41,8 +41,7 @@
  import netscape.security.x509.X509CertImpl;
  import netscape.security.x509.X509Key;
@@ -3105,8 +3105,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
  		}
  		catch (Exception e)
---- a/pki/base/silent/src/subca/ConfigureSubCA.java
-+++ b/pki/base/silent/src/subca/ConfigureSubCA.java
+--- a/base/silent/src/subca/ConfigureSubCA.java
++++ b/base/silent/src/subca/ConfigureSubCA.java
 @@ -42,7 +42,7 @@
  import com.netscape.cmsutil.ocsp.*;
  import com.netscape.cmsutil.ocsp.Request;
@@ -3125,8 +3125,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          System.out.println("Imported Cert=" + cert_to_import);
  
          ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
---- a/pki/base/silent/src/tks/ConfigureTKS.java
-+++ b/pki/base/silent/src/tks/ConfigureTKS.java
+--- a/base/silent/src/tks/ConfigureTKS.java
++++ b/base/silent/src/tks/ConfigureTKS.java
 @@ -41,8 +41,7 @@
  import netscape.security.x509.X509CertImpl;
  import netscape.security.x509.X509Key;
@@ -3146,8 +3146,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          System.out.println("Imported Cert=" + cert_to_import);
  
          ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
---- a/pki/base/silent/src/tps/ConfigureTPS.java
-+++ b/pki/base/silent/src/tps/ConfigureTPS.java
+--- a/base/silent/src/tps/ConfigureTPS.java
++++ b/base/silent/src/tps/ConfigureTPS.java
 @@ -41,8 +41,7 @@
  import netscape.security.x509.X509CertImpl;
  import netscape.security.x509.X509Key;
@@ -3167,8 +3167,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
  		}
  		catch (Exception e)
---- a/pki/base/tks/shared/conf/CS.cfg.in
-+++ b/pki/base/tks/shared/conf/CS.cfg.in
+--- a/base/tks/shared/conf/CS.cfg.in
++++ b/base/tks/shared/conf/CS.cfg.in
 @@ -1,6 +1,7 @@
  _000=##
  _001=## Token Key Service (TKS) Configuration File
@@ -3177,8 +3177,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  pkicreate.pki_instance_root=[PKI_INSTANCE_ROOT]
  pkicreate.pki_instance_name=[PKI_INSTANCE_ID]
  pkicreate.subsystem_type=[PKI_SUBSYSTEM_TYPE]
---- a/pki/base/tks/src/CMakeLists.txt
-+++ b/pki/base/tks/src/CMakeLists.txt
+--- a/base/tks/src/CMakeLists.txt
++++ b/base/tks/src/CMakeLists.txt
 @@ -55,11 +55,11 @@
          ${JAVA_LIB_INSTALL_DIR}
  )
@@ -3212,8 +3212,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  install_jar(pki-tks ${JAVA_JAR_INSTALL_DIR}/pki)
  set(PKI_TKS_JAR ${pki-tks_JAR_FILE} CACHE INTERNAL "pki-tks jar file")
  
---- a/pki/base/tps/doc/CS.cfg.in
-+++ b/pki/base/tps/doc/CS.cfg.in
+--- a/base/tps/doc/CS.cfg.in
++++ b/base/tps/doc/CS.cfg.in
 @@ -1,6 +1,7 @@
  _000=##
  _001=## Token Processing System (TPS) Configuration File
@@ -3222,8 +3222,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  pkicreate.pki_instance_root=[PKI_INSTANCE_ROOT]
  pkicreate.pki_instance_name=[PKI_INSTANCE_ID]
  pkicreate.subsystem_type=[PKI_SUBSYSTEM_TYPE]
---- a/pki/base/util/src/CMakeLists.txt
-+++ b/pki/base/util/src/CMakeLists.txt
+--- a/base/util/src/CMakeLists.txt
++++ b/base/util/src/CMakeLists.txt
 @@ -16,11 +16,10 @@
          /usr/share/java
  )
@@ -3262,8 +3262,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  install_jar(pki-cmsutil ${JAVA_JAR_INSTALL_DIR}/pki)
  set(PKI_CMSUTIL_JAR ${pki-cmsutil_JAR_FILE} CACHE INTERNAL "pki-cmsutil jar file")
  
---- a/pki/base/util/src/com/netscape/cmsutil/crypto/CryptoUtil.java
-+++ b/pki/base/util/src/com/netscape/cmsutil/crypto/CryptoUtil.java
+--- a/base/util/src/com/netscape/cmsutil/crypto/CryptoUtil.java
++++ b/base/util/src/com/netscape/cmsutil/crypto/CryptoUtil.java
 @@ -55,8 +55,7 @@
  import netscape.security.pkcs.*;
  import netscape.security.x509.*;
@@ -3283,7 +3283,7 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                      + "-----END CERTIFICATE-----\n";
          } catch (Exception e) {}
          return null;
-@@ -262,7 +261,7 @@
+@@ -331,7 +330,7 @@
      public static byte[] base64Decode(String s) throws IOException {
       // BASE64Decoder base64 = new BASE64Decoder();
       // byte[] d = base64.decodeBuffer(s);
@@ -3292,8 +3292,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
                                                                                  
          return d;
      }
---- a/pki/base/util/src/com/netscape/cmsutil/util/Cert.java
-+++ b/pki/base/util/src/com/netscape/cmsutil/util/Cert.java
+--- a/base/util/src/com/netscape/cmsutil/util/Cert.java
++++ b/base/util/src/com/netscape/cmsutil/util/Cert.java
 @@ -23,7 +23,6 @@
  import netscape.security.x509.X509CertImpl;
  import org.mozilla.jss.crypto.SignatureAlgorithm;
@@ -3338,8 +3338,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          X509CRL crl = null;
  
          try {
---- a/pki/base/util/src/com/netscape/cmsutil/util/Utils.java
-+++ b/pki/base/util/src/com/netscape/cmsutil/util/Utils.java
+--- a/base/util/src/com/netscape/cmsutil/util/Utils.java
++++ b/base/util/src/com/netscape/cmsutil/util/Utils.java
 @@ -17,6 +17,7 @@
  // --- END COPYRIGHT BLOCK ---
  package com.netscape.cmsutil.util;
@@ -3385,8 +3385,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
 +        return bytes;
 +    }
  }
---- a/pki/base/util/src/netscape/security/extensions/AuthInfoAccessExtension.java
-+++ b/pki/base/util/src/netscape/security/extensions/AuthInfoAccessExtension.java
+--- a/base/util/src/netscape/security/extensions/AuthInfoAccessExtension.java
++++ b/base/util/src/netscape/security/extensions/AuthInfoAccessExtension.java
 @@ -29,6 +29,7 @@
  import netscape.security.x509.*;
  import netscape.security.util.*;
@@ -3404,8 +3404,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          } catch (IOException e) {
              System.out.println(e.toString());
          }
---- a/pki/base/util/src/netscape/security/extensions/SubjectInfoAccessExtension.java
-+++ b/pki/base/util/src/netscape/security/extensions/SubjectInfoAccessExtension.java
+--- a/base/util/src/netscape/security/extensions/SubjectInfoAccessExtension.java
++++ b/base/util/src/netscape/security/extensions/SubjectInfoAccessExtension.java
 @@ -28,7 +28,7 @@
  import java.security.cert.CertificateException;
  import netscape.security.x509.*;
@@ -3424,8 +3424,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
          } catch (IOException e) {
              System.out.println(e.toString());
          }
---- a/pki/base/util/src/netscape/security/pkcs/PKCS10.java
-+++ b/pki/base/util/src/netscape/security/pkcs/PKCS10.java
+--- a/base/util/src/netscape/security/pkcs/PKCS10.java
++++ b/base/util/src/netscape/security/pkcs/PKCS10.java
 @@ -27,6 +27,7 @@
  import java.security.SignatureException;
  import java.security.PublicKey;
@@ -3443,8 +3443,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  	out.println ("-----END NEW CERTIFICATE REQUEST-----");
      }
  
---- a/pki/base/util/src/netscape/security/x509/CertificatePoliciesExtension.java
-+++ b/pki/base/util/src/netscape/security/x509/CertificatePoliciesExtension.java
+--- a/base/util/src/netscape/security/x509/CertificatePoliciesExtension.java
++++ b/base/util/src/netscape/security/x509/CertificatePoliciesExtension.java
 @@ -27,7 +27,9 @@
  import java.security.cert.CertificateNotYetValidException;
  import java.util.*;
@@ -3465,8 +3465,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  		} catch (IOException e) {
  			System.out.println(e.toString());
  		}
---- a/pki/scripts/prepare_dogtag_pki
-+++ b/pki/scripts/prepare_dogtag_pki
+--- a/scripts/prepare_dogtag_pki
++++ b/scripts/prepare_dogtag_pki
 @@ -211,6 +211,7 @@
      APACHE_COMMONS_LANG="jakarta-commons-lang"
      APACHE_COMMONS_LOGGING="jakarta-commons-logging"
@@ -3494,8 +3494,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  
  ###########################################
  # Establish PKI Installation Dependencies #
---- a/pki/scripts/remove_pki_components
-+++ b/pki/scripts/remove_pki_components
+--- a/scripts/remove_pki_components
++++ b/scripts/remove_pki_components
 @@ -108,14 +108,7 @@
      # (1) grab all PKI components
      PKI_COMPONENTS=`rpm -qa --queryformat '%{NAME}\n' | grep pki`
@@ -3512,8 +3512,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
      `rpm -q --quiet symkey`
      SYMKEY_PRESENCE=$?
      if [ "${SYMKEY_PRESENCE}" = "0" ] ; then
---- a/pki/specs/dogtag-pki.spec
-+++ b/pki/specs/dogtag-pki.spec
+--- a/specs/dogtag-pki.spec
++++ b/specs/dogtag-pki.spec
 @@ -68,10 +68,11 @@
  %endif
  %endif
@@ -3527,8 +3527,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  Requires:         tomcatjss >= %{tomcatjss_version}
  
  # Make certain that this 'meta' package requires the latest version(s)
---- a/pki/specs/pki-core.spec
-+++ b/pki/specs/pki-core.spec
+--- a/specs/pki-core.spec
++++ b/specs/pki-core.spec
 @@ -17,6 +17,7 @@
  BuildRequires:    cmake
  BuildRequires:    java-devel >= 1:1.6.0
@@ -3558,8 +3558,8 @@ Date:   Mon Feb 20 11:42:23 2012 -0600
  %endif
  %endif
  
---- a/pki/tools/jar/README.jar-tools
-+++ b/pki/tools/jar/README.jar-tools
+--- a/tools/jar/README.jar-tools
++++ b/tools/jar/README.jar-tools
 @@ -227,7 +227,7 @@
  Summary:
  21 Unique Jar's
