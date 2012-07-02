@@ -39,7 +39,7 @@ confflags-common = $(confflags) \
 
 confflags-core = \
 	-DBUILD_PKI_CORE:BOOL=ON \
-	-DSERVLET_JAR=/usr/share/java/servlet-api.jar \
+	-DSERVLET_JAR=/usr/share/java/servlet-api-2.5.jar \
 	-DXERCES_JAR=/usr/share/java/xercesImpl.jar \
 	-DXALAN_JAR=/usr/share/java/xalan2.jar \
 	$(confflags)
