@@ -10,8 +10,8 @@ VER :=  $(shell dpkg-parsechangelog | sed -n 's/^Version: *\(.*\)-.*$$/\1/ p' | 
 
 SOURCE=pki
 JAVA_HOME=/usr/lib/jvm/default-java
-CFLAGS += -I/usr/include/nss
-CXXFLAGS += -I/usr/include/nss
+export CFLAGS += -I/usr/include/nss
+export CXXFLAGS += -I/usr/include/nss
 DEB_BUILD_DIR ?= $(CURDIR)/build
 
 CONFIGS = core \
