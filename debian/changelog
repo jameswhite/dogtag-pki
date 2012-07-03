@@ -5,6 +5,7 @@ pki (10.0~git20120703+dfsg1-1) UNRELEASED; urgency=low
   * Refresh debian-support.diff.
   * control: Add  libhttpclient-java, libjavassist-java and
     libjettison-java to pki-common Depends.
+  * control: Add junit4 to Build-Depends.
 
  -- Timo Aaltonen <tjaalton@ubuntu.com>  Tue, 03 Jul 2012 11:44:03 +0300
 
