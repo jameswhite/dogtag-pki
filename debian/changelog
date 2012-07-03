@@ -1,0 +1,25 @@
+pki (9.0+git20120530+dfsg1-1) UNRELEASED; urgency=low
+
+  * Initial release (Closes: #653606)
+  * Snapshot from the stable DOGTAG_9_BRANCH, includes these subsystem
+    versions:
+    - dogtag-pki-theme 9.0.11
+    - ipa-pki-theme 9.0.5
+    - pki-console 9.0.5
+    - pki-core 9.0.20
+    - pki-kra 9.0.11
+    - pki-migrate 9.0.2
+    - pki-ocsp 9.0.10
+    - pki-ra 9.0.4
+    - pki-tks 9.0.10
+    - pki-tps 9.0.7
+  * get-rid-of-osutil.diff: Backported patches from upstream in order
+    to not need libosutil-java.
+  * Add soft dependencies (Suggests):
+    - pki-ca needs a 389 instance
+    - pki-kra, pki-ocsp, pki-ra, pki-tks need a pki-ca instance
+    - pki-tps needs a pki-ca, pki-tks and optionally a pki-kra instance
+    These can be run on separate machines, so a hard dependency isn't
+    necessary.
+
+ -- Timo Aaltonen <tjaalton@ubuntu.com>  Tue, 27 Dec 2011 01:10:12 +0200

@@ -1,0 +1,5 @@
+usr/share/java/pki/pki-certsrv*.jar	usr/share/java
+usr/share/java/pki/pki-cms.jar		usr/share/java
+usr/share/java/pki/pki-cms-*.jar	usr/share/java
+usr/share/java/pki/pki-cmsbundle*.jar	usr/share/java
+usr/share/java/pki/pki-cmscore*.jar	usr/share/java
