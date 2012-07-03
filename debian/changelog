@@ -1,3 +1,10 @@
+pki (10.0~git20120703+dfsg1-1) UNRELEASED; urgency=low
+
+  * New upstream snapshot of the 10.x branch.
+  * Drop get-rid-of-osutil.diff, applied upstream.
+
+ -- Timo Aaltonen <tjaalton@ubuntu.com>  Tue, 03 Jul 2012 11:44:03 +0300
+
 pki (9.0+git20120530+dfsg1-1) UNRELEASED; urgency=low
 
   * Initial release (Closes: #653606)
