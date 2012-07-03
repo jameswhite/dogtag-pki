@@ -12,7 +12,7 @@ Description: fix various hardcoded values to match debian & ubuntu
   set_library_path get_library_path fedora_release
   check_for_root_UID user_disallows_shell
   user_exists create_user
-@@ -175,6 +175,7 @@
+@@ -174,6 +174,7 @@
  our $default_system_user_libraries = undef;
  our $default_java_path             = undef;
  our $default_pki_java_path         = undef;
@@ -21,15 +21,15 @@ Description: fix various hardcoded values to match debian & ubuntu
  our $default_system_jni_java_path  = undef;
  our @default_jar_path              = undef;
 @@ -203,9 +204,9 @@
+ 
  # Compute "hardware platform" of Operating System
  if ($^O eq "linux") {
-     $pki_flavor = "pki";
 -    $default_registry_path = "/etc/sysconfig";
 +    $default_registry_path = "/etc/dogtag";
-     $pki_registry_path = "$default_registry_path/$pki_flavor";
+     $pki_registry_path = "$default_registry_path/pki";
 -    $default_initscripts_path = "/etc/rc.d/init.d";
 +    $default_initscripts_path = "/etc/init.d";
-     $default_lockdir = "/var/lock/$pki_flavor";
+     $default_lockdir = "/var/lock/pki";
      $default_hardware_platform = `uname -i`;
      $default_hardware_platform =~ s/\s+$//g;
 @@ -217,19 +218,20 @@
@@ -38,11 +38,11 @@ Description: fix various hardcoded values to match debian & ubuntu
          $default_java_path             = "/usr/share/java";
 -        $default_pki_java_path         = "/usr/share/java/pki";
 -        $default_system_jni_java_path  = "/usr/lib/java";
--        @default_jar_path = ($default_pki_java_path, $default_java_path, $default_system_jni_java_path);
+-        @default_jar_path = ($default_pki_java_path, $default_java_path, $default_system_jni_java_path, $resteasy_path, $httpcomponents_path);
 +        $default_pki_java_path         = "/usr/share/java";
 +        $default_i386_jni_java_path    = "/usr/lib/i386-linux-gnu/jni";
 +        $default_system_jni_java_path  = "/usr/lib/jni";
-+        @default_jar_path = ($default_pki_java_path, $default_java_path, $default_i386_jni_java_path, $default_system_jni_java_path);
++        @default_jar_path = ($default_pki_java_path, $default_java_path, $default_i386_jni_java_path, $default_system_jni_java_path, $resteasy_path, $httpcomponents_path);
      } elsif ($default_hardware_platform eq "x86_64") {
          # 64-bit Linux
          $default_system_binaries       = "/bin";
@@ -58,10 +58,10 @@ Description: fix various hardcoded values to match debian & ubuntu
 +        $default_pki_java_path         = "/usr/share/java";
 +        $default_x86_64_jni_java_path  = "/usr/lib/x86_64-linux-gnu/jni";
 +        $default_system_jni_java_path  = "/usr/lib/jni";
-         @default_jar_path = ($default_pki_java_path, $default_java_path, $default_x86_64_jni_java_path, $default_system_jni_java_path);
+         @default_jar_path = ($default_pki_java_path, $default_java_path, $default_x86_64_jni_java_path,
+                              $default_system_jni_java_path, $resteasy_path, $httpcomponents_path);
      } else {
-         emit("Unsupported '$^O' hardware platform '$default_hardware_platform'!", "error");
-@@ -813,6 +815,18 @@
+@@ -814,6 +816,18 @@
      }
  
      return 0;
@@ -82,12 +82,18 @@ Description: fix various hardcoded values to match debian & ubuntu
  # no args
 --- a/base/setup/pkicreate
 +++ b/base/setup/pkicreate
-@@ -184,16 +184,16 @@
+@@ -184,7 +184,7 @@
  my $symkey_jar_base_name          = "symkey.jar";          # CA, KRA, OCSP, TKS
  my $tomcatjss_jar_base_name       = "tomcatjss.jar";       # CA, KRA, OCSP, TKS
  my $velocity_jar_base_name        = "velocity.jar";        # CA, KRA, OCSP, TKS
 -my $xerces_jar_base_name          = "xerces-j2.jar";       # CA, KRA, OCSP, TKS
 +my $xerces_jar_base_name          = "xercesImpl.jar";       # CA, KRA, OCSP, TKS
+ 
+ # resteasy jars
+ my $javassist_jar_base_name       = "javassist.jar";                               # CA, KRA, OCSP, TKS
+@@ -196,14 +196,14 @@
+ my $resteasy_atom_provider_jar_base_name = "resteasy-atom-provider.jar";           # CA, KRA, OCSP, TKS
+ my $resteasy_jettison_provider_jar_base_name = "resteasy-jettison-provider.jar";   # CA, KRA, OCSP, TKS
  
 -my $apache_commons_collections_jar_base_name  = "apache-commons-collections.jar";
 +my $apache_commons_collections_jar_base_name  = "commons-collections3.jar";
@@ -102,10 +108,10 @@ Description: fix various hardcoded values to match debian & ubuntu
 -my $xml_commons_resolver_jar_base_name    = "xml-commons-resolver.jar";
 +my $xml_commons_apis_jar_base_name        = "jaxp-1.4.jar";
 +my $xml_commons_resolver_jar_base_name    = "xml-resolver.jar";
+ my $httpclient_jar_base_name              = "httpclient.jar";
  
  my $conf_base_name                = "conf";                   # CA, KRA, OCSP, TKS,
- my $catalina_properties_base_name = "catalina.properties";    # CA, KRA, OCSP, TKS
-@@ -588,7 +588,7 @@
+@@ -616,7 +616,7 @@
      }
  
      # Tomcat instance config directory
@@ -114,7 +120,7 @@ Description: fix various hardcoded values to match debian & ubuntu
  
      # Superuser and group to give to PKI installed files
      $root_user = "root";
-@@ -2377,6 +2377,24 @@
+@@ -2467,6 +2467,24 @@
  LoadModule nss_module  /etc/httpd/modules/libmodnss.so
  ";
          }
@@ -139,7 +145,7 @@ Description: fix various hardcoded values to match debian & ubuntu
          else {
              $slot_hash{$FORTITUDE_APACHE}  = "Apache";
              $slot_hash{$FORTITUDE_DIR}     = "/opt/fortitude";
-@@ -2789,6 +2807,10 @@
+@@ -2878,6 +2896,10 @@
          return 0 if !create_symlink($perl_instance_symlink_path, $perl_subsystem_path,
                                      $pki_user, $pki_group);
  
@@ -150,7 +156,7 @@ Description: fix various hardcoded values to match debian & ubuntu
          return 0 if !create_symlink($run_instance_symlink_path,
                                      "${default_apache_pids_path}/${subsystem_type}",
                                      $pki_user, $pki_group);
-@@ -3295,7 +3317,7 @@
+@@ -3421,7 +3443,7 @@
              "/bin/systemctl restart $pki_instance_systemd_service_name";
      } else {
          $pki_registry_initscript_command = 
@@ -298,7 +304,7 @@ Description: fix various hardcoded values to match debian & ubuntu
  # Required module for command 'SetEnvIf':
 --- a/base/ra/setup/registry_instance
 +++ b/base/ra/setup/registry_instance
-@@ -62,7 +62,7 @@
+@@ -59,7 +59,7 @@
  # available, but does not work with some modules (such as PHP).
  # The service must be stopped before changing this variable.
  #
@@ -309,7 +315,7 @@ Description: fix various hardcoded values to match debian & ubuntu
  #
 --- a/base/tps/setup/registry_instance
 +++ b/base/tps/setup/registry_instance
-@@ -62,7 +62,7 @@
+@@ -59,7 +59,7 @@
  # available, but does not work with some modules (such as PHP).
  # The service must be stopped before changing this variable.
  #
