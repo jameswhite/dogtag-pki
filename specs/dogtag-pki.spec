@@ -1,14 +1,7 @@
-# for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
-# also remove the space between % and global - this space is needed because
-# fedpkg verrel stupidly ignores comment lines
-%global prerel .a1
-# also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
-%global relprefix 0.
-
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
-Version:          10.0.0
-Release:          %{?relprefix}4%{?prerel}%{?dist}
+Version:          10.1.0
+Release:          1%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -16,46 +9,17 @@ Group:            System Environment/Daemons
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:        noarch
 
-# Establish MINIMUM package versions based upon platform
-%if 0%{?fedora} >= 17
-%define dogtag_pki_theme_version   10.0.0
+%define dogtag_pki_theme_version   10.1.0
 %define esc_version                1.1.0
-%define jss_version                4.2.6-24
-%define pki_core_version           10.0.0
-%define pki_kra_version            10.0.0
-%define pki_ocsp_version           10.0.0
-%define pki_ra_version             10.0.0
-%define pki_tks_version            10.0.0
-%define pki_tps_version            10.0.0
-%define pki_console_version        10.0.0
-%define tomcatjss_version          6.0.2
-%else
-%if 0%{?fedora} >= 16
-%define dogtag_pki_theme_version   10.0.0
-%define esc_version                1.1.0
-%define jss_version                4.2.6-24
-%define pki_core_version           10.0.0
-%define pki_kra_version            10.0.0
-%define pki_ocsp_version           10.0.0
-%define pki_ra_version             10.0.0
-%define pki_tks_version            10.0.0
-%define pki_tps_version            10.0.0
-%define pki_console_version        10.0.0
-%define tomcatjss_version          6.0.2
-%else
-%define dogtag_pki_theme_version   10.0.0
-%define esc_version                1.1.0
-%define jss_version                4.2.6-24
-%define pki_core_version           10.0.0
-%define pki_kra_version            10.0.0
-%define pki_ocsp_version           10.0.0
-%define pki_ra_version             10.0.0
-%define pki_tks_version            10.0.0
-%define pki_tps_version            10.0.0
-%define pki_console_version        10.0.0
-%define tomcatjss_version          2.0.0
-%endif
-%endif
+%define jss_version                4.2.6-28
+%define pki_core_version           10.1.0
+%define pki_kra_version            10.1.0
+%define pki_ocsp_version           10.1.0
+%define pki_ra_version             10.1.0
+%define pki_tks_version            10.1.0
+%define pki_tps_version            10.1.0
+%define pki_console_version        10.1.0
+%define tomcatjss_version          7.1.0
 
 Requires:         apache-commons-codec
 
@@ -70,32 +34,22 @@ Requires:         jss-javadoc >= %{jss_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI theme packages
-Requires:         dogtag-pki-ca-theme >= %{dogtag_pki_theme_version}
-Requires:         dogtag-pki-common-theme >= %{dogtag_pki_theme_version}
+Requires:         dogtag-pki-server-theme >= %{dogtag_pki_theme_version}
 Requires:         dogtag-pki-console-theme >= %{dogtag_pki_theme_version}
-Requires:         dogtag-pki-kra-theme >= %{dogtag_pki_theme_version}
-Requires:         dogtag-pki-ocsp-theme >= %{dogtag_pki_theme_version}
-Requires:         dogtag-pki-ra-theme >= %{dogtag_pki_theme_version}
-Requires:         dogtag-pki-tks-theme >= %{dogtag_pki_theme_version}
-Requires:         dogtag-pki-tps-theme >= %{dogtag_pki_theme_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI core packages
 Requires:         pki-ca >= %{pki_core_version}
-Requires:         pki-common >= %{pki_core_version}
-Requires:         pki-java-tools >= %{pki_core_version}
-Requires:         pki-native-tools >= %{pki_core_version}
-Requires:         pki-selinux >= %{pki_core_version}
-Requires:         pki-setup >= %{pki_core_version}
-Requires:         pki-silent >= %{pki_core_version}
+Requires:         pki-server >= %{pki_core_version}
+Requires:         pki-tools >= %{pki_core_version}
 Requires:         pki-symkey >= %{pki_core_version}
-Requires:         pki-util >= %{pki_core_version}
+Requires:         pki-base >= %{pki_core_version}
+
+Requires:         selinux-policy-base >= 3.11.1-43
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI core javadocs
-Requires:         pki-common-javadoc >= %{pki_core_version}
-Requires:         pki-java-tools-javadoc >= %{pki_core_version}
-Requires:         pki-util-javadoc >= %{pki_core_version}
+Requires:         pki-javadoc >= %{pki_core_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL other Dogtag PKI subsystems
@@ -113,27 +67,14 @@ Requires:         pki-console >= %{pki_console_version}
 # of ALL Dogtag PKI clients
 Requires:         esc >= %{esc_version}
 
-# NOTE:  Several PKI packages require a "virtual" theme component.  These
-#        "virtual" theme components are "Provided" by various theme "flavors"
-#        including "dogtag", "redhat", and "ipa".  Consequently,
-#        all "dogtag", "redhat", and "ipa" theme components MUST be
-#        mutually exclusive!
+# NOTE:  As a convenience for standalone deployments, this 'dogtag-pki'
+#        top-level meta package supplies Dogtag themes for use by the
+#        certificate server packages:
 #
-#        On Fedora systems, the "dogtag" theme packages are the ONLY available
-#        theme components.
+#          * dogtag-pki-theme (Dogtag Certificate System deployments)
+#            * dogtag-pki-server-theme
+#            * dogtag-pki-console-theme
 #
-#        Similarly, the "ipa" theme packages are ONLY available on RHEL
-#        systems, and represent the default theme components.
-#
-#        Alternatively, on RHEL systems, if the "dogtag" theme packages are
-#        available as EPEL packages, while they may be used as a transparent
-#        replacement for their corresponding "ipa" theme package, they are not
-#        intended to be used as a replacement for their corresponding "redhat"
-#        theme components.
-#
-#        Finally, if available for a RHEL system (e. g. - RHCS subscription),
-#        each "redhat" theme package MUST be used as a transparent replacement
-#        for its corresponding "ipa" theme package or "dogtag" theme package.
 Obsoletes:        ipa-pki
 Conflicts:        redhat-pki
 
@@ -184,6 +125,81 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
+- Trac Ticket 788 - Clean up spec files
+- Update release number for release build
+
+* Sun Nov 10 2013 Ade Lee <alee@redhat.com> 10.1.0-0.2
+- Change release number for beta build
+
+* Tue May 7 2013 Ade Lee <alee@redhat.com> 10.1.0-0.1
+- Change release number for 10.1 development
+
+* Fri Apr 26 2013 Ade Lee <alee@redhat.com> 10.0.2-1
+- Change release number for official release.
+
+* Wed Mar 27 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.1
+- Updated version number to 10.0.2-0.1.
+
+* Mon Mar  4 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.1-2
+- TRAC Ticket #517 - Clean up theme dependencies
+- TRAC Ticket #518 - Remove UI dependencies from pkispawn . . .
+
+* Tue Jan 15 2013 Ade Lee <alee@rdhat.com> 10.0.1-1
+- Update for release of 10.0.1 for pki-core
+
+* Fri Jan  4 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-2
+- TRAC Ticket #469 - Dogtag 10: Fix tomcatjss issue in pki-core.spec and
+  dogtag-pki.spec . . .
+- TRAC Ticket #468 - pkispawn throws exception
+
+* Fri Dec 7 2012 Ade Lee <alee@redhat.com> 10.0.0-1
+- Update to official release for rc1
+
+* Mon Nov 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.16.b3
+- Update release to b3
+
+* Fri Nov 9 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.15.b2
+- Removed Dogtag CA, KRA, OCSP, TKS theme packages.
+
+* Thu Nov 8 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.14.b2
+- Renamed dogtag-pki-common-theme to dogtag-pki-server-theme.
+
+* Mon Oct 29 2012 Ade Lee <alee@redhat.com> 10.0.0-0.13.b2
+- Update release to b2
+
+* Tue Oct 23 2012 Ade Lee <alee@redhat.com> 10.0.0-0.12.b1
+- Remove pki-selinux from f18 build
+
+* Fri Oct 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.11.b1
+- Update tomcatjss version
+
+* Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.10.b1
+- Update release to b1
+
+* Fri Oct 5 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.10.a2
+- Merged pki-silent into pki-server.
+
+* Mon Oct 1 2012 Ade Lee <alee@redhat.com> 10.0.0-0.9.a2
+- Update release to a2
+
+* Mon Sep 24 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.9.a1
+- Merged pki-setup into pki-server
+- Fixed pki-javadoc dependency
+
+* Wed Aug 22 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.8.a1
+- Replaced pki-native-tools and pki-java-tools with pki-tools
+
+* Wed Aug 22 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.7.a1
+- Replaced pki-util, pki-deploy, pki-common with pki-base and pki-server
+
+* Tue Aug 14 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.6.a1
+- Updated release of 'tomcatjss' to rely on Tomcat 7 for Fedora 17
+- Added 'pki-deploy' runtime dependency
+
+* Thu Jun 14 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.5.a1
+- Updated release of 'tomcatjss' to rely on Tomcat 7 for Fedora 18
+
 * Thu Apr  5 2012 Christina Fu <cfu@redhat.com> 10.0.0-0.4.a1
 - Bug 745278 - [RFE] ECC encryption keys cannot be archived
 

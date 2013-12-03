@@ -9,8 +9,11 @@ export PKI_USER
 PKI_GROUP=[PKI_GROUP]
 export PKI_GROUP
 
-PKI_INSTANCE_ID=[PKI_INSTANCE_ID]
-export PKI_INSTANCE_ID
+PKI_INSTANCE_NAME=[PKI_INSTANCE_NAME]
+export PKI_INSTANCE_NAME
+
+PKI_INSTANCE_PATH=[PKI_INSTANCE_PATH]
+export PKI_INSTANCE_PATH
 
 PKI_INSTANCE_INITSCRIPT=[PKI_INSTANCE_INITSCRIPT]
 export PKI_INSTANCE_INITSCRIPT
@@ -18,8 +21,8 @@ export PKI_INSTANCE_INITSCRIPT
 PKI_HTTPD_CONF=[HTTPD_CONF]
 export PKI_HTTPD_CONF
 
-PKI_SERVER_ROOT=[SERVER_ROOT]
-export PKI_SERVER_ROOT
+PKI_INSTANCE_PATH=[PKI_INSTANCE_PATH]
+export PKI_INSTANCE_PATH
 
 PKI_SYSTEM_USER_LIBRARIES=[SYSTEM_USER_LIBRARIES]
 export PKI_SYSTEM_USER_LIBRARIES
@@ -30,28 +33,28 @@ export PKI_FORTITUDE_DIR
 PKI_NSS_CONF=[NSS_CONF]
 export PKI_NSS_CONF
 
-PKI_SERVER_NAME=[SERVER_NAME]
-export PKI_SERVER_NAME
+PKI_HOSTNAME=[PKI_HOSTNAME]
+export PKI_HOSTNAME
 
-PKI_LOCK_FILE="[PKI_LOCKDIR]/${PKI_INSTANCE_ID}.pid"
+PKI_LOCK_FILE="[PKI_LOCKDIR]/${PKI_INSTANCE_NAME}.pid"
 export PKI_LOCK_FILE
 
-PKI_PID_FILE="[PKI_PIDDIR]/${PKI_INSTANCE_ID}.pid"
+PKI_PID_FILE="[PKI_PIDDIR]/${PKI_INSTANCE_NAME}.pid"
 export PKI_PID_FILE
 
 PKI_SELINUX_TYPE="pki_ra_t"
 export PKI_SELINUX_TYPE
 
-pki_instance_configuration_file=${PKI_SERVER_ROOT}/conf/CS.cfg
+pki_instance_configuration_file=${PKI_INSTANCE_PATH}/conf/CS.cfg
 export pki_instance_configuration_file
 
-RESTART_SERVER=${PKI_SERVER_ROOT}/conf/restart_server_after_configuration
+RESTART_SERVER=${PKI_INSTANCE_PATH}/conf/restart_server_after_configuration
 export RESTART_SERVER
 
 ########################################################################
 #   This section contains modified content of "/etc/sysconfig/httpd"   #
 ########################################################################
-# Configuration file for the ${PKI_INSTANCE_ID} service.
+# Configuration file for the ${PKI_INSTANCE_NAME} service.
 
 #
 # The default processing model (MPM) is the process-based
@@ -59,7 +62,7 @@ export RESTART_SERVER
 # available, but does not work with some modules (such as PHP).
 # The service must be stopped before changing this variable.
 #
-PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/httpd.worker
+PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/httpd
 export PKI_HTTPD
 
 #
@@ -93,7 +96,7 @@ export PKI_INITLOG_ARGS
 httpd=${PKI_HTTPD}
 export httpd
 
-pki_logs_directory=${PKI_SERVER_ROOT}/logs
+pki_logs_directory=${PKI_INSTANCE_PATH}/logs
 export pki_logs_directory
 
 # see if httpd is linked with the openldap libraries - we need to override

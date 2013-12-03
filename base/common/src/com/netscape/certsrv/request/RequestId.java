@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 /**
@@ -27,9 +28,14 @@ import java.math.BigInteger;
  *
  * @version $Revision$ $Date$
  */
-public class RequestId {
+public class RequestId implements Serializable {
 
+    private static final long serialVersionUID = -5184710368124269481L;
     protected BigInteger value;
+
+    public RequestId() {
+        // required for jaxb
+    }
 
     /**
      * Creates a new RequestId from its string representation.

@@ -31,7 +31,7 @@ PKI_PWD=`pwd`
 ##
 
 DOGTAG_PKI_THEME="dogtag-pki-theme"
-DOGTAG_PKI_THEME_VERSION="10.0.0.a1"
+DOGTAG_PKI_THEME_VERSION="10.1.0"
 
 
 ##
@@ -39,14 +39,19 @@ DOGTAG_PKI_THEME_VERSION="10.0.0.a1"
 ##
 
 PKI_SPECS_FILE="${PKI_DIR}/specs/${DOGTAG_PKI_THEME}.spec"
-PKI_COMPONENT_LIST="test common-ui ca-ui kra-ui ocsp-ui tks-ui ra-ui tps-ui console-ui"
+PKI_COMPONENT_LIST="test common-ui ra-ui tps-ui console-ui"
 
 
 ##
 ## Establish the TARGET files/directories of the 'dogtag-pki' source/spec files
 ##
 
-PKI_PACKAGES="${PKI_PWD}/packages"
+if [ $WORK_DIR ]; then
+    PKI_PACKAGES="`cd $WORK_DIR ; pwd`"
+else
+    PKI_PACKAGES="${PKI_PWD}/packages"
+fi
+
 DOGTAG_PKI_THEME_BUILD_DIR="${PKI_PACKAGES}/BUILD"
 DOGTAG_PKI_THEME_RPMS_DIR="${PKI_PACKAGES}/RPMS"
 DOGTAG_PKI_THEME_SOURCES_DIR="${PKI_PACKAGES}/SOURCES"

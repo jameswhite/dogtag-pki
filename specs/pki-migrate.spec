@@ -1,13 +1,6 @@
-# for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
-# also remove the space between % and global - this space is needed because
-# fedpkg verrel stupidly ignores comment lines
-%global prerel .a1
-# also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
-%global relprefix 0.
-
 Name:             pki-migrate
-Version:          10.0.0
-Release:          %{?relprefix}1%{?prerel}%{?dist}
+Version:          10.1.0
+Release:          1%{?dist}
 Summary:          Red Hat Certificate System - PKI Migration Scripts
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -21,10 +14,10 @@ BuildArch:        noarch
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake
-BuildRequires:    java-devel >= 1:1.6.0
+BuildRequires:    java-devel >= 1:1.7.0
 BuildRequires:    jpackage-utils
 
-Requires:         java >= 1:1.6.0
+Requires:         java >= 1:1.7.0
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
@@ -57,7 +50,10 @@ hardware platforms as well as earlier versions of this operating system.
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_MIGRATE:BOOL=ON ..
+%cmake -DVERSION=%{version}-%{release} \
+	-DVAR_INSTALL_DIR:PATH=/var \
+	-DBUILD_PKI_MIGRATE:BOOL=ON \
+	..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -75,6 +71,40 @@ cd build
 
 
 %changelog
+* Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
+- Trac Ticket 788 - Clean up spec files
+- Update release number for release build
+
+* Fri Jun 14 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.2
+- Updated dependencies to Java 1.7.
+
+* Tue May 7 2013 Ade Lee <alee@redhat.com> 10.1.0-0.1
+- Change release number for 10.1 development
+
+* Fri Apr 26 2013 Ade Lee <alee@redhat.com> 10.0.2-1
+- Change release number for official release.
+
+* Wed Mar 27 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.1
+- Updated version number to 10.0.2-0.1.
+
+* Fri Dec 7 2012 Ade Lee <alee@redhat.com> 10.0.0-1
+- Update to official release for rc1
+
+* Mon Nov 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.4.b3
+- Update release to b3
+
+* Mon Oct 29 2012 Ade Lee <alee@redhat.com> 10.0.0-0.3.b2
+- Update release to b2
+
+* Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.2.b1
+- Update release to b1
+
+* Mon Oct 1 2012 Ade Lee <alee@redhat.com> 10.0.0-0.2.a2
+- Update release to a2
+
+* Sun Sep 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.2.a1
+- Modified CMake to use RPM version number
+
 * Wed Feb  1 2012 Nathan Kinder <nkinder@redhat.com> 10.0.0-0.1.a1
 - Updated package version number
 

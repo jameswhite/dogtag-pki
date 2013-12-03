@@ -18,6 +18,7 @@
 package netscape.security.x509;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -33,9 +34,11 @@ import netscape.security.util.PrettyPrintFormat;
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  */
-public class GeneralSubtrees {
+public class GeneralSubtrees implements Serializable {
+
+    private static final long serialVersionUID = 6308776640697100848L;
     private Vector<GeneralSubtree> trees;
-    private PrettyPrintFormat pp = new PrettyPrintFormat(":");
+    private transient PrettyPrintFormat pp = new PrettyPrintFormat(":");
 
     /**
      * The default constructor for the class.

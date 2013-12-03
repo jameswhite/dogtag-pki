@@ -3,14 +3,14 @@ _001=## Token Processing System (TPS) Configuration File
 _002=##
 pidDir=[PKI_PIDDIR]
 pkicreate.pki_instance_root=[PKI_INSTANCE_ROOT]
-pkicreate.pki_instance_name=[PKI_INSTANCE_ID]
+pkicreate.pki_instance_name=[PKI_INSTANCE_NAME]
 pkicreate.subsystem_type=[PKI_SUBSYSTEM_TYPE]
-pkicreate.secure_port=[SECURE_PORT]
+pkicreate.secure_port=[PKI_SECURE_PORT]
 pkicreate.non_clientauth_secure_port=[NON_CLIENTAUTH_SECURE_PORT]
-pkicreate.unsecure_port=[PORT]
+pkicreate.unsecure_port=[PKI_UNSECURE_PORT]
 pkicreate.user=[PKI_USER]
 pkicreate.group=[PKI_GROUP]
-pkiremove.cert.subsystem.nickname=subsystemCert cert-[PKI_INSTANCE_ID]
+pkiremove.cert.subsystem.nickname=subsystemCert cert-[PKI_INSTANCE_NAME]
 cs.type=TPS
 selftests._000=##
 selftests._001=## Self Tests
@@ -24,7 +24,7 @@ selftests._008=##
 selftests.container.logger.enable=true
 selftests.container.logger.expirationTime=0
 selftests.container.logger.file.type=RollingLogFile
-selftests.container.logger.fileName=[SERVER_ROOT]/logs/selftests.log
+selftests.container.logger.fileName=[PKI_INSTANCE_PATH]/logs/selftests.log
 selftests.container.logger.level=10
 selftests.container.logger.maxFileSize=2000
 selftests.container.logger.rolloverInterval=2592000
@@ -32,12 +32,12 @@ selftests.container.order.startup=TPSPresence:critical, TPSSystemCertsVerificati
 selftests.container.order.onDemand=TPSPresence:critical, TPSValidity:critical, TPSSystemCertsVerification:critical
 selftests.plugin.TPSPresence.nickname=[HSM_LABEL][NICKNAME]
 selftests.plugin.TPSValidity.nickname=[HSM_LABEL][NICKNAME]
-service.machineName=[SERVER_NAME]
-service.instanceDir=[SERVER_ROOT]
-service.securePort=[SECURE_PORT]
+service.machineName=[PKI_HOSTNAME]
+service.instanceDir=[PKI_INSTANCE_PATH]
+service.securePort=[PKI_SECURE_PORT]
 service.non_clientauth_securePort=[NON_CLIENTAUTH_SECURE_PORT]
-service.unsecurePort=[PORT]
-service.instanceID=[PKI_INSTANCE_ID]
+service.unsecurePort=[PKI_UNSECURE_PORT]
+service.instanceID=[PKI_INSTANCE_NAME]
 logging._000=#########################################
 logging._001=# RA configuration File
 logging._002=#
@@ -90,18 +90,18 @@ logging._048=# logging.*.expirationTime:
 logging._049=#    - maximum age of log, older unmodified logs are deleted( in seconds, 0 to disable)
 logging._050=#########################################
 logging.debug.enable=true
-logging.debug.filename=[SERVER_ROOT]/logs/tps-debug.log
+logging.debug.filename=[PKI_INSTANCE_PATH]/logs/tps-debug.log
 logging.debug.level=10
 logging.debug.file.type=RollingLogFile
 logging.debug.maxFileSize=2000
 logging.debug.rolloverInterval=2592000
 logging.debug.expirationTime=0
 logging.audit.enable=true
-logging.audit.filename=[SERVER_ROOT]/logs/tps-audit.log
-logging.audit.signedAuditFilename=[SERVER_ROOT]/logs/signedAudit/tps_audit
+logging.audit.filename=[PKI_INSTANCE_PATH]/logs/tps-audit.log
+logging.audit.signedAuditFilename=[PKI_INSTANCE_PATH]/logs/signedAudit/tps_audit
 logging.audit.level=10
 logging.audit.logSigning=false
-logging.audit.signedAuditCertNickname=auditSigningCert cert-[PKI_INSTANCE_ID]
+logging.audit.signedAuditCertNickname=auditSigningCert cert-[PKI_INSTANCE_NAME]
 logging.audit.selected.events=AUTHZ_SUCCESS,AUTHZ_FAIL,AUTH_FAIL,AUTH_SUCCESS,ROLE_ASSUME,ENROLLMENT,PIN_RESET,FORMAT,CONFIG,CONFIG_ROLE,CONFIG_TOKEN,CONFIG_PROFILE,CONFIG_AUDIT,APPLET_UPGRADE,KEY_CHANGEOVER,RENEWAL,CIMC_CERT_VERIFICATION
 logging.audit.selectable.events=AUTHZ_SUCCESS,AUTHZ_FAIL,AUTH_FAIL,AUTH_SUCCESS,ROLE_ASSUME,ENROLLMENT,PIN_RESET,FORMAT,CONFIG,CONFIG_ROLE,CONFIG_TOKEN,CONFIG_PROFILE,CONFIG_AUDIT,APPLET_UPGRADE,KEY_CHANGEOVER,RENEWAL,CIMC_CERT_VERIFICATION
 logging.audit.nonselectable.events=AUDIT_LOG_STARTUP,AUDIT_LOG_SHUTDOWN,LOGGING_SIGNED_AUDIT_SIGNING
@@ -112,7 +112,7 @@ logging.audit.maxFileSize=2000
 logging.audit.rolloverInterval=2592000
 logging.audit.expirationTime=0
 logging.error.enable=true
-logging.error.filename=[SERVER_ROOT]/logs/tps-error.log
+logging.error.filename=[PKI_INSTANCE_PATH]/logs/tps-error.log
 logging.error.level=10
 logging.error.file.type=RollingLogFile
 logging.error.maxFileSize=2000
@@ -137,12 +137,20 @@ conn.ca1._015=# conn.ca<n>.SSLOn:
 conn.ca1._016=#   - enable SSL or not
 conn.ca1._017=# conn.ca<n>.keepAlive:
 conn.ca1._018=#   - enable keep alive or not
-conn.ca1._019=#
-conn.ca1._020=# where
-conn.ca1._021=#  <n>  - CA connection ID
-conn.ca1._022=#########################################
+conn.ca1._019=# conn.ca<n>.caNickname:
+conn.ca1._020=#   - nickname of the ca certificate
+conn.ca1._021=# conn.ca<n>.caSKI:
+conn.ca1._022=#   - Subject Key Identifier (in Base64) of the ca certificate
+conn.ca1._023=#     (automatically calculated by the system)
+conn.ca1._024=#
+conn.ca1._025=# conn.ca.list=ca1,ca2...ca<n>
+conn.ca1._026=#   - list of ca connection IDs for revocation routing
+conn.ca1._027=#
+conn.ca1._028=# where
+conn.ca1._029=#  <n>  - CA connection ID
+conn.ca1._030=#########################################
 failover.pod.enable=false
-conn.ca1.hostport=[CA_HOST]:[CA_PORT]
+conn.ca1.hostport=[PKI_CA_HOSTNAME]:[PKI_CA_PORT]
 conn.ca1.clientNickname=[HSM_LABEL][NICKNAME]
 conn.ca1.servlet.enrollment=/ca/ee/ca/profileSubmitSSLClient
 conn.ca1.servlet.renewal=/ca/ee/ca/profileSubmitSSLClient
@@ -300,7 +308,7 @@ auth.instance.1.libraryName=[SYSTEM_USER_LIBRARIES]/tps/[LIB_PREFIX]ldapauth[OBJ
 auth.instance.1.libraryFactory=GetAuthentication
 auth.instance.1.authId=ldap2
 auth.instance.1.bindDN=cn=Directory Manager
-auth.instance.1.bindPWD=[SERVER_ROOT]/conf/password.conf
+auth.instance.1.bindPWD=[PKI_INSTANCE_PATH]/conf/password.conf
 auth.instance.1.hostport=[TOKENDB_HOST]:[TOKENDB_PORT]
 auth.instance.1.SSLOn=false
 auth.instance.1.retries=1
@@ -362,7 +370,7 @@ channel.defKeyIndex=0
 #            * channel.appletMemorySize=5000
 #
 preop.pin=[PKI_RANDOM_NUMBER]
-preop.product.version=@VERSION@
+cms.product.version=@APPLICATION_VERSION@
 preop.cert._000=#########################################
 preop.cert._001=# Installation configuration "preop" certs parameters
 preop.cert._002=#########################################
@@ -374,33 +382,33 @@ preop.cert.sslserver.enable=true
 preop.cert.subsystem.enable=true
 preop.cert.audit_signing.enable=false
 preop.cert.sslserver.defaultSigningAlgorithm=SHA256withRSA
-preop.cert.sslserver.dn=CN=[SERVER_NAME], OU=[PKI_INSTANCE_ID]
+preop.cert.sslserver.dn=CN=[PKI_HOSTNAME], OU=[PKI_INSTANCE_NAME]
 preop.cert.sslserver.keysize.customsize=2048
 preop.cert.sslserver.keysize.size=2048
-preop.cert.sslserver.keysize.select=custom
-preop.cert.sslserver.nickname=Server-Cert cert-[PKI_INSTANCE_ID]
+preop.cert.sslserver.keysize.select=default
+preop.cert.sslserver.nickname=Server-Cert cert-[PKI_INSTANCE_NAME]
 preop.cert.sslserver.profile=caInternalAuthServerCert
 preop.cert.sslserver.subsystem=tps
 preop.cert._003=#preop.cert.sslserver.type=local
 preop.cert.sslserver.userfriendlyname=SSL Server Certificate
 preop.cert._004=#preop.cert.sslserver.cncomponent.override=false
 preop.cert.subsystem.defaultSigningAlgorithm=SHA256withRSA
-preop.cert.subsystem.dn=CN=TPS Subsystem Certificate, OU=[PKI_INSTANCE_ID]
+preop.cert.subsystem.dn=CN=TPS Subsystem Certificate, OU=[PKI_INSTANCE_NAME]
 preop.cert.subsystem.keysize.customsize=2048
 preop.cert.subsystem.keysize.size=2048
-preop.cert.subsystem.keysize.select=custom
-preop.cert.subsystem.nickname=subsystemCert cert-[PKI_INSTANCE_ID]
+preop.cert.subsystem.keysize.select=default
+preop.cert.subsystem.nickname=subsystemCert cert-[PKI_INSTANCE_NAME]
 preop.cert.subsystem.profile=caInternalAuthSubsystemCert
 preop.cert.subsystem.subsystem=tps
 preop.cert._005=#preop.cert.subsystem.type=local
 preop.cert.subsystem.userfriendlyname=Subsystem Certificate
 preop.cert._006=#preop.cert.subsystem.cncomponent.override=true
 preop.cert.audit_signing.defaultSigningAlgorithm=SHA256withRSA
-preop.cert.audit_signing.dn=CN=TPS Audit Signing Certificate, OU=[PKI_INSTANCE_ID]
+preop.cert.audit_signing.dn=CN=TPS Audit Signing Certificate, OU=[PKI_INSTANCE_NAME]
 preop.cert.audit_signing.keysize.customsize=2048
 preop.cert.audit_signing.keysize.size=2048
-preop.cert.audit_signing.keysize.select=custom
-preop.cert.audit_signing.nickname=auditSigningCert cert-[PKI_INSTANCE_ID]
+preop.cert.audit_signing.keysize.select=default
+preop.cert.audit_signing.nickname=auditSigningCert cert-[PKI_INSTANCE_NAME]
 preop.cert.audit_signing.profile=caInternalAuthAuditSigningCert
 preop.cert.audit_signing.subsystem=tps
 preop.cert._005=#preop.cert.audit_signing.type=local
@@ -411,13 +419,13 @@ preop.configModules._001=# Installation configuration "preop" module parameters
 preop.configModules._002=#########################################
 preop.configModules.count=3
 preop.configModules.module0.commonName=NSS Internal PKCS #11 Module
-preop.configModules.module0.imagePath=../img/clearpixel.gif
+preop.configModules.module0.imagePath=/pki/images/clearpixel.gif
 preop.configModules.module0.userFriendlyName=NSS Internal PKCS #11 Module
 preop.configModules.module1.commonName=nfast
-preop.configModules.module1.imagePath=../img/clearpixel.gif
+preop.configModules.module1.imagePath=/pki/images/clearpixel.gif
 preop.configModules.module1.userFriendlyName=nCipher's nFast Token Hardware Module
 preop.configModules.module2.commonName=lunasa
-preop.configModules.module2.imagePath=../img/clearpixel.gif
+preop.configModules.module2.imagePath=/pki/images/clearpixel.gif
 preop.configModules.module2.userFriendlyName=SafeNet's LunaSA Token Hardware Module
 preop.module.token=NSS Certificate DB
 preop.keysize._000=#########################################
@@ -784,7 +792,7 @@ op.enroll.userKey.tks.conn=tks1
 op.enroll.userKey.auth.id=ldap1
 op.enroll.userKey.auth.enable=true
 op.enroll.userKey.issuerinfo.enable=true
-op.enroll.userKey.issuerinfo.value=http://[SERVER_NAME]:[PORT]/cgi-bin/home/index.cgi
+op.enroll.userKey.issuerinfo.value=http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/cgi-bin/home/index.cgi
 op.enroll.userKeyTemporary.keyGen.recovery.onHold.keyType.num=2
 op.enroll.userKeyTemporary.keyGen.recovery.onHold.keyType.value.0=signing
 op.enroll.userKeyTemporary.keyGen.recovery.onHold.keyType.value.1=encryption
@@ -1103,7 +1111,7 @@ op.enroll.soKey.tks.conn=tks1
 op.enroll.soKey.auth.id=ldap2
 op.enroll.soKey.auth.enable=true
 op.enroll.soKey.issuerinfo.enable=true
-op.enroll.soKey.issuerinfo.value=http://[SERVER_NAME]:[PORT]/cgi-bin/so/index.cgi
+op.enroll.soKey.issuerinfo.value=http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/cgi-bin/so/index.cgi
 op.enroll.soKeyTemporary.keyGen.recovery.onHold.keyType.num=2
 op.enroll.soKeyTemporary.keyGen.recovery.onHold.keyType.value.0=signing
 op.enroll.soKeyTemporary.keyGen.recovery.onHold.keyType.value.1=encryption
@@ -1360,7 +1368,7 @@ op.format.soUserKey.tks.conn=tks1
 op.format.soUserKey.auth.id=ldap1
 op.format.soUserKey.auth.enable=false
 op.format.soUserKey.issuerinfo.enable=true
-op.format.soUserKey.issuerinfo.value=http://[SERVER_NAME]:[PORT]/cgi-bin/home/index.cgi
+op.format.soUserKey.issuerinfo.value=http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/cgi-bin/home/index.cgi
 op.format.soKey.update.applet.emptyToken.enable=true
 op.format.soKey.update.applet.requiredVersion=1.4.4d40a449
 op.format.soKey.update.applet.directory=[TPS_DIR]/applets
@@ -1375,7 +1383,7 @@ op.format.soKey.tks.conn=tks1
 op.format.soKey.auth.id=ldap2
 op.format.soKey.auth.enable=true
 op.format.soKey.issuerinfo.enable=true
-op.format.soKey.issuerinfo.value=http://[SERVER_NAME]:[PORT]/cgi-bin/so/index.cgi
+op.format.soKey.issuerinfo.value=http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/cgi-bin/so/index.cgi
 op.format.userKey.update.applet.emptyToken.enable=true
 op.format.userKey.update.applet.requiredVersion=1.4.4d40a449
 op.format.userKey.update.applet.directory=[TPS_DIR]/applets
@@ -1390,7 +1398,7 @@ op.format.userKey.tks.conn=tks1
 op.format.userKey.auth.id=ldap1
 op.format.userKey.auth.enable=true
 op.format.userKey.issuerinfo.enable=true
-op.format.userKey.issuerinfo.value=http://[SERVER_NAME]:[PORT]/cgi-bin/home/index.cgi
+op.format.userKey.issuerinfo.value=http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/cgi-bin/home/index.cgi
 op.format.tokenKey.update.applet.emptyToken.enable=true
 op.format.tokenKey.update.applet.requiredVersion=1.4.4d40a449
 op.format.tokenKey.update.applet.directory=[TPS_DIR]/applets
@@ -1405,7 +1413,7 @@ op.format.tokenKey.tks.conn=tks1
 op.format.tokenKey.auth.id=ldap1
 op.format.tokenKey.auth.enable=true
 op.format.tokenKey.issuerinfo.enable=true
-op.format.tokenKey.issuerinfo.value=http://[SERVER_NAME]:[PORT]/cgi-bin/home/index.cgi
+op.format.tokenKey.issuerinfo.value=http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/cgi-bin/home/index.cgi
 tokendb._000=#########################################
 tokendb._001=# tokendb.auditLog:
 tokendb._002=#   - audit log path
@@ -1482,12 +1490,12 @@ tokendb._072=#     TOKEN_FOUND =4,
 tokendb._073=#     TOKEN_TEMP_LOST_PERM_LOST =5,
 tokendb._074=#     TOKEN_TERMINATED = 6
 tokendb._075=#########################################
-tokendb.auditLog=[SERVER_ROOT]/logs/tokendb-audit.log
+tokendb.auditLog=[PKI_INSTANCE_PATH]/logs/tokendb-audit.log
 tokendb.hostport=[TOKENDB_HOST]:[TOKENDB_PORT]
 tokendb.ssl=false
 tokendb.bindDN=cn=Directory Manager
-tokendb.bindPassPath=[SERVER_ROOT]/conf/password.conf
-tokendb.templateDir=[SERVER_ROOT]/docroot/tus
+tokendb.bindPassPath=[PKI_INSTANCE_PATH]/conf/password.conf
+tokendb.templateDir=[PKI_INSTANCE_PATH]/docroot/tus
 tokendb.userBaseDN=[TOKENDB_ROOT]
 tokendb.baseDN=ou=Tokens,[TOKENDB_ROOT]
 tokendb.activityBaseDN=ou=Activities,[TOKENDB_ROOT]
@@ -1582,7 +1590,18 @@ tps._002=# tps.cert.list=sslserver,subsystem,audit_signing
 tps._003=# tps.cert.sslserver.nickname=xxx
 tps._005=# tps.cert.subsystem.nickname=xxx
 tps._007=# tps.cert.audit_signing.nickname=xxx
-tps._009=########################################
+tps._008=# operations.allowedTransitions:
+tps._009=#   - token operations, like formatting and enrollment have transitions between the following states
+tps._010=#     TOKEN_UNINITIALIZED = 0,
+tps._011=#     TOKEN_DAMAGED =1,
+tps._012=#     TOKEN_PERM_LOST=2,
+tps._013=#     TOKEN_TEMP_LOST=3,
+tps._014=#     TOKEN_FOUND =4,
+tps._015=#     TOKEN_TEMP_LOST_PERM_LOST =5,
+tps._016=#     TOKEN_TERMINATED = 6
+tps._017=# Sample: tps.operations.allowedTransitions=0:0,0:4,4:6,6:0
+tps._018=########################################
+tps.operations.allowedTransitions=0:0,0:4,4:0
 tps.cert.list=sslserver,subsystem,audit_signing
 tps.cert.sslserver.nickname=[HSM_LABEL][NICKNAME]
 tps.cert.subsystem.nickname=[HSM_LABEL][NICKNAME]

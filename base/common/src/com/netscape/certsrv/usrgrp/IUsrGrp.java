@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.usrgrp;
 
-import netscape.ldap.LDAPException;
+import java.io.Serializable;
 
 /**
  * This interface defines the basic capabilities of
@@ -25,7 +25,7 @@ import netscape.ldap.LDAPException;
  *
  * @version $Revision$, $Date$
  */
-public interface IUsrGrp extends IIdEvaluator {
+public interface IUsrGrp extends IIdEvaluator , Serializable {
 
     /**
      * Retrieves usr/grp manager identifier.
@@ -60,10 +60,8 @@ public interface IUsrGrp extends IIdEvaluator {
      * @param user an user interface
      * @exception EUsrGrpException thrown when some of the user attribute values
      *                are null
-     * @exception LDAPException thrown when the LDAP internal database is not
-     *                available, or the add operation failed
      */
-    public void addUser(IUser user) throws EUsrGrpException, LDAPException;
+    public void addUser(IUser user) throws EUsrGrpException;
 
     /**
      * Removes a user.

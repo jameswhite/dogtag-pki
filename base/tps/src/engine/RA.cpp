@@ -178,6 +178,8 @@ const char *RA::CFG_AUDIT_PREFIX = "logging.audit";
 const char *RA::CFG_ERROR_PREFIX = "logging.error";
 const char *RA::CFG_DEBUG_PREFIX = "logging.debug";
 const char *RA::CFG_SELFTEST_PREFIX = "selftests.container.logger";
+const char *RA::CFG_TOKENDB_ALLOWED_TRANSITIONS = "tokendb.allowedTransitions";
+const char *RA::CFG_OPERATIONS_ALLOWED_TRANSITIONS = "tps.operations.allowedTransitions";
 
 const char *RA::CFG_AUTHS_ENABLE="auth.enable";
 
@@ -194,6 +196,20 @@ typedef Authentication* (*makeauthentication)();
 
 extern void BuildHostPortLists(char *host, char *port, char **hostList, 
   char **portList, int len);
+
+static char *transitionList                  = NULL;
+
+#define MAX_TOKEN_UI_STATE  6
+
+enum token_ui_states  {
+    TOKEN_UNINITIALIZED = 0,
+    TOKEN_DAMAGED =1,
+    TOKEN_PERM_LOST=2,
+    TOKEN_TEMP_LOST=3,
+    TOKEN_FOUND =4,
+    TOKEN_TEMP_LOST_PERM_LOST =5,
+    TOKEN_TERMINATED = 6
+};
 
 #ifdef XP_WIN32
 #define TPS_PUBLIC __declspec(dllexport)
@@ -1217,7 +1233,14 @@ void RA::RecoverKey(RA_Session *session, const char* cuid,
 	goto loser;
       } else {
 	RA::Debug(LL_PER_PDU, "RecoverKey", "got public key =%s", tmp);
-	*publicKey_s  = PL_strdup(tmp);
+          char *tmp_publicKey_s  = PL_strdup(tmp);
+          Buffer *decodePubKey = Util::URLDecode(tmp_publicKey_s);
+          *publicKey_s =
+              BTOA_DataToAscii(decodePubKey->getBuf(), decodePubKey->getLen());
+          if (tmp_publicKey_s)
+              PR_Free (tmp_publicKey_s);
+          if (decodePubKey)
+              PR_Free(decodePubKey);
       }
 
       tmp = NULL;
@@ -1235,7 +1258,7 @@ void RA::RecoverKey(RA_Session *session, const char* cuid,
           RA::Error(LL_PER_PDU, "RecoverKey",
               "did not get iv_param for recovered  key in DRM response");
       } else {
-          RA::Debug(LL_PER_PDU, "ServerSideKeyGen", "got iv_param for recovered key =%s", tmp);
+          RA::Debug(LL_PER_PDU, "RecoverKey", "got iv_param for recovered key =%s", tmp);
           *ivParam_s  = PL_strdup(tmp);
       }
 
@@ -1286,7 +1309,7 @@ void RA::ServerSideKeyGen(RA_Session *session, const char* cuid,
 	                      char **publicKey_s,
                           char **wrappedPrivateKey_s,
                           char **ivParam_s, const char *connId,
-                          bool archive, int keysize)
+                          bool archive, int keysize, bool isECC)
 {
 
 	const char *FN="RA::ServerSideKeyGen";
@@ -1356,8 +1379,27 @@ void RA::ServerSideKeyGen(RA_Session *session, const char* cuid,
     RA::Debug(LL_PER_CONNECTION, FN,
 		"wrappedDESKey_s=%s", wrappedDESKey_s);
 
-    PR_snprintf((char *)body, MAX_BODY_LEN, 
-		"archive=%s&CUID=%s&userid=%s&keysize=%d&drm_trans_desKey=%s",archive?"true":"false",cuid, userid, keysize, wrappedDESKey_s);
+    if (isECC) {
+        char *eckeycurve = NULL;
+        if (keysize == 521) {
+            eckeycurve = "nistp521";
+        } else if (keysize == 384) {
+            eckeycurve = "nistp384";
+        } else if (keysize == 256) {
+            eckeycurve = "nistp256";
+        } else {
+            RA::Debug(LL_PER_CONNECTION, FN,
+                "unrecognized ECC keysize %d, setting to nistp256", keysize);
+            keysize = 256;
+            eckeycurve = "nistp256";
+        }
+        PR_snprintf((char *)body, MAX_BODY_LEN, 
+           "archive=%s&CUID=%s&userid=%s&keytype=EC&eckeycurve=%s&drm_trans_desKey=%s",archive?"true":"false",cuid, userid, eckeycurve, wrappedDESKey_s);
+    } else {
+        PR_snprintf((char *)body, MAX_BODY_LEN, 
+           "archive=%s&CUID=%s&userid=%s&keysize=%d&keytype=RSA&drm_trans_desKey=%s",archive?"true":"false",cuid, userid, keysize, wrappedDESKey_s);
+    }
+
     RA::Debug(LL_PER_CONNECTION, FN, 
 		"sending to DRM: query=%s", body);
 
@@ -2821,6 +2863,47 @@ TPS_PUBLIC char *RA::ra_get_cert_tokenType(LDAPMessage *entry) {
     return get_cert_tokenType(entry);
 }
 
+TPS_PUBLIC int RA::ra_get_token_status(char *cuid) {
+
+    int rc = -1;
+    LDAPMessage *entry;
+    char *status = NULL;
+    char *reason = NULL;
+
+    int status_int = -1;
+    //Let's say -1 is unknown;
+
+    if ((rc = find_tus_db_entry(cuid, 0, &entry)) != LDAP_SUCCESS) {
+        goto loser;
+    }
+
+    status = ra_get_token_status(entry);
+
+    if (status == NULL) {
+        goto loser;
+    }
+
+    reason = ra_get_token_reason(entry);
+
+    status_int = get_token_state(status, reason);
+
+
+loser:
+    if (entry != NULL) {
+        ldap_msgfree(entry);
+    }
+
+    if (status != NULL) {
+        free(status);
+    }
+
+    if (reason != NULL) {
+        free(reason);
+    }
+
+    return status_int;
+}
+
 TPS_PUBLIC char *RA::ra_get_token_status(LDAPMessage *entry) {
     return get_token_status(entry);
 }
@@ -3400,7 +3483,7 @@ TPS_PUBLIC bool RA::verifySystemCertByNickname(const char *nickname, const char 
  */
 TPS_PUBLIC bool RA::verifySystemCerts() {
     bool verifyResult = false;
-    bool rv = false; /* final return value */
+    bool rv = true; /* final return value */
     char configname[256];
     char configname_nn[256];
     char configname_cu[256];
@@ -3621,4 +3704,62 @@ loser:
     }
 
     return newKey;
+}
+
+bool RA::isAlgorithmECC(BYTE alg)
+{
+    bool result = false;
+
+    if (alg == ALG_EC_F2M || alg == ALG_EC_FP)
+       result = true;
+
+    RA::Debug(LL_PER_SERVER, "RA::isAlgorithmECC", " alg: %d result: %d", alg, result);
+
+    return result;
+}
+
+bool RA::transition_allowed(int oldState, int newState) 
+{
+    /* parse the allowed transitions string and look for old:new */
+
+    // See if we need to read in the thing.
+    
+    transitionList = (char *) m_cfg->GetConfigAsString(RA::CFG_OPERATIONS_ALLOWED_TRANSITIONS, NULL);
+
+    if (transitionList == NULL) {
+        transitionList = (char *) m_cfg->GetConfigAsString(RA::CFG_TOKENDB_ALLOWED_TRANSITIONS, NULL);
+    }
+
+    if (transitionList == NULL) return true;
+
+    char search[128];
+
+    PR_snprintf(search, 128, "%d:%d", oldState, newState);
+    return match_comma_list(search, transitionList);
+
+}
+
+int RA::get_token_state(char *state, char *reason)
+{
+    int ret = 0;
+    if (strcmp(state, STATE_UNINITIALIZED) == 0) {
+        ret = TOKEN_UNINITIALIZED;
+    } else if (strcasecmp(state, STATE_ACTIVE) == 0) {
+        ret = TOKEN_FOUND;
+    } else if (strcasecmp(state, STATE_LOST) == 0) {
+        if (strcasecmp(reason, "keyCompromise") == 0) {
+            /* perm lost or temp -> perm lost */
+            ret =  TOKEN_PERM_LOST;
+        } else if (strcasecmp(reason, "destroyed") == 0) {
+            ret = TOKEN_DAMAGED;
+        } else if (strcasecmp(reason, "onHold") == 0) {
+            ret = TOKEN_TEMP_LOST;
+        }
+    } else if (strcasecmp(state, "terminated") == 0) {
+        ret = TOKEN_TERMINATED;
+    } else {
+        /* state is disabled or otherwise : what to do here? */
+        ret = TOKEN_PERM_LOST;
+    }
+    return ret;
 }

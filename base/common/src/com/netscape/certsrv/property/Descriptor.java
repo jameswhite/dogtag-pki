@@ -19,18 +19,37 @@ package com.netscape.certsrv.property;
 
 import java.util.Locale;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+
 /**
  * This interface represents a property descriptor. A descriptor
  * includes information that describe a property.
  *
  * @version $Revision$, $Date$
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Descriptor implements IDescriptor {
 
+    @XmlElement(name = "Syntax")
     protected String mSyntax = null;
+
+    @XmlElement(name = "Constraint")
     protected String mConstraint = null;
+
+    @XmlElement(name = "Description")
     protected String mDescription = null;
+
+    @XmlElement(name = "DefaultValue")
     protected String mDef = null;
+
+    public Descriptor() {
+        // required for JAX-B
+    }
 
     /**
      * Constructs a descriptor.
@@ -89,5 +108,54 @@ public class Descriptor implements IDescriptor {
      */
     public String getDescription(Locale locale) {
         return mDescription;
+    }
+
+    @Override
+    public String toString() {
+        return "Descriptor [mSyntax=" + mSyntax + ", mConstraint=" + mConstraint + ", mDescription=" + mDescription
+                + ", mDef=" + mDef + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((mConstraint == null) ? 0 : mConstraint.hashCode());
+        result = prime * result + ((mDef == null) ? 0 : mDef.hashCode());
+        result = prime * result + ((mDescription == null) ? 0 : mDescription.hashCode());
+        result = prime * result + ((mSyntax == null) ? 0 : mSyntax.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Descriptor other = (Descriptor) obj;
+        if (mConstraint == null) {
+            if (other.mConstraint != null)
+                return false;
+        } else if (!mConstraint.equals(other.mConstraint))
+            return false;
+        if (mDef == null) {
+            if (other.mDef != null)
+                return false;
+        } else if (!mDef.equals(other.mDef))
+            return false;
+        if (mDescription == null) {
+            if (other.mDescription != null)
+                return false;
+        } else if (!mDescription.equals(other.mDescription))
+            return false;
+        if (mSyntax == null) {
+            if (other.mSyntax != null)
+                return false;
+        } else if (!mSyntax.equals(other.mSyntax))
+            return false;
+        return true;
     }
 }

@@ -11,7 +11,6 @@
 COMPOSE_PWD=`dirname $0`
 source ${COMPOSE_PWD}/compose_functions
 
-
 ## Always switch into the base directory three levels
 ## above this shell script prior to executing it so
 ## that all of its output is written to this directory
@@ -31,7 +30,7 @@ PKI_PWD=`pwd`
 ##
 
 PKI_CORE="pki-core"
-PKI_CORE_VERSION="10.0.0.a1"
+PKI_CORE_VERSION="10.1.0"
 
 
 ##
@@ -39,14 +38,22 @@ PKI_CORE_VERSION="10.0.0.a1"
 ##
 
 PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_CORE}.spec"
-PKI_COMPONENT_LIST="test deploy setup symkey native-tools util java-tools common selinux ca kra ocsp tks silent"
+PKI_COMPONENT_LIST="test setup symkey util common native-tools java-tools server selinux ca kra ocsp tks tps-tomcat silent"
 
+if [ "$WITHOUT_JAVADOC" = "" ]; then
+    PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST javadoc"
+fi
 
 ##
 ## Establish the TARGET files/directories of the 'pki-core' source/spec files
 ##
 
-PKI_PACKAGES="${PKI_PWD}/packages"
+if [ $WORK_DIR ]; then
+    PKI_PACKAGES="`cd $WORK_DIR ; pwd`"
+else
+    PKI_PACKAGES="${PKI_PWD}/packages"
+fi
+
 PKI_CORE_BUILD_DIR="${PKI_PACKAGES}/BUILD"
 PKI_CORE_RPMS_DIR="${PKI_PACKAGES}/RPMS"
 PKI_CORE_SOURCES_DIR="${PKI_PACKAGES}/SOURCES"
@@ -145,12 +152,26 @@ else
 	mkdir -p ${PKI_CORE_BASE_DIR}
 	cd ${PKI_BASE_DIR}
 	cp -p ${PKI_BASE_MANIFEST} ${PKI_CORE_BASE_DIR}
-	for component in "${PKI_COMPONENT_LIST}" ;
+	cp -p VERSION ${PKI_CORE_BASE_DIR}
+	for component in ${PKI_COMPONENT_LIST} ;
 	do
-		find ${component}             \
+		if [ "${component}" = "tps-tomcat" ] ; then
+			# rename tps-tomcat to tps
+			dest="tps"
+		else
+			dest="${component}"
+		fi
+
+		# copying ${PKI_BASE_DIR}/${component} to ${PKI_CORE_BASE_DIR}/${dest}
+		cd ${component}
+		mkdir ${PKI_CORE_BASE_DIR}/${dest}
+
+		find                          \
 		-name .svn -prune -o          \
 		-name *.swp -prune -o         \
-		-print | cpio -pdum ${PKI_CORE_BASE_DIR} > /dev/null 2>&1
+		-print | cpio -pdum ${PKI_CORE_BASE_DIR}/${dest} > /dev/null 2>&1
+
+		cd ..
 	done
 	cd - > /dev/null 2>&1
 
@@ -192,3 +213,8 @@ chmod 775 ${PKI_CORE_PACKAGE_SCRIPT}
 cd ${PKI_PACKAGES} ;
 bash ./package_${PKI_CORE} | tee package_${PKI_CORE}.log 2>&1
 
+if [ "$CREATEREPO" == "Y" ] ; then
+   echo "Creating a repository of the built rpms"
+   cp -r $PKI_PWD/$PKI_DIR/scripts/scp_the_repo.exp .
+   Create_repo_after_build $REPO_CFG_FILE
+fi

@@ -19,19 +19,20 @@ package com.netscape.certsrv.dbs.keydb;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * The KeyIdAdapter class provides custom marshaling for KeyId.
  *
  * @author Endi S. Dewata
- * @version $Revision$ $Date$
  */
 public class KeyIdAdapter extends XmlAdapter<String, KeyId> {
 
     public KeyId unmarshal(String value) throws Exception {
-        return new KeyId(value);
+        return StringUtils.isEmpty(value) ? null : new KeyId(value);
     }
 
     public String marshal(KeyId value) throws Exception {
-        return value.toString();
+        return value == null ? null : value.toString();
     }
 }

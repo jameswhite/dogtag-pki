@@ -1,0 +1,3 @@
+Name: pki-silent
+Specification-Version: ${APPLICATION_VERSION}
+Implementation-Version: ${VERSION}

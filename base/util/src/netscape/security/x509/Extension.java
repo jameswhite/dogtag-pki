@@ -51,9 +51,6 @@ import netscape.security.util.ObjectIdentifier;
  * @version 1.9
  */
 public class Extension implements Serializable {
-    /**
-     *
-     */
     private static final long serialVersionUID = -643549610716024753L;
     protected ObjectIdentifier extensionId = null;
     protected boolean critical = false;
@@ -126,11 +123,10 @@ public class Extension implements Serializable {
      * @exception IOException on encoding errors
      */
     public void encode(DerOutputStream out) throws IOException {
-        DerOutputStream bytes = new DerOutputStream();
-
         if (extensionId == null)
             throw new IOException("Null OID to encode for the extension!");
 
+        DerOutputStream bytes = new DerOutputStream();
         bytes.putOID(extensionId);
         if (critical)
             bytes.putBoolean(critical);

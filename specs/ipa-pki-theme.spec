@@ -1,13 +1,6 @@
-# for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
-# also remove the space between % and global - this space is needed because
-# fedpkg verrel stupidly ignores comment lines
-%global prerel .a1
-# also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
-%global relprefix 0.
-
 Name:             ipa-pki-theme
-Version:          10.0.0
-Release:          %{?relprefix}1%{?prerel}%{?dist}
+Version:          10.1.0
+Release:          1%{?dist}
 Summary:          Certificate System - IPA PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -52,44 +45,37 @@ for its corresponding "ipa" theme package or "dogtag" theme package.   \
 %description %{overview}
 
 
-%package -n       ipa-pki-common-theme
-Summary:          Certificate System - PKI Common Framework User Interface
+%package -n       ipa-pki-server-theme
+Summary:          Certificate System - PKI Server Framework User Interface
 Group:            System Environment/Base
 
+Conflicts:        dogtag-pki-server-theme
 Conflicts:        dogtag-pki-common-theme
 Conflicts:        dogtag-pki-common-ui
-Conflicts:        redhat-pki-common-theme
-Conflicts:        redhat-pki-common-ui
-
-Provides:         pki-common-theme = %{version}-%{release}
-Provides:         pki-common-ui = %{version}-%{release}
-
-%description -n   ipa-pki-common-theme
-This PKI Common Framework User Interface contains
-NO textual or graphical user interface for the PKI Common Framework.
-
-This package is used by the Certificate System utilized by IPA.
-
-%{overview}
-
-
-%package -n       ipa-pki-ca-theme
-Summary:          Certificate System - Certificate Authority User Interface
-Group:            System Environment/Base
-
-Requires:         ipa-pki-common-theme = %{version}-%{release}
-
 Conflicts:        dogtag-pki-ca-theme
 Conflicts:        dogtag-pki-ca-ui
+
+Conflicts:        redhat-pki-server-theme
+Conflicts:        redhat-pki-common-theme
+Conflicts:        redhat-pki-common-ui
 Conflicts:        redhat-pki-ca-theme
 Conflicts:        redhat-pki-ca-ui
 
+Obsoletes:        ipa-pki-common-theme
+Obsoletes:        ipa-pki-common-ui
+Obsoletes:        ipa-pki-ca-theme
+
+Provides:         pki-server-theme = %{version}-%{release}
+Provides:         pki-common-theme = %{version}-%{release}
+Provides:         pki-common-ui = %{version}-%{release}
+
+Provides:         ipa-pki-ca-theme = %{version}-%{release}
 Provides:         pki-ca-theme = %{version}-%{release}
 Provides:         pki-ca-ui = %{version}-%{release}
 
-%description -n   ipa-pki-ca-theme
-This Certificate Authority (CA) User Interface contains
-NO textual or graphical user interface for the CA.
+%description -n   ipa-pki-server-theme
+This PKI Server Framework User Interface contains
+NO textual or graphical user interface for the PKI Server Framework.
 
 This package is used by the Certificate System utilized by IPA.
 
@@ -109,7 +95,9 @@ This package is used by the Certificate System utilized by IPA.
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DBUILD_IPA_PKI_THEME:BOOL=ON ..
+%cmake -DVERSION=%{version}-%{release} \
+	-DBUILD_IPA_PKI_THEME:BOOL=ON \
+	..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -119,20 +107,51 @@ cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
 
-%files -n ipa-pki-common-theme
+%files -n ipa-pki-server-theme
 %defattr(-,root,root,-)
 %doc dogtag/common-ui/LICENSE
 %dir %{_datadir}/pki
 %{_datadir}/pki/common-ui/
 
 
-%files -n ipa-pki-ca-theme
-%defattr(-,root,root,-)
-%doc dogtag/ca-ui/LICENSE
-%{_datadir}/pki/ca-ui/
-
-
 %changelog
+* Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
+- Trac Ticket 788 - Clean up spec files
+- Update release number for release build
+
+* Tue May 7 2013 Ade Lee <alee@redhat.com> 10.1.0-0.1
+- Change release number for 10.1 development
+
+* Fri Apr 26 2013 Ade Lee <alee@redhat.com> 10.0.2-1
+- Change release number for official release.
+
+* Wed Mar 27 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.1
+- Updated version number to 10.0.2-0.1.
+
+* Fri Dec 7 2012 Ade Lee <alee@redhat.com> 10.0.0-1
+- Update to official release for rc1
+
+* Mon Nov 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.6.b3
+- Update release to b3
+
+* Fri Nov 9 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.5.b2
+- Removed IPA CA theme package.
+
+* Thu Nov 8 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.4.b2
+- Renamed ipa-pki-common-theme to ipa-pki-server-theme.
+
+* Mon Oct 29 2012 Ade Lee <alee@redhat.com> 10.0.0-0.3.b2
+- Update release to b2
+
+* Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.2.b1
+- Update release to b1
+
+* Mon Oct 1 2012 Ade Lee <alee@redhat.com> 10.0.0-0.2.a2
+- Update release to a2
+
+* Sun Sep 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.2.a1
+- Modified CMake to use RPM version number
+
 * Wed Feb  1 2012 Nathan Kinder <nkinder@redhat.com> 10.0.0-0.1.a1
 - Updated package version number
 

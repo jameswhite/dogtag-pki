@@ -80,6 +80,13 @@ enum RA_Log_Level {
 	LL_ALL_DATA_IN_PDU = 9
 };
 
+enum RA_Algs {
+        ALG_RSA = 1,
+        ALG_RSA_CRT = 2,
+        ALG_DSA = 3,
+        ALG_EC_F2M = 4,
+        ALG_EC_FP = 5
+};
 
 #ifdef XP_WIN32
 #define TPS_PUBLIC __declspec(dllexport)
@@ -125,12 +132,12 @@ class RA
                                            char** kek_kekSessionKey_s,
                                            char **keycheck_s,
                                            const char *connId);
-	  static void ServerSideKeyGen(RA_Session *session, const char* cuid,
+      static void ServerSideKeyGen(RA_Session *session, const char* cuid,
                                    const char *userid, char* kekSessionKey_s,
-		                           char **publickey_s,
+                                   char **publickey_s,
                                    char **wrappedPrivateKey_s,
                                    char **ivParam_s, const char *connId,
-                                   bool archive, int keysize);
+                                   bool archive, int keysize, bool isECC);
 	  static void RecoverKey(RA_Session *session, const char* cuid,
                              const char *userid, char* kekSessionKey_s,
                              char *cert_s, char **publickey_s,
@@ -200,6 +207,7 @@ class RA
 	  TPS_PUBLIC static int ra_is_token_pin_resetable(char *cuid);
 	  TPS_PUBLIC static int ra_is_token_present(char *cuid);
 	  TPS_PUBLIC static int ra_allow_token_reenroll(char *cuid);
+          TPS_PUBLIC static int ra_get_token_status(char *cuid);
 	  TPS_PUBLIC static int ra_allow_token_renew(char *cuid);
           TPS_PUBLIC static int ra_force_token_format(char *cuid);
 	  TPS_PUBLIC static int ra_is_update_pin_resetable_policy(char *cuid);
@@ -300,6 +308,8 @@ class RA
 
       static const char *CFG_IPUBLISHER_LIB;
       static const char *CFG_IPUBLISHER_FACTORY;
+      static const char *CFG_TOKENDB_ALLOWED_TRANSITIONS;
+      static const char *CFG_OPERATIONS_ALLOWED_TRANSITIONS;
 
   public:
 	  static const char *TKS_RESPONSE_STATUS;
@@ -365,9 +375,13 @@ class RA
           static void CleanupPublishers();
         static int Failover(HttpConnection *&conn, int len);   
 
+          static bool isAlgorithmECC(BYTE algorithm);
       TPS_PUBLIC static SECCertificateUsage getCertificateUsage(const char *certusage);
       TPS_PUBLIC static bool verifySystemCertByNickname(const char *nickname, const char *certUsage);
       TPS_PUBLIC static bool verifySystemCerts();
+
+      static bool transition_allowed(int oldState, int newState);
+      static int get_token_state(char *state, char *reason);
    
 };
 

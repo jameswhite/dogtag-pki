@@ -3,70 +3,7 @@
    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "file:///usr/share/pki/setup/web-app_2_3.dtd">
 <web-app>
 
-    <filter>
-        <filter-name>AgentRequestFilter</filter-name>
-        <filter-class>com.netscape.cms.servlet.filter.AgentRequestFilter</filter-class>
-        <init-param>
-            <param-name>https_port</param-name>
-            <param-value>[PKI_AGENT_SECURE_PORT]</param-value>
-        </init-param>
-[PKI_OPEN_ENABLE_PROXY_COMMENT]
-        <init-param>
-            <param-name>proxy_port</param-name>
-            <param-value>[PKI_PROXY_SECURE_PORT]</param-value>
-         </init-param>
-[PKI_CLOSE_ENABLE_PROXY_COMMENT]
-        <init-param>
-            <param-name>active</param-name>
-            <param-value>true</param-value>
-        </init-param>
-    </filter>
-
-    <filter>
-        <filter-name>AdminRequestFilter</filter-name>
-        <filter-class>com.netscape.cms.servlet.filter.AdminRequestFilter</filter-class>
-        <init-param>
-            <param-name>https_port</param-name>
-            <param-value>[PKI_ADMIN_SECURE_PORT]</param-value>
-        </init-param>
-[PKI_OPEN_ENABLE_PROXY_COMMENT]
-        <init-param>
-            <param-name>proxy_port</param-name>
-            <param-value>[PKI_PROXY_SECURE_PORT]</param-value>
-         </init-param>
-[PKI_CLOSE_ENABLE_PROXY_COMMENT]
-        <init-param>
-            <param-name>active</param-name>
-            <param-value>true</param-value>
-        </init-param>
-    </filter>
-
-    <filter>
-        <filter-name>EERequestFilter</filter-name>
-        <filter-class>com.netscape.cms.servlet.filter.EERequestFilter</filter-class>
-        <init-param>
-            <param-name>http_port</param-name>
-            <param-value>[PKI_UNSECURE_PORT]</param-value>
-        </init-param>
-        <init-param>
-            <param-name>https_port</param-name>
-            <param-value>[PKI_EE_SECURE_PORT]</param-value>
-        </init-param>
-[PKI_OPEN_ENABLE_PROXY_COMMENT]
-        <init-param>
-            <param-name>proxy_port</param-name>
-            <param-value>[PKI_PROXY_SECURE_PORT]</param-value>
-         </init-param>
-        <init-param>
-            <param-name>proxy_http_port</param-name>
-            <param-value>[PKI_PROXY_UNSECURE_PORT]</param-value>
-         </init-param>
-[PKI_CLOSE_ENABLE_PROXY_COMMENT]
-        <init-param>
-            <param-name>active</param-name>
-            <param-value>true</param-value>
-        </init-param>
-    </filter>
+    <display-name>Key Recovery Authority</display-name>
 
     <servlet>
         <servlet-name>csadmin-wizard</servlet-name>
@@ -640,7 +577,7 @@
              <init-param><param-name>  AuthzMgr    </param-name>
                          <param-value> BasicAclAuthz </param-value> </init-param>
              <init-param><param-name>  cfgPath     </param-name>
-                         <param-value> [PKI_INSTANCE_PATH]/conf/CS.cfg  </param-value> </init-param>
+                         <param-value> [PKI_INSTANCE_PATH]/conf/[PKI_SUBSYSTEM_TYPE]/CS.cfg  </param-value> </init-param>
              <init-param><param-name>  ID          </param-name>
                          <param-value> krastart    </param-value> </init-param>
       <load-on-startup>  1  </load-on-startup>
@@ -715,7 +652,7 @@
              <init-param><param-name>  ID          </param-name>
                          <param-value> kraUpdateNumberRange </param-value> </init-param>
              <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
+                         <param-value> admin       </param-value> </init-param>
              <init-param><param-name>  AuthMgr     </param-name>
                          <param-value> TokenAuth </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -744,26 +681,141 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  kraGetTokenInfo  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.GetTokenInfo  </servlet-class>
+      <servlet-name>  kraGetStatus  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetStatus  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  authority   </param-name>
                          <param-value> kra          </param-value> </init-param>
              <init-param><param-name>  ID          </param-name>
-                         <param-value> kraGetTokenInfo </param-value> </init-param>
+                         <param-value> kraGetStatus </param-value> </init-param>
+   </servlet>
+
+   [PKI_OPEN_STANDALONE_COMMENT]
+   <servlet>
+      <servlet-name>  kraGetDomainXML  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetDomainXML  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraGetDomainXML </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraUpdateDomainXML  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.UpdateDomainXML  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraUpdateDomainXML </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent          </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.securitydomain.domainxml </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraUpdateDomainXML-admin  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.UpdateDomainXML  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraUpdateDomainXML </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> admin          </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.securitydomain.domainxml </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraSecurityDomainLogin  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.SecurityDomainLogin  </servlet-class>
+            <init-param> <param-name>properties</param-name>
+                         <param-value>/WEB-INF/velocity.properties</param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraSecurityDomainLogin  </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.certificates </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraGetCookie  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetCookie  </servlet-class>
+            <init-param> <param-name>properties</param-name>
+                         <param-value>/WEB-INF/velocity.properties</param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraGetCookie  </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> passwdUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /admin/kra/sendCookie.template </param-value> </init-param>
+             <init-param><param-name>  errorTemplatePath  </param-name>
+                         <param-value> /admin/kra/securitydomainlogin.template </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraTokenAuthenticate  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.TokenAuthenticate  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraTokenAuthenticate  </param-value> </init-param>
              <init-param><param-name>  interface   </param-name>
                          <param-value> ee          </param-value> </init-param>
    </servlet>
 
-   <context-param>
-      <param-name>resteasy.scan</param-name>
-      <param-value>true</param-value>
-   </context-param>
+   <servlet>
+      <servlet-name>  kraTokenAuthenticate-admin  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.TokenAuthenticate  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraTokenAuthenticate  </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> admin          </param-value> </init-param>
+   </servlet>
+   [PKI_CLOSE_STANDALONE_COMMENT]
+
+
+   <!-- ==================== RESTEasy Configuration =============== -->
+
+   <listener>
+      <listener-class> org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap </listener-class>
+   </listener>
 
    <context-param>
       <param-name>resteasy.servlet.mapping.prefix</param-name>
-      <param-value>/pki</param-value>
+      <param-value>/rest</param-value>
    </context-param>
 
    <context-param>
@@ -776,34 +828,15 @@
    <servlet>
       <servlet-name>Resteasy</servlet-name>
       <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+      <init-param>
+         <param-name>javax.ws.rs.Application</param-name>
+         <param-value>com.netscape.kra.KeyRecoveryAuthorityApplication</param-value>
+      </init-param>
    </servlet>
-
-[PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT]
-   <filter-mapping>
-      <filter-name>  AgentRequestFilter  </filter-name>
-      <url-pattern>  /agent/*            </url-pattern>
-   </filter-mapping>
-
-   <filter-mapping>
-      <filter-name>  AdminRequestFilter  </filter-name>
-      <url-pattern>  /admin/*            </url-pattern>
-      <url-pattern>  /auths              </url-pattern>
-      <url-pattern>  /server             </url-pattern>
-      <url-pattern>  /log                </url-pattern>
-      <url-pattern>  /ug                 </url-pattern>
-      <url-pattern>  /acl                </url-pattern>
-      <url-pattern>  /kra                </url-pattern>
-   </filter-mapping>
-
-   <filter-mapping>
-      <filter-name>  EERequestFilter  </filter-name>
-      <url-pattern>  /ee/*            </url-pattern>
-   </filter-mapping>
-[PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT]
 
    <servlet-mapping>
       <servlet-name>Resteasy</servlet-name>
-      <url-pattern>/pki/*</url-pattern>
+      <url-pattern>/rest/*</url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
@@ -1012,7 +1045,7 @@
 
    <servlet-mapping>
       <servlet-name>  kraUpdateNumberRange </servlet-name>
-      <url-pattern>   /ee/kra/updateNumberRange  </url-pattern>
+      <url-pattern>   /admin/kra/updateNumberRange  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
@@ -1021,9 +1054,46 @@
    </servlet-mapping>
 
    <servlet-mapping>
-      <servlet-name>  kraGetTokenInfo </servlet-name>
-      <url-pattern>   /ee/kra/getTokenInfo </url-pattern>
+      <servlet-name>  kraGetStatus  </servlet-name>
+      <url-pattern>   /admin/kra/getStatus  </url-pattern>
    </servlet-mapping>
+
+   [PKI_OPEN_STANDALONE_COMMENT]
+   <servlet-mapping>
+      <servlet-name>  kraGetDomainXML </servlet-name>
+      <url-pattern>   /admin/kra/getDomainXML  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraUpdateDomainXML </servlet-name>
+      <url-pattern>   /agent/kra/updateDomainXML  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraUpdateDomainXML-admin </servlet-name>
+      <url-pattern>   /admin/kra/updateDomainXML  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraSecurityDomainLogin </servlet-name>
+      <url-pattern>   /admin/kra/securityDomainLogin  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraGetCookie </servlet-name>
+      <url-pattern>   /admin/kra/getCookie  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraTokenAuthenticate </servlet-name>
+      <url-pattern>   /ee/kra/tokenAuthenticate  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraTokenAuthenticate-admin </servlet-name>
+      <url-pattern>   /admin/kra/tokenAuthenticate  </url-pattern>
+   </servlet-mapping>
+   [PKI_CLOSE_STANDALONE_COMMENT]
 
    <!-- ==================== Default Session Configuration =============== -->
    <!-- You can set the default session timeout (in minutes) for all newly -->
@@ -1035,81 +1105,66 @@
         <session-timeout>30</session-timeout>
    </session-config>
 
-<!-- Default login configuration uses form-based authentication -->
-<!-- Security Constraint for agent access to the Security Data Rest Interface -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Account Services</web-resource-name>
+            <url-pattern>/rest/account/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
 
-<!-- Uncomment to activate PKIJNDI realm as in conf/server.xml -->
-<!--
-<security-constraint>
-   <display-name>KRA Top Level Constraint</display-name>
-   <web-resource-collection>
-      <web-resource-name>KRA Protected Area</web-resource-name>
-         <url-pattern>/pki/*
-         </url-pattern>
-      </web-resource-collection>
-   <user-data-constraint>
-        <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-    </user-data-constraint>
-   <auth-constraint>
-      <role-name>*</role-name>
-   </auth-constraint>
-</security-constraint>
--->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Admin Services</web-resource-name>
+            <url-pattern>/rest/admin/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
 
-<!-- Security Constraint to deny certain http methods for key/retrieve -->
-<!-- Uncomment to activate PKIJNDI realm as in conf/server.xml -->
-<!--
-<security-constraint>
-<display-name>Key forbidden</display-name>
-<web-resource-collection>
-  <web-resource-name>Key forbidden</web-resource-name>
-      <url-pattern>/pki/key/retrieve</url-pattern>
-  <http-method>GET</http-method>
-  <http-method>PUT</http-method>
-  <http-method>DELETE</http-method>
-</web-resource-collection>
-<auth-constraint/>
-</security-constraint>
--->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Agent Services</web-resource-name>
+            <url-pattern>/rest/agent/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
 
-<!-- Security Constraint to deny certain http methods for keyrequest/* -->
-<!-- Uncomment to activate PKIJNDI realm as in conf/server.xml -->
+   [PKI_OPEN_STANDALONE_COMMENT]
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Security Domain Services</web-resource-name>
+            <url-pattern>/rest/securityDomain/installToken</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+   [PKI_CLOSE_STANDALONE_COMMENT]
 
-<!--
-<security-constraint>
-<display-name>KeyRequest forbidden</display-name>
-<web-resource-collection>
-  <web-resource-name>KeyRequest forbidden</web-resource-name>
-      <url-pattern>/pki/keyrequest/archive</url-pattern>
-      <url-pattern>/pki/keyrequest/recover</url-pattern>
-      <url-pattern>/pki/keyrequest/approve/*</url-pattern>
-      <url-pattern>/pki/keyrequest/reject/*</url-pattern>
-      <url-pattern>/pki/keyrequest/cancel/*</url-pattern>
-  <http-method>GET</http-method>
-  <http-method>PUT</http-method>
-  <http-method>DELETE</http-method>
-</web-resource-collection>
-<auth-constraint/>
-</security-constraint>
--->
+    <login-config>
+        <realm-name>Key Recovery Authority</realm-name>
+    </login-config>
 
-
-<!-- Customized SSL Client auth login config 
-      uncomment to activate PKIJNDI realm as in conf/server.xml 
--->
-
-<!--
-
-<login-config>
-   <realm-name>PKIJNDIRealm</realm-name> 
-   <auth-method>CLIENT-CERT</auth-method>
-   <realm-name>Client Cert Protected Area</realm-name>
-</login-config>
-
-<security-role>
-   <role-name>*</role-name>
-</security-role>
-
--->
+    <security-role>
+        <role-name>*</role-name>
+    </security-role>
 
 </web-app>

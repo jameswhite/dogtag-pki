@@ -18,6 +18,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
+#include "cert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -2539,7 +2540,15 @@ bool RA_Processor::RevokeCertificates(RA_Session *session, char *cuid,char *audi
                         rc = RA::ra_delete_certificate_entry(e);
                         continue;
                     }
-                    statusNum = certEnroll->RevokeCertificate("1", serial, connid, statusString);
+
+                    CERTCertificate **attr_certificate= RA::ra_get_certificates(e);
+                    statusNum = certEnroll->RevokeCertificate(
+                        true,
+                        attr_certificate[0],
+                        "1", serial, connid, statusString);
+                    if (attr_certificate[0] != NULL)
+                        CERT_DestroyCertificate(attr_certificate[0]);
+
                     RA::Debug("RA_Processor::RevokeCertificates", "Revoke cert %s status %d",serial,statusNum);
 
                     if (statusNum == 0) {
@@ -2753,16 +2762,20 @@ RA_Status RA_Processor::Format(RA_Session *session, NameValueSet *extensions, bo
     }
 
     if (RA::ra_is_token_present(cuid)) {
-       RA::Debug("RA_Processor::Format",
-	      "Found token %s", cuid);
+        int token_status = RA::ra_get_token_status(cuid);
 
-      if (RA::ra_is_tus_db_entry_disabled(cuid)) {
-        RA::Error("RA_Format_Processor::Process",
-                        "CUID %s Disabled", cuid);
-        status = STATUS_ERROR_DISABLED_TOKEN;
-        PR_snprintf(audit_msg, 512, "CUID %s Disabled, status=STATUS_ERROR_DISABLED_TOKEN", cuid);
-        goto loser;
-      }
+       RA::Debug("RA_Processor::Format",
+              "Found token %s status %d", cuid, token_status);
+
+      // Check for transition to 0/UNINITIALIZED status.
+      
+      if (token_status == -1 || !RA::transition_allowed(token_status, 0)) {
+          RA::Error("RA_Format_Processor::Process",
+              "Operation for CUID %s Disabled", cuid);
+              status = STATUS_ERROR_DISABLED_TOKEN;
+              PR_snprintf(audit_msg, 512, "Operation for CUID %s Disabled, illegal transition attempted %d:%d.", cuid, token_status, 0);
+              goto loser;
+      }  
     } else {
        RA::Debug("RA_Processor::Format",
 	      "Not Found token %s", cuid);
@@ -3140,9 +3153,12 @@ locale),
         int defKeyIndex = RA::GetConfigStore()->GetConfigAsInt(configname, 0x0);
         channel = SetupSecureChannel(session, 0x00,
                   defKeyIndex  /* default key index */, connid);
-        rc = channel->ExternalAuthenticate();
+
         if (channel != NULL) {
             char issuer[224];
+
+            rc = channel->ExternalAuthenticate();
+
             for (int i = 0; i < 224; i++) {
               issuer[i] = 0;
             }

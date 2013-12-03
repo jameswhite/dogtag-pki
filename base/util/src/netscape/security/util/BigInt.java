@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
+import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.Arrays;
 
 /**
  * A low-overhead arbitrary-precision <em>unsigned</em> integer.
@@ -34,8 +36,9 @@ import java.math.BigInteger;
  * @version 1.23
  * @author David Brownell
  */
-public final class BigInt {
+public final class BigInt implements Serializable {
 
+    private static final long serialVersionUID = 705094142021888265L;
     // Big endian -- MSB first.
     private byte[] places;
 
@@ -188,6 +191,14 @@ public final class BigInt {
         if (other instanceof BigInt)
             return equals((BigInt) other);
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(places);
+        return result;
     }
 
     /**

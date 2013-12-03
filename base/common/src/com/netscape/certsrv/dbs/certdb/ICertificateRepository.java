@@ -28,10 +28,8 @@ import netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.repository.IRepository;
-import com.netscape.cmscore.dbs.CertificateRepository.RenewableCertificateCollection;
 
 /**
  * An interface represents a CMS certificate repository.
@@ -41,6 +39,16 @@ import com.netscape.cmscore.dbs.CertificateRepository.RenewableCertificateCollec
  * @version $Revision$, $Date$
  */
 public interface ICertificateRepository extends IRepository {
+
+    /**
+     * Retrieves the next certificate serial number, and also increases
+     * the serial number by one.
+     *
+     * @return serial number
+     * @exception EBaseException failed to retrieve next serial number
+     */
+    public BigInteger getNextSerialNumber()
+            throws EBaseException;
 
     /**
      * Adds a certificate record to the repository. Each certificate
@@ -514,15 +522,22 @@ public interface ICertificateRepository extends IRepository {
     public void removeCertRecords(BigInteger beginS, BigInteger endS) throws EBaseException;
 
     /**
-     * Builds a list of revoked certificates to put them into CRL.
-     * Calls certificate record processor to get necessary data
-     * from certificate records.
-     * This also regenerates CRL cache.
+     * Retrieves serial number management mode.
      *
-     * @param cp certificate record processor
-     * @exception EBaseException if an error occurred in the database.
+     * @return serial number management mode,
+     * "true" indicates random serial number management,
+     * "false" indicates sequential serial number management.
      */
-    public void processRevokedCerts(IElementProcessor cp, String filter, int pageSize) throws EBaseException;
+    public boolean getEnableRandomSerialNumbers();
+
+    /**
+     * Sets serial number management mode for certificates..
+     *
+     * @param random "true" sets random serial number management, "false" sequential
+     * @param updateMode "true" updates "description" attribute in certificate repository
+     * @param forceModeChange "true" forces certificate repository mode change
+     */
+    public void setEnableRandomSerialNumbers(boolean random, boolean updateMode, boolean forceModeChange);
 
     public void shutdown();
 }

@@ -1,13 +1,6 @@
-# for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
-# also remove the space between % and global - this space is needed because
-# fedpkg verrel stupidly ignores comment lines
-%global prerel .a1
-# also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
-%global relprefix 0.
-
 Name:             pki-tps
-Version:          10.0.0
-Release:          %{?relprefix}1%{?prerel}%{?dist}
+Version:          10.1.0
+Release:          1%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -15,40 +8,37 @@ Group:            System Environment/Daemons
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:    cmake
+BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    apr-devel
 BuildRequires:    apr-util-devel
 BuildRequires:    cyrus-sasl-devel
-BuildRequires:    httpd-devel
+BuildRequires:    httpd-devel >= 2.4.2
+BuildRequires:    java-devel >= 1:1.7.0
 BuildRequires:    openldap-devel
 BuildRequires:    nspr-devel
-BuildRequires:    nss-devel
+BuildRequires:    nss-devel >= 3.14.3
 BuildRequires:    pcre-devel
+BuildRequires:    pki-server >= 10.1.0
+BuildRequires:    python
+BuildRequires:    systemd
 BuildRequires:    svrcore-devel
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
+Requires:         java >= 1:1.7.0
 Requires:         mod_nss
 Requires:         mod_perl
 Requires:         mod_revocator
+Requires:         nss >= 3.14.3
+Requires:         nss-tools >= 3.14.3
 Requires:         openldap-clients
 Requires:         perl-Mozilla-LDAP
-Requires:         pki-native-tools
-Requires:         pki-selinux
-Requires:         pki-setup
-Requires:         pki-tps-theme >= 9.0.0
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-%if 0%{?fedora} >= 15
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-Requires:         initscripts
-%endif
+Requires:         pki-server >= 10.1.0
+Requires:         pki-symkey >= 10.1.0
+
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
@@ -74,20 +64,18 @@ information about individual tokens.                                      \
 For deployment purposes, a TPS requires the following components from the \
 PKI Core package:                                                         \
                                                                           \
-  * pki-setup                                                             \
-  * pki-native-tools                                                      \
-  * pki-selinux                                                           \
-                                                                          \
-and can also make use of the following optional components from the       \
-PKI CORE package:                                                         \
-                                                                          \
-  * pki-silent                                                            \
+  * pki-server                                                            \
+  * pki-tools                                                             \
                                                                           \
 Additionally, Certificate System requires ONE AND ONLY ONE of the         \
 following "Mutually-Exclusive" PKI Theme packages:                        \
                                                                           \
   * dogtag-pki-theme (Dogtag Certificate System deployments)              \
-  * redhat-pki-theme (Red Hat Certificate System deployments)             \
+    * dogtag-pki-server-theme                                             \
+  * redhat-pki-server-theme (Red Hat Certificate System deployments)      \
+    * redhat-pki-server-theme                                             \
+  * customized pki theme (Customized Certificate System deployments)      \
+    * <customized>-pki-server-theme                                       \
                                                                           \
 %{nil}
 
@@ -96,7 +84,7 @@ following "Mutually-Exclusive" PKI Theme packages:                        \
 
 ==================================
 ||  ABOUT "CERTIFICATE SYSTEM"  ||
-================================== 
+==================================
 ${overview}
 
 
@@ -131,7 +119,17 @@ chmod +x %{__perl_requires}
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_TPS:BOOL=ON ..
+%cmake -DVERSION=%{version}-%{release} \
+	-DVAR_INSTALL_DIR:PATH=/var \
+	-DBUILD_PKI_TPS:BOOL=ON \
+	-DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
+%if 0%{?rhel}
+	-DRESTEASY_LIB=/usr/share/java/resteasy-base \
+%else
+	-DRESTEASY_LIB=/usr/share/java/resteasy \
+%endif
+	%{?_without_javadoc:-DWITH_JAVADOC:BOOL=OFF} \
+	..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -158,7 +156,6 @@ cd %{buildroot}/%{_datadir}/pki/tps/docroot
 mkdir %{buildroot}%{_sysconfdir}/ld.so.conf.d
 echo %{_libdir}/tps > %{buildroot}%{_sysconfdir}/ld.so.conf.d/tps-%{_arch}.conf
 
-%if 0%{?fedora} >= 15
 # Details:
 #
 #     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
@@ -166,36 +163,58 @@ echo %{_libdir}/tps > %{buildroot}%{_sysconfdir}/ld.so.conf.d/tps-%{_arch}.conf
 #
 %{__mkdir_p} %{buildroot}%{_sysconfdir}/tmpfiles.d
 # generate 'pki-tps.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
-echo "D /var/lock/pki/tps 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
-echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
-echo "D /var/run/pki/tps 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
-%endif
+echo "D /run/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
+echo "D /run/lock/pki/tps 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
+echo "D /run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
+echo "D /run/pki/tps 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
 
+%{__rm} %{buildroot}%{_initrddir}/pki-tpsd
 
 %post
-/sbin/ldconfig
-# This adds the proper /etc/rc*.d links for the script
-/sbin/chkconfig --add pki-tpsd || :
+# Attempt to update ALL old "TPS" instances to "systemd"
+if [ -d /etc/sysconfig/pki/tps ]; then
+    for inst in `ls /etc/sysconfig/pki/tps`; do
+        if [ ! -e "/etc/systemd/system/pki-tpsd.target.wants/pki-tpsd@${inst}.service" ]; then
+            ln -s "/lib/systemd/system/pki-tpsd@.service" \
+                  "/etc/systemd/system/pki-tpsd.target.wants/pki-tpsd@${inst}.service"
 
+            if [ -e /var/run/${inst}.pid ]; then
+                kill -9 `cat /var/run/${inst}.pid` || :
+                rm -f /var/run/${inst}.pid
+                echo "pkicreate.systemd.servicename=pki-tpsd@${inst}.service" >> \
+                     /var/lib/${inst}/conf/CS.cfg || :
+                /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+                /bin/systemctl restart pki-tpsd@${inst}.service || :
+            else
+                echo "pkicreate.systemd.servicename=pki-tpsd@${inst}.service" >> \
+                     /var/lib/${inst}/conf/CS.cfg || :
+            fi
+        else
+            # Conditionally restart this Dogtag 9 instance
+            /bin/systemctl condrestart pki-tpsd@${inst}.service
+        fi
+    done
+fi
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 
 %preun
 if [ $1 = 0 ] ; then
-    /sbin/service pki-tpsd stop >/dev/null 2>&1
-    /sbin/chkconfig --del pki-tpsd || :
+    /bin/systemctl --no-reload disable pki-tpsd.target > /dev/null 2>&1 || :
+    /bin/systemctl stop pki-tpsd.target > /dev/null 2>&1 || :
 fi
-
 
 %postun
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ "$1" -ge "1" ] ; then
-    /sbin/service pki-tpsd condrestart >/dev/null 2>&1 || :
+    /bin/systemctl try-restart pki-tpsd.target >/dev/null 2>&1 || :
 fi
-
 
 %files
 %defattr(-,root,root,-)
 %doc base/tps/LICENSE
-%{_initrddir}/pki-tpsd
+%dir %{_sysconfdir}/systemd/system/pki-tpsd.target.wants
+%{_unitdir}/pki-tpsd@.service
+%{_unitdir}/pki-tpsd.target
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/tps-%{_arch}.conf
 %{_bindir}/tpsclient
 %{_libdir}/httpd/modules/*
@@ -211,17 +230,101 @@ fi
 %{_datadir}/pki/tps/setup/
 %dir %{_localstatedir}/lock/pki/tps
 %dir %{_localstatedir}/run/pki/tps
-%if 0%{?fedora} >= 15
 # Details:
 #
 #     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
 #     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
 #
 %config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tps.conf
-%endif
 
 
 %changelog
+* Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
+- Update release number for release build
+
+* Sun Nov 10 2013 Ade Lee <alee@redhat.com> 10.1.0-0.7
+- Change release number for beta build
+
+* Thu Oct 31 2013 Ade Lee <alee@redhat.com> 10.1.0-0.6
+- Fixed references to /var/run and /var/lock in tmpfiles. 
+
+* Wed Aug 14 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.5
+- Moved Tomcat-based TPS into pki-core.
+
+* Thu Jul 11 2013 Ade Lee <alee@redhat.com> 10.1.0-0.4
+- Add systemd build requirement to fix build failures in f19
+
+* Fri Jun 14 2013 Kevin Wright <kwright@redhat.com> 10.1.0-0.3
+- Added missing build dependency on Java.
+
+* Tue Jun 11 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.2
+- Fixed dependencies on pki-server and pki-symkey.
+
+* Tue May 7 2013 Ade Lee <alee@redhat.com> 10.1.0-0.1
+- Change release number for 10.1 development
+
+* Tue Apr 30 2013 Ade Lee <alee@redhat.com> 10.0.2-2
+- Added nss, nss-tools dependencies
+
+* Fri Apr 26 2013 Ade Lee <alee@redhat.com> 10.0.2-1
+- Change release number for official release.
+
+* Wed Mar 27 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.1
+- Updated version number to 10.0.2-0.1.
+
+* Tue Mar 12 2013 Endi S. Dewata <edewata@redhat.com> 10.0.0-3
+- Added python build-time dependency.
+
+* Mon Mar  4 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-2
+- TRAC Ticket #517 - Clean up theme dependencies
+- TRAC Ticket #518 - Remove UI dependencies from pkispawn . . .
+
+* Fri Dec 7 2012 Ade Lee <alee@redhat.com> 10.0.0-1
+- Update to official release for rc1
+
+* Tue Nov 20 2012 Ade Lee <alee@redhat.com> 10.0.0-0.12.b3
+- Update spec fiel to support fedora >= 17 and rhel 7+
+- Update cmake version
+
+* Mon Nov 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.11.b3
+- Update release to b3
+
+* Mon Oct 29 2012 Ade Lee <alee@redhat.com> 10.0.0-0.10.b2
+- Update release to b2
+
+* Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.9.b1
+- Update release to b1
+
+* Fri Oct 5 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.9.a2
+- Merged pki-silent into pki-server.
+
+* Mon Oct 1 2012 Ade Lee <alee@redhat.com> 10.0.0-0.8.a2
+- Update release to a2
+
+* Sun Sep 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.8.a1
+- Modified CMake to use RPM version number
+
+* Mon Sep 24 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.7.a1
+- Merged pki-setup into pki-server
+
+* Tue Sep 11 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.6.a1
+- TRAC Ticket #312 - Dogtag 10: Automatically restart any running instances
+  upon RPM "update" . . .
+
+* Mon Aug 20 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.5.a1
+- Removed direct dependency on 'pki-native-tools'.
+
+* Mon Aug 20 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.4.a1
+- Replaced 'pki-deploy' with 'pki-server'.
+
+* Thu Aug 16 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.3.a1
+- Changed 'httpd-devel' build-time dependency to require '2.4.2'
+- Added 'pki-deploy' runtime dependency
+
+* Mon Aug 13 2012 Ade Lee <alee@redhat.com> 10.0.0-0.2.a1
+- Added systemd scripts
+- Ported config files and init scripts to apache 2.4
+
 * Wed Feb  1 2012 Nathan Kinder <nkinder@redhat.com> 10.0.0-0.1.a1
 - Updated package version number
 

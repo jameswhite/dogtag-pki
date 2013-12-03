@@ -27,11 +27,11 @@
 
 <!-- DO NOT REMOVE - Begin PKI Status Definitions -->
 <!--
-Unsecure Port       = http://[PKI_MACHINE_NAME]:[PKI_UNSECURE_PORT]/[PKI_SUBSYSTEM_TYPE]/ee/[PKI_SUBSYSTEM_TYPE]
-Secure Agent Port   = https://[PKI_MACHINE_NAME]:[PKI_AGENT_SECURE_PORT]/[PKI_SUBSYSTEM_TYPE]/agent/[PKI_SUBSYSTEM_TYPE]
-Secure EE Port      = https://[PKI_MACHINE_NAME]:[PKI_EE_SECURE_PORT]/[PKI_SUBSYSTEM_TYPE]/ee/[PKI_SUBSYSTEM_TYPE]
-Secure Admin Port   = https://[PKI_MACHINE_NAME]:[PKI_ADMIN_SECURE_PORT]/[PKI_SUBSYSTEM_TYPE]/services
-PKI Console Port    = pkiconsole https://[PKI_MACHINE_NAME]:[PKI_ADMIN_SECURE_PORT]/[PKI_SUBSYSTEM_TYPE]
+Unsecure URL        = http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/[PKI_SUBSYSTEM_TYPE]/ee/[PKI_SUBSYSTEM_TYPE]
+Secure Agent URL    = https://[PKI_HOSTNAME]:[PKI_AGENT_SECURE_PORT]/[PKI_SUBSYSTEM_TYPE]/agent/[PKI_SUBSYSTEM_TYPE]
+Secure EE URL       = https://[PKI_HOSTNAME]:[PKI_EE_SECURE_PORT]/[PKI_SUBSYSTEM_TYPE]/ee/[PKI_SUBSYSTEM_TYPE]
+Secure Admin URL    = https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/[PKI_SUBSYSTEM_TYPE]/services
+PKI Console Command = pkiconsole https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/[PKI_SUBSYSTEM_TYPE]
 Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
 -->
 <!-- DO NOT REMOVE - End PKI Status Definitions -->
@@ -122,7 +122,7 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
 	       enableLookups="false" disableUploadTimeout="true"
 	       SSLImplementation="org.apache.tomcat.util.net.jss.JSSImplementation"
 	       enableOCSP="false"
-	       ocspResponderURL="http://[PKI_MACHINE_NAME]:9080/ca/ocsp"
+	       ocspResponderURL="http://[PKI_HOSTNAME]:9080/ca/ocsp"
 	       ocspResponderCertNickname="ocspSigningCert cert-pki-ca"
 	       ocspCacheSize="1000"
 	       ocspMinCacheEntryDuration="60"
@@ -196,7 +196,7 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
 
     <!-- Define an AJP 1.3 Connector on port [PKI_AJP_PORT] -->
 [PKI_OPEN_AJP_PORT_COMMENT]
-    <Connector port="[PKI_AJP_PORT]" protocol="AJP/1.3" redirectPort="[PKI_AJP_REDIRECT_PORT]" />
+    <Connector port="[PKI_AJP_PORT]" protocol="AJP/1.3" redirectPort="[PKI_AJP_REDIRECT_PORT]" address="127.0.0.1" />
 [PKI_CLOSE_AJP_PORT_COMMENT]
 
 
@@ -235,51 +235,8 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
              resourceName="UserDatabase"/>
       -->
 
-      <!-- Custom PKIJNDI realm
-
-          Example:
-
-          <Realm className="com.netscape.cmscore.realm.PKIJNDIRealm" : classpath to realm
-          connectionURL="ldap://localhost:389" : standard JNDI connection URL
-          userBase="ou=people,dc=localhost-pki-kra" : standard JNDI userBase property
-          userSearch="(description={0})" : Attribute to search for user of incoming client auth certificate
-                                         : Use userSearch="(UID={0})" if wanting to search isolate user based on UID
-                                         : Also set the following: certUIDLabel="UID" or whatever the field containing
-                                         : the user's UID happens to be. This will cause the incoming's cert dn to be
-                                         : be searched for <certUIDLabel>=<uid value>
-
-          certAttrName="userCertificate" : Attribute containing user's client auth certificate
-          roleBase="ou=groups,dc=localhost-pki-kra" : Standard JNDI search base for roles or groups
-          roleName="cn" : Standard attribute name containg roles or groups
-          roleSubtree="true" : Standard JNDI roleSubtree property
-          roleSearch="(uniqueMember={0})" : How to search for a user in a specific role or group
-          connectionName="cn=Directory Manager" : Connection name, needs elevated privileges
-          connectionPassword="secret123" : Password for elevated user
-          aclBase ="cn=aclResources,dc=localhost-pki-kra" : Custom base location of PKI ACL's in directory
-          aclAttrName="resourceACLS" : Name of attribute containing PKI ACL's
-       />
-
-          Uncomment and customize  below to activate Realm.
-          Also umcomment Security Constraints and login config  values
-          in WEB-INF/web.xml as well.
-      --> 
-
       <!-- 
-      <Realm className="com.netscape.cmscore.realm.PKIJNDIRealm"
-          connectionURL="ldap://localhost:389"
-          userBase="ou=people,dc=localhost-pki-kra"
-          userSearch="(description={0})"
-          certAttrName="userCertificate"
-          roleBase="ou=groups,dc=localhost-pki-kra"
-          roleName="cn"
-          roleSubtree="true"
-          roleSearch="(uniqueMember={0})"
-          connectionName="cn=Directory Manager"
-          connectionPassword="netscape"
-          aclBase ="cn=aclResources,dc=localhost-pki-kra"
-          aclAttrName="resourceACLS"
-       />
-
+      <Realm className="com.netscape.cmscore.realm.PKIRealm" />
        -->
 
       <!-- Define the default virtual host
@@ -297,10 +254,10 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
 
         <!-- Access log processes all example.
              Documentation at: /docs/config/valve.html -->
-        <!--
+        [PKI_OPEN_TOMCAT_ACCESS_LOG_COMMENT]
         <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"  
                prefix="localhost_access_log." suffix=".txt" pattern="common" resolveHosts="false"/>
-        -->
+        [PKI_CLOSE_TOMCAT_ACCESS_LOG_COMMENT]
 
       </Host>
     </Engine>

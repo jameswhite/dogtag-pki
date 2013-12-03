@@ -1,4 +1,4 @@
-project(pki-tools_java Java)
+project(pki-tools_java NONE)
 
 find_file(JSS_JAR
     NAMES
@@ -8,9 +8,30 @@ find_file(JSS_JAR
         /usr/share/java
 )
 
+find_file(APACHE_COMMONS_CLI_JAR
+    NAMES
+        apache-commons-cli.jar
+    PATHS
+        /usr/share/java
+)
+
+find_file(APACHE_COMMONS_LANG_JAR
+    NAMES
+        apache-commons-lang.jar
+    PATHS
+        /usr/share/java
+)
+
 find_file(COMMONS_CODEC_JAR
     NAMES
         commons-codec.jar
+    PATHS
+        /usr/share/java
+)
+
+find_file(COMMONS_IO_JAR
+    NAMES
+        commons-io.jar
     PATHS
         /usr/share/java
 )
@@ -31,59 +52,90 @@ find_file(XERCES_JAR
         /usr/share/java
 )
 
-set(pki-tools_java_SRCS
-    com/netscape/cmstools/PrettyPrintCrl.java
-    com/netscape/cmstools/BtoA.java
-    com/netscape/cmstools/PasswordCache.java
-    com/netscape/cmstools/OCSPClient.java
-    com/netscape/cmstools/PKCS12Export.java
-    com/netscape/cmstools/TestCRLSigning.java
-    com/netscape/cmstools/CRMFPopClient.java
-    com/netscape/cmstools/AuditVerify.java
-    com/netscape/cmstools/PrettyPrintCert.java
-    com/netscape/cmstools/HttpClient.java
-    com/netscape/cmstools/GenExtKeyUsage.java
-    com/netscape/cmstools/CMCRevoke.java
-    com/netscape/cmstools/TokenInfo.java
-    com/netscape/cmstools/CMCEnroll.java
-    com/netscape/cmstools/ExtJoiner.java
-    com/netscape/cmstools/CMCRequest.java
-    com/netscape/cmstools/AtoB.java
-    com/netscape/cmstools/GenIssuerAltNameExt.java
-    com/netscape/cmstools/GenSubjectAltNameExt.java
-    com/netscape/cmstools/CMCResponse.java
-    com/netscape/cmstools/PKCS10Client.java
-    com/netscape/cmstools/DRMTool.java
+find_file(JAXRS_API_JAR
+    NAMES
+        jaxrs-api.jar
+    PATHS
+        ${RESTEASY_LIB}
 )
 
-set(CMAKE_JAVA_INCLUDE_PATH
-    ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
-    ${XALAN_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${COMMONS_CODEC_JAR})
+find_file(RESTEASY_JAXRS_JAR
+    NAMES
+        resteasy-jaxrs.jar
+    PATHS
+        ${RESTEASY_LIB}
+)
 
-set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
+find_file(RESTEASY_ATOM_PROVIDER_JAR
+    NAMES
+        resteasy-atom-provider.jar
+    PATHS
+        ${RESTEASY_LIB}
+)
+
+find_file(HTTPCLIENT_JAR
+    NAMES
+        httpclient.jar
+    PATHS
+        /usr/share/java/httpcomponents
+)
+
+find_file(HTTPCORE_JAR
+    NAMES
+        httpcore.jar
+    PATHS
+        /usr/share/java/httpcomponents
+)
 
 # build pki-tools
-add_jar(pki-tools ${pki-tools_java_SRCS})
-add_dependencies(pki-tools pki-nsutil pki-cmsutil)
+javac(pki-tools-classes
+    SOURCES
+        com/netscape/cmstools/*.java
+    CLASSPATH
+        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
+        ${XALAN_JAR} ${XERCES_JAR}
+        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
+        ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
+        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+        ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
+    OUTPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    DEPENDS
+        pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar
+)
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/pki-tools.mf
+    ${CMAKE_CURRENT_BINARY_DIR}/pki-tools.mf
+)
+
+jar(pki-tools-jar
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-tools.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/pki-tools.mf
+    INPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    FILES
+        com/netscape/cmstools/*.class
+    DEPENDS
+        pki-tools-classes
+)
+
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/pki-tools.jar
+    DESTINATION
+        ${JAVA_JAR_INSTALL_DIR}/pki
+)
+
 install(
     FILES
         com/netscape/cmstools/DRMTool.cfg
     DESTINATION
-        ${SHARE_INSTALL_PREFIX}/pki/java-tools/
+        ${SHARE_INSTALL_PREFIX}/pki/java-tools
 )
-install_jar(pki-tools ${JAVA_JAR_INSTALL_DIR}/pki)
-set(PKI_TOOLS_JAR ${pki-tools_JAR_FILE} CACHE INTERNAL "pki-tools jar file")
 
-if(WITH_JAVADOC)
-    create_javadoc(pki-java-tools-${APPLICATION_VERSION}
-        FILES ${pki-tools_java_SRCS}
-        CLASSPATH ${CMAKE_JAVA_INCLUDE_PATH}
-        WINDOWTITLE "pki-java-tools"
-        DOCTITLE "<h1>pki-java-tools</h1>"
-        AUTHOR TRUE
-        USE TRUE
-        VERSION TRUE
-    )
-    add_dependencies(pki-java-tools-${APPLICATION_VERSION}_javadoc pki-tools)
-endif(WITH_JAVADOC)
+set(PKI_TOOLS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tools.jar CACHE INTERNAL "pki-tools jar file")

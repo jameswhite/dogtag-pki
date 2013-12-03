@@ -203,6 +203,15 @@ public final class AVA implements DerEncoder {
             return false;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((oid == null) ? 0 : oid.hashCode());
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
+
     /**
      * Encodes the AVA to a Der output stream.
      * AVAs are encoded as a SEQUENCE of two elements.
@@ -223,13 +232,14 @@ public final class AVA implements DerEncoder {
      * @exception IOException on encoding error.
      */
     public void derEncode(OutputStream out) throws IOException {
-        DerOutputStream tmp = new DerOutputStream();
-        DerOutputStream tmp2 = new DerOutputStream();
+        try (DerOutputStream tmp2 = new DerOutputStream()) {
+            DerOutputStream tmp = new DerOutputStream();
 
-        tmp.putOID(oid);
-        value.encode(tmp);
-        tmp2.write(DerValue.tag_Sequence, tmp);
-        out.write(tmp2.toByteArray());
+            tmp.putOID(oid);
+            value.encode(tmp);
+            tmp2.write(DerValue.tag_Sequence, tmp);
+            out.write(tmp2.toByteArray());
+        }
     }
 
     /**

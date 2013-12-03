@@ -1,0 +1,3 @@
+Name: pki-ocsp
+Specification-Version: ${APPLICATION_VERSION}
+Implementation-Version: ${VERSION}

@@ -31,10 +31,15 @@ import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
 
+import com.netscape.certsrv.acls.ACLMapping;
+import com.netscape.certsrv.authentication.AuthMethodMapping;
+
 /**
  * @author Endi S. Dewata
  */
-@Path("/groups")
+@Path("admin/groups")
+@ACLMapping("groups")
+@AuthMethodMapping("groups")
 public interface GroupResource {
 
     @GET
@@ -51,19 +56,44 @@ public interface GroupResource {
     public Response addGroup(GroupData groupData);
 
     @GET
-    @Path("/{groupID}")
+    @Path("{groupID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public GroupData getGroup(@PathParam("groupID") String groupID);
 
     @POST
-    @Path("/{groupID}")
+    @Path("{groupID}")
     @ClientResponseType(entityType=GroupData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response modifyGroup(@PathParam("groupID") String groupID, GroupData groupData);
 
     @DELETE
-    @Path("/{groupID}")
+    @Path("{groupID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void removeGroup(@PathParam("groupID") String groupID);
+
+    @GET
+    @Path("{groupID}/members")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public GroupMemberCollection findGroupMembers(
+            @PathParam("groupID") String groupID,
+            @QueryParam("start") Integer start,
+            @QueryParam("size") Integer size);
+
+    @POST
+    @Path("{groupID}/members")
+    @ClientResponseType(entityType=GroupMemberData.class)
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public Response addGroupMember(@PathParam("groupID") String groupID, String memberID);
+
+    @GET
+    @Path("{groupID}/members/{memberID}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public GroupMemberData getGroupMember(@PathParam("groupID") String groupID, @PathParam("memberID") String memberID);
+
+    @DELETE
+    @Path("{groupID}/members/{memberID}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public void removeGroupMember(@PathParam("groupID") String groupID, @PathParam("memberID") String memberID);
 }

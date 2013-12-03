@@ -29,7 +29,7 @@ else
     esac
 fi
 
-prog=$PKI_INSTANCE_ID
+prog=$PKI_INSTANCE_NAME
 lockfile=$PKI_LOCK_FILE
 pidfile=$PKI_PID_FILE
 
@@ -48,7 +48,7 @@ start()
 	    read kpid < ${pidfile}
 	    if checkpid $kpid 2>&1; then
 		echo
-		echo "${PKI_INSTANCE_ID} (pid ${kpid}) is already running ..."
+		echo "${PKI_INSTANCE_NAME} (pid ${kpid}) is already running ..."
 		echo
                 return 0
 	    else
@@ -62,32 +62,18 @@ start()
 	fi
     fi
 
-    touch ${pidfile}
-    chown ${PKI_USER}:${PKI_GROUP} ${pidfile}
-    chmod 00600 ${pidfile}
-    [ -x /sbin/restorecon ] && /sbin/restorecon  ${pidfile}
-
     # restore context for ncipher hsm
     [ -x /sbin/restorecon ] && [ -d /dev/nfast ] && /sbin/restorecon -R /dev/nfast
-    
-    /usr/sbin/selinuxenabled
-    rv=$?
-    if [ ${rv} = 0 ] ; then	
-	if [ ${ARCHITECTURE} = "i386" ] ; then
-	    LANG=${PKI_HTTPD_LANG} daemon runcon -t ${PKI_SELINUX_TYPE} -- ${httpd} ${PKI_OPTIONS}
-            rv=$?
-	    # overwrite output from "daemon"
-	    echo -n $"Starting ${prog}: "
-	elif [ ${ARCHITECTURE} = "x86_64" ] ; then
-	    # NOTE:  "daemon" is incompatible with "httpd" on 64-bit architectures
-	    LANG=${PKI_HTTPD_LANG} runcon -t ${PKI_SELINUX_TYPE} -- ${httpd} ${PKI_OPTIONS}
-            rv=$?
-	fi
-    else
-	LANG=${PKI_HTTPD_LANG} daemon ${httpd} ${PKI_OPTIONS}
+
+    if [ ${ARCHITECTURE} = "x86_64" ] ; then
+        # NOTE:  "daemon" is incompatible with "httpd" on 64-bit architectures
+        LANG=${PKI_HTTPD_LANG} ${httpd} ${PKI_OPTIONS}
         rv=$?
-	# overwrite output from "daemon"
-	echo -n $"Starting ${prog}: "
+    else
+        LANG=${PKI_HTTPD_LANG} daemon ${httpd} ${PKI_OPTIONS}
+        rv=$?
+        # overwrite output from "daemon"
+        echo -n $"Starting ${prog}: "
     fi
 
     if [ ${rv} = 0 ] ; then

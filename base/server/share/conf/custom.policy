@@ -1,0 +1,5 @@
+// ============================================================================
+// custom.policy - Custom Security Policy Permissions for PKI
+//
+// Custom security policies for PKI should be stored in this file.
+// ============================================================================

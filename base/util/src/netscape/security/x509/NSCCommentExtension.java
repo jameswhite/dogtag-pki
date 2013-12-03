@@ -36,8 +36,7 @@ import netscape.security.util.PrettyPrintFormat;
  * @see Extension
  * @see CertAttrSet
  */
-public class NSCCommentExtension extends Extension
-        implements CertAttrSet {
+public class NSCCommentExtension extends Extension implements CertAttrSet {
 
     /**
      *
@@ -60,16 +59,16 @@ public class NSCCommentExtension extends Extension
     // Private data members
     private Vector<Object> mInfos;
 
-    private PrettyPrintFormat pp = new PrettyPrintFormat(":");
+    private transient PrettyPrintFormat pp = new PrettyPrintFormat(":");
 
     // Encode this extension value
     private void encodeThis() throws IOException {
-        DerOutputStream os = new DerOutputStream();
-
-        os.putIA5String(mComment);
-        // DerOutputStream tmp = new DerOutputStream();
-        // os.write(DerValue.tag_Sequence,tmp);
-        extensionValue = os.toByteArray();
+        try (DerOutputStream os = new DerOutputStream()) {
+            os.putIA5String(mComment);
+            // DerOutputStream tmp = new DerOutputStream();
+            // os.write(DerValue.tag_Sequence,tmp);
+            extensionValue = os.toByteArray();
+        }
     }
 
     /**

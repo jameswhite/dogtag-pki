@@ -265,13 +265,9 @@ my $HTTPD_CONF                 = "HTTPD_CONF";
 my $LIB_PREFIX                 = "LIB_PREFIX";
 my $NSS_CONF                   = "NSS_CONF";
 my $OBJ_EXT                    = "OBJ_EXT";
-my $PORT                       = "PORT";
 my $PROCESS_ID                 = "PROCESS_ID";
-my $SECURE_PORT                = "SECURE_PORT";
 my $NON_CLIENTAUTH_SECURE_PORT = "NON_CLIENTAUTH_SECURE_PORT";
 my $SECURITY_LIBRARIES         = "SECURITY_LIBRARIES";
-my $SERVER_NAME                = "SERVER_NAME";
-my $SERVER_ROOT                = "SERVER_ROOT";
 my $SYSTEM_LIBRARIES           = "SYSTEM_LIBRARIES";
 my $SYSTEM_USER_LIBRARIES      = "SYSTEM_USER_LIBRARIES";
 my $TMP_DIR                    = "TMP_DIR";
@@ -287,8 +283,12 @@ my $PKI_PIDDIR                 = "PKI_PIDDIR";
 my $PKI_LOCKDIR                = "PKI_LOCKDIR";
 
 # Template slot constants (CA, KRA, OCSP, TKS, RA, TPS)
-my $PKI_INSTANCE_ID_SLOT       = "PKI_INSTANCE_ID";
-my $PKI_REGISTRY_FILE_SLOT     = "PKI_REGISTRY_FILE";
+my $PKI_INSTANCE_NAME_SLOT              = "PKI_INSTANCE_NAME";
+my $PKI_REGISTRY_FILE_SLOT              = "PKI_REGISTRY_FILE";
+my $PKI_SECURE_PORT_SLOT                = "PKI_SECURE_PORT";
+my $PKI_UNSECURE_PORT_SLOT              = "PKI_UNSECURE_PORT";
+my $PKI_INSTANCE_PATH_SLOT              = "PKI_INSTANCE_PATH";
+my $PKI_HOSTNAME_SLOT                   = "PKI_HOSTNAME";
 
 # Template slot constants (CA, KRA, OCSP, TKS)
 my $INSTALL_TIME                        = "INSTALL_TIME";
@@ -296,11 +296,8 @@ my $PKI_AGENT_CLIENTAUTH_SLOT           = "PKI_AGENT_CLIENTAUTH";
 my $PKI_CERT_DB_PASSWORD_SLOT           = "PKI_CERT_DB_PASSWORD";
 my $PKI_CFG_PATH_NAME_SLOT              = "PKI_CFG_PATH_NAME";
 my $PKI_GROUP_SLOT                      = "PKI_GROUP";
-my $PKI_INSTANCE_PATH_SLOT              = "PKI_INSTANCE_PATH";
 my $PKI_INSTANCE_ROOT_SLOT              = "PKI_INSTANCE_ROOT";
-my $PKI_MACHINE_NAME_SLOT               = "PKI_MACHINE_NAME";
 my $PKI_RANDOM_NUMBER_SLOT              = "PKI_RANDOM_NUMBER";
-my $PKI_SECURE_PORT_SLOT                = "PKI_SECURE_PORT";
 my $PKI_EE_SECURE_PORT_SLOT             = "PKI_EE_SECURE_PORT";
 my $PKI_EE_SECURE_CLIENT_AUTH_PORT_SLOT = "PKI_EE_SECURE_CLIENT_AUTH_PORT";
 my $PKI_EE_SECURE_CLIENT_AUTH_PORT_UI_SLOT = "PKI_EE_SECURE_CLIENT_AUTH_PORT_UI";
@@ -308,7 +305,6 @@ my $PKI_AGENT_SECURE_PORT_SLOT          = "PKI_AGENT_SECURE_PORT";
 my $PKI_ADMIN_SECURE_PORT_SLOT          = "PKI_ADMIN_SECURE_PORT";
 my $PKI_SERVER_XML_CONF                 = "PKI_SERVER_XML_CONF";
 my $PKI_SUBSYSTEM_TYPE_SLOT             = "PKI_SUBSYSTEM_TYPE";
-my $PKI_UNSECURE_PORT_SLOT              = "PKI_UNSECURE_PORT";
 my $PKI_USER_SLOT                       = "PKI_USER";
 my $TOMCAT_SERVER_PORT_SLOT             = "TOMCAT_SERVER_PORT";
 my $TOMCAT_PIDFILE                      = "TOMCAT_PIDFILE";
@@ -667,101 +663,9 @@ sub usage
 ###   USAGE:  CA, KRA, OCSP, or TKS subsystem instance creation (Tomcat)    ###
 ###############################################################################
 
-pkicreate -pki_instance_root=<pki_instance_root>   # Instance root directory
-                                                   # destination
-
-          -pki_instance_name=<pki_instance_id>     # Unique PKI subsystem
-                                                   # instance name
-
-          -subsystem_type=<subsystem_type>         # Subsystem type
-                                                   # [ca | kra | ocsp | tks]
-
-          #####################################################################
-          ###   SELECT separate secure ports for AGENT, EE, and ADMIN:      ###
-          #####################################################################
-
-          -agent_secure_port=<agent_secure_port>   # Agent secure port
-
-          -ee_secure_port=<ee_secure_port>         # EE secure port
-
-          -admin_secure_port=<admin_secure_port>   # Admin secure port
-
-          #####################################################################
-          ###   ... and a client auth EE port, required for CAs only        ###
-          #####################################################################
-
-          -ee_secure_client_auth_port=<ee_secure_client_auth_port>
-                                         # EE secure client authentication port
-
-          #####################################################################
-          ###   OR SELECT a single secure port shared by AGENT,EE and ADMIN ###
-          ###                                                               ###
-          ###   WARNING:  Use of a single shared secure port has been       ###
-          ###             DEPRECATED!  Use 'port separation' in conjunction ###
-          ###             with 'port forwarding' to emulate this behavior.  ###
-          #####################################################################
-
-          -secure_port=<secure_port>               # Secure port
-                                                   # (shared by Agent,
-                                                   #  EE, and Admin)
-
-          #####################################################################
-          ###   END secure port SELECTION                                   ###
-          #####################################################################
-
-          -unsecure_port=<unsecure_port>           # Unsecure port
-
-          -tomcat_server_port=<tomcat_server_port> # Unique port for each
-                                                   # Tomcat instance
-
-          #####################################################################
-          ###  proxy configuration                                          ###
-          ###  if -enable_proxy is set, ajp_port, proxy_secure_port, and    ###
-          ###  proxy_unsecure_port are also set.                            ###
-          #####################################################################
-
-          [-enable_proxy]                            #enable proxy configuration
-          [-ajp_port=<ajp_port>]                     #AJP port, default 9447
-
-          [-proxy_secure_port=<proxy_secure_port>]   # Proxy secure port, 
-                                                     # default 443
-
-          [-proxy_unsecure_port=<unsecure_port>]     # Proxy unsecure port,
-                                                     # default 80
-
-          #####################################################################
-          ###   END proxy configuration                                     ###
-          #####################################################################
-
-          [-user=<username>]                       # User ownership
-                                                   # (must ALSO specify
-                                                   #  group ownership)
-                                                   #
-                                                   # [Default=pkiuser]
-
-          [-group=<groupname>]                     # Group ownership
-                                                   # (must ALSO specify
-                                                   #  user ownership)
-                                                   #
-                                                   # [Default=pkiuser]
-
-          [-redirect conf=<real conf dir path>]    # Redirection of
-                                                   # 'conf' directory
-
-          [-redirect logs=<real logs dir path>]    # Redirection of
-                                                   # 'logs' directory
-
-          [-verbose]                               # Print out liberal info
-                                                   # during 'pkicreate'.
-                                                   # Specify multiple times
-                                                   # to increase verbosity.
-
-          [-dry_run]                               # Do not perform any actions.
-                                                   # Just report what would have
-                                                   # been done.
-
-          [-help]                                  # Print out this screen
-
+As of Dogtag 10, pkicreate is no longer supported for the creation of CA, KRA,
+OCSP and TKS subsystems.  To create instances of these subsystems, use 
+pkispawn instead. 
 
 ###############################################################################
 ###   USAGE:  RA or TPS subsystem instance creation (Apache)                ###
@@ -822,87 +726,10 @@ pkicreate -pki_instance_root=<pki_instance_root>   # Instance root directory
 
 ###############################################################################
 ###   EXAMPLES:                                                             ###
-###       PKI (Tomcat) subsystem instance creation of a  CA                 ###
-###       PKI (Tomcat) subsystem instance creation of a  Subordinate CA     ###
-###       PKI (Tomcat) subsystem instance creation of a  KRA                ###
-###       PKI (Tomcat) subsystem instance creation of an OCSP               ###
-###       PKI (Tomcat) subsystem instance creation of a  TKS                ###
 ###       PKI (Apache) subsystem instance creation of an RA                 ###
 ###       PKI (Apache) subsystem instance creation of a  TPS                ###
 ###       PKI (Apache) subsystem instance creation of a  second TPS         ###
 ###############################################################################
-
-pkicreate -pki_instance_root=/var/lib        \
-          -pki_instance_name=pki-ca          \
-          -subsystem_type=ca                 \
-          -agent_secure_port=9443            \
-          -ee_secure_port=9444               \
-          -ee_secure_client_auth_port=9446   \
-          -admin_secure_port=9445            \
-          -unsecure_port=9180                \
-          -tomcat_server_port=9701           \
-          -user=pkiuser                      \
-          -group=pkiuser                     \
-          -redirect conf=/etc/pki-ca         \
-          -redirect logs=/var/log/pki-ca     \
-          -verbose
-
-pkicreate -pki_instance_root=/var/lib        \
-          -pki_instance_name=pki-subca       \
-          -subsystem_type=ca                 \
-          -agent_secure_port=9543            \
-          -ee_secure_port=9544               \
-          -ee_secure_client_auth_port=9546   \
-          -admin_secure_port=9545            \
-          -unsecure_port=9580                \
-          -tomcat_server_port=9801           \
-          -user=pkiuser                      \
-          -group=pkiuser                     \
-          -redirect conf=/etc/pki-subca      \
-          -redirect logs=/var/log/pki-subca  \
-          -verbose
-
-pkicreate -pki_instance_root=/var/lib        \
-          -pki_instance_name=pki-kra         \
-          -subsystem_type=kra                \
-          -agent_secure_port=10443           \
-          -ee_secure_port=10444              \
-          -admin_secure_port=10445           \
-          -unsecure_port=10180               \
-          -tomcat_server_port=10701          \
-          -user=pkiuser                      \
-          -group=pkiuser                     \
-          -redirect conf=/etc/pki-kra        \
-          -redirect logs=/var/log/pki-kra    \
-          -verbose
-
-pkicreate -pki_instance_root=/var/lib        \
-          -pki_instance_name=pki-ocsp        \
-          -subsystem_type=ocsp               \
-          -agent_secure_port=11443           \
-          -ee_secure_port=11444              \
-          -admin_secure_port=11445           \
-          -unsecure_port=11180               \
-          -tomcat_server_port=11701          \
-          -user=pkiuser                      \
-          -group=pkiuser                     \
-          -redirect conf=/etc/pki-ocsp       \
-          -redirect logs=/var/log/pki-ocsp   \
-          -verbose
-
-pkicreate -pki_instance_root=/var/lib        \
-          -pki_instance_name=pki-tks         \
-          -subsystem_type=tks                \
-          -agent_secure_port=13443           \
-          -ee_secure_port=13444              \
-          -admin_secure_port=13445           \
-          -unsecure_port=13180               \
-          -tomcat_server_port=13701          \
-          -user=pkiuser                      \
-          -group=pkiuser                     \
-          -redirect conf=/etc/pki-tks        \
-          -redirect logs=/var/log/pki-tks    \
-          -verbose
 
 pkicreate -pki_instance_root=/var/lib        \
           -pki_instance_name=pki-ra          \
@@ -1042,11 +869,7 @@ sub parse_arguments
     }
 
     ## Mandatory "-subsystem_type=s" option
-    if ($subsystem_type ne $CA   &&
-        $subsystem_type ne $KRA  &&
-        $subsystem_type ne $OCSP &&
-        $subsystem_type ne $TKS  &&
-        $subsystem_type ne $RA   &&
+    if ($subsystem_type ne $RA   &&
         $subsystem_type ne $TPS) {
         usage();
         emit("Illegal  value => $subsystem_type :  for -subsystem_type!\n",
@@ -2233,10 +2056,12 @@ sub process_pki_directories
                                     $default_dir_permissions, $default_file_permissions,
                                     $pki_user, $pki_group);
 
-
-        return 0 if !copy_directory($ui_subsystem_path, $pki_instance_path,
-                                    $default_dir_permissions, $default_file_permissions,
-                                    $pki_user, $pki_group);
+        # Copy /usr/share/pki/common-ui to <instance>/docroot/pki
+        return 0 if !copy_directory(
+            $common_ui_subsystem_path,
+            "$docroot_instance_path/pki",
+            $default_dir_permissions, $default_file_permissions,
+            $pki_user, $pki_group);
 
         # fix permissions
         if (!is_Windows()) {
@@ -2265,9 +2090,13 @@ sub process_pki_directories
                                     $default_dir_permissions, $default_file_permissions,
                                     $pki_user, $pki_group);
 
-        return 0 if !copy_directory($common_ui_subsystem_path, $webapps_subsystem_instance_path,
-                                    $default_dir_permissions, $default_file_permissions,
-                                    $pki_user, $pki_group);
+        # Copy /usr/share/pki/server/webapps/pki/admin
+        # to <instance>/webapp/<subsystem>/admin
+        return 0 if !copy_directory(
+            "$pki_subsystem_common_area/server/webapps/pki/admin",
+            "$webapps_subsystem_instance_path/admin",
+            $default_dir_permissions, $default_file_permissions,
+            $pki_user, $pki_group);
 
         return 0 if !copy_directory($ui_subsystem_path, $pki_instance_path,
                                     $default_dir_permissions, $default_file_permissions,
@@ -2319,9 +2148,9 @@ sub process_pki_directories
 #
 # Example, if the src template contained this line:
 #
-#     Open port [PORT] on your firewall.
+#     Open port [PKI_UNSECURE_PORT] on your firewall.
 #
-# And the substitutions hash was this {'PORT' => '1234'}
+# And the substitutions hash was this {'PKI_UNSECURE_PORT' => '1234'}
 # 
 # Then the dst file contents will look like this:
 #
@@ -2418,7 +2247,8 @@ sub process_pki_templates
     emit("Processing PKI templates for '$pki_instance_path' ...\n");
 
     $slot_hash{$PKI_SUBSYSTEM_TYPE_SLOT}   = $subsystem_type;
-    $slot_hash{$PKI_INSTANCE_ID_SLOT}      = $pki_instance_name;
+    $slot_hash{$PKI_INSTANCE_NAME_SLOT}    = $pki_instance_name;
+    $slot_hash{$PKI_INSTANCE_PATH_SLOT}    = $pki_instance_path;
     $slot_hash{$PKI_INSTANCE_ROOT_SLOT}    = $pki_instance_root;
     $slot_hash{$PKI_INSTANCE_INITSCRIPT}   = $pki_instance_initscript_path;
     $slot_hash{$PKI_REGISTRY_FILE_SLOT}    = $pki_registry_instance_file_path;
@@ -2436,13 +2266,13 @@ sub process_pki_templates
         $slot_hash{$LIB_PREFIX}            = $lib_prefix;
         $slot_hash{$NSS_CONF}              = $nss_conf_instance_file_path;
         $slot_hash{$OBJ_EXT}               = $obj_ext;
-        $slot_hash{$PORT}                  = $unsecure_port;
+        $slot_hash{$PKI_UNSECURE_PORT_SLOT} = $unsecure_port;
         $slot_hash{$PROCESS_ID}            = $$;
-        $slot_hash{$SECURE_PORT}           = $secure_port;
+        $slot_hash{$PKI_SECURE_PORT_SLOT}  = $secure_port;
         $slot_hash{$NON_CLIENTAUTH_SECURE_PORT} = $non_clientauth_secure_port;
         $slot_hash{$SECURITY_LIBRARIES}    = $default_security_libraries;
-        $slot_hash{$SERVER_NAME}           = $host;
-        $slot_hash{$SERVER_ROOT}           = $pki_instance_path;
+        $slot_hash{$PKI_HOSTNAME_SLOT}     = $host;
+        $slot_hash{$PKI_INSTANCE_PATH_SLOT}= $pki_instance_path;
         $slot_hash{$SYSTEM_LIBRARIES}      = $default_system_libraries;
         $slot_hash{$SYSTEM_USER_LIBRARIES} = $default_system_user_libraries;
         $slot_hash{$TMP_DIR}               = $tmp_dir;
@@ -2487,8 +2317,7 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
         $slot_hash{$INSTALL_TIME}              = localtime;
         $slot_hash{$PKI_CERT_DB_PASSWORD_SLOT} = $db_password;
         $slot_hash{$PKI_CFG_PATH_NAME_SLOT}    = $pki_cfg_instance_file_path;
-        $slot_hash{$PKI_INSTANCE_PATH_SLOT}    = $pki_instance_path;
-        $slot_hash{$PKI_MACHINE_NAME_SLOT}     = $host;
+        $slot_hash{$PKI_HOSTNAME_SLOT}         = $host;
         $slot_hash{$PKI_RANDOM_NUMBER_SLOT}    = $random;
         $slot_hash{$PKI_SERVER_XML_CONF}       = $server_xml_instance_file_path;
         $slot_hash{$PKI_UNSECURE_PORT_SLOT}    = $unsecure_port;
@@ -2558,7 +2387,7 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
             $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_COMMENT_SERVER_SLOT}    = "";
 
             # Set appropriate "clientAuth" parameter for "Shared Ports"
-            $slot_hash{$PKI_AGENT_CLIENTAUTH_SLOT} = "agent";
+            $slot_hash{$PKI_AGENT_CLIENTAUTH_SLOT} = "want";
 
             # Comment out the "Admin/EE" Ports
             $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT}  = $PKI_OPEN_COMMENT;
@@ -2603,7 +2432,7 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
                                           . "-SSL2_DES_64_CBC_WITH_MD5,-SSL2_DES_192_EDE3_CBC_WITH_MD5";
         $slot_hash{$TOMCAT_SSL3_CIPHERS}       = "-SSL3_FORTEZZA_DMS_WITH_NULL_SHA,-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,"
                                           . "+SSL3_RSA_WITH_RC4_128_SHA,-SSL3_RSA_EXPORT_WITH_RC4_40_MD5,"
-                                          . "+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,+SSL3_RSA_WITH_DES_CBC_SHA,"
+                                          . "+SSL3_RSA_WITH_3DES_EDE_CBC_SHA,-SSL3_RSA_WITH_DES_CBC_SHA,"
                                           . "-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,"
                                           . "-SSL_RSA_FIPS_WITH_DES_CBC_SHA,+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA,"
                                           . "-SSL3_RSA_WITH_NULL_MD5,-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,"
@@ -2868,6 +2697,17 @@ sub process_pki_files_and_symlinks
                              "${db_password}\n",
                              $default_file_permissions, $pki_user, $pki_group);
 
+    ## Populate systemd links
+    if ($use_systemd) {
+        return 0 if !create_symlink(
+            "${pki_subsystem_systemd_wants_path}/${pki_instance_systemd_service_name}",
+            "$pki_subsystem_systemd_service_path",
+             $root_user, $root_group);
+
+        # reload systemd configuration
+        run_command("/bin/systemctl --system daemon-reload");
+    }
+
     ## Populate instances (RA, TPS instances)
     if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
         # create an empty file called "pwcache.conf" for this
@@ -2891,16 +2731,6 @@ sub process_pki_files_and_symlinks
         # to find our tomcat6 configuration file in /etc/sysconfig
         return 0 if !create_symlink($pki_instance_initscript_path, $tomcat6_initscript_path,
                                     $root_user, $root_group);
-        if ($use_systemd) {
-            return 0 if !create_symlink(
-                "${pki_subsystem_systemd_wants_path}/${pki_instance_systemd_service_name}", 
-                "$pki_subsystem_systemd_service_path",
-                 $root_user, $root_group);
-            
-            # reload systemd configuration
-            run_command("/bin/systemctl --system daemon-reload"); 
-
-        }
 
         return 0 if !create_directory($webinf_lib_instance_path,
                                       $default_dir_permissions, $pki_user, $pki_group);
@@ -3165,6 +2995,12 @@ sub process_pki_selinux_setup
         add_selinux_file_context($setype . "_var_lib_t", 
                                  "\"${pki_instance_root}/${pki_instance_name}(/.*)?\"", 
                                  "a", \$semanage_cmds);
+
+        if (!$java_component) {
+            add_selinux_file_context($setype . "_exec_t",
+                                 "\"${pki_instance_root}/${pki_instance_name}/${pki_instance_name}\"",
+                                 "a", \$semanage_cmds);
+        }
     }
     push(@restorecon_cmds, "$restorecon -F -R $pki_instance_root/$pki_instance_name");
 
@@ -3210,10 +3046,6 @@ sub process_pki_selinux_setup
         push(@restorecon_cmds, "$restorecon -F -R $conf_path");
     }
     
-    if (! $java_component) {
-        push(@restorecon_cmds, "$restorecon -F -R /usr/sbin/httpd.worker");
-    }    
-
     # add ports
     parse_selinux_ports();
     if ($secure_port != -1) {

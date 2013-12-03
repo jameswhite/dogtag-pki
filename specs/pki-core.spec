@@ -1,20 +1,11 @@
-# for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
-# also remove the space between % and global - this space is needed because
-# fedpkg verrel stupidly ignores comment lines
-%global prerel .a1
-# also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
-%global relprefix 0.
-
-%if ! (0%{?fedora} > 12 || 0%{?rhel} > 5)
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from
 distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from
 distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
-%endif
 
 Name:             pki-core
-Version:          10.0.0
-Release:          %{?relprefix}17%{?prerel}%{?dist}
+Version:          10.1.0
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -22,58 +13,45 @@ Group:            System Environment/Daemons
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-# specify '_unitdir' macro for platforms that don't use 'systemd'
-%if 0%{?rhel} || 0%{?fedora} < 16
-%define           _unitdir /lib/systemd/system
-%endif
-
-# tomcatjss requires versioning since version 2.0.0 requires tomcat6
-BuildRequires:    cmake
-BuildRequires:    java-devel >= 1:1.6.0
+BuildRequires:    cmake >= 2.8.9-1
+BuildRequires:    zip
+BuildRequires:    java-devel >= 1:1.7.0
+BuildRequires:    redhat-rpm-config
 BuildRequires:    ldapjdk
+BuildRequires:    apache-commons-cli
 BuildRequires:    apache-commons-codec
+BuildRequires:    apache-commons-io
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
 BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
-BuildRequires:    selinux-policy-devel
 BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
-%if 0%{?fedora} >= 17
-BuildRequires:    resteasy >= 2.3.2-1
+
+%if  0%{?rhel}
+BuildRequires:    resteasy-base-atom-provider
+BuildRequires:    resteasy-base-jaxb-provider
+BuildRequires:    resteasy-base-jaxrs
+BuildRequires:    resteasy-base-jaxrs-api
+BuildRequires:    resteasy-base-jettison-provider
+%else
+BuildRequires:    resteasy >= 3.0.1-3
+%endif
+
+BuildRequires:    pylint
+BuildRequires:    python-requests
+BuildRequires:    libselinux-python
+BuildRequires:    policycoreutils-python
+BuildRequires:    python-ldap
 BuildRequires:    junit
-%else
-BuildRequires:    junit4
-%endif
-%if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 4.2.6-24
+BuildRequires:    jss >= 4.2.6-28
 BuildRequires:    systemd-units
-BuildRequires:    tomcatjss >= 6.0.2
-%else
-%if 0%{?fedora} >= 15
-BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6-24
-BuildRequires:    tomcatjss >= 6.0.0
-%else
-BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6-17
-BuildRequires:    tomcatjss >= 2.0.0
-%endif
-%endif
-# Add the following build-time requirements to support the "pki-deploy" package
-BuildRequires:    pki-common-theme
-BuildRequires:    pki-ca-theme
-BuildRequires:    pki-kra-theme
-BuildRequires:    pki-ocsp-theme
-BuildRequires:    pki-tks-theme
+BuildRequires:    tomcatjss >= 7.1.0
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
-
-Patch0:	          %{name}-selinux-f16.patch
-Patch1:	          %{name}-selinux-f17-1.patch
 
 %if 0%{?rhel}
 ExcludeArch:      ppc ppc64 s390 s390x
@@ -107,21 +85,16 @@ to manage enterprise Public Key Infrastructure (PKI) deployments.      \
                                                                        \
 PKI Core contains ALL top-level java-based Tomcat PKI components:      \
                                                                        \
-  * pki-deploy                                                         \
-  * pki-setup                                                          \
   * pki-symkey                                                         \
-  * pki-native-tools                                                   \
-  * pki-util                                                           \
-  * pki-util-javadoc                                                   \
-  * pki-java-tools                                                     \
-  * pki-java-tools-javadoc                                             \
-  * pki-common                                                         \
-  * pki-common-javadoc                                                 \
-  * pki-selinux                                                        \
+  * pki-base                                                           \
+  * pki-tools                                                          \
+  * pki-server                                                         \
   * pki-ca                                                             \
   * pki-kra                                                            \
   * pki-ocsp                                                           \
   * pki-tks                                                            \
+  * pki-tps-tomcat                                                     \
+  * pki-javadoc                                                        \
                                                                        \
 which comprise the following corresponding PKI subsystems:             \
                                                                        \
@@ -129,89 +102,55 @@ which comprise the following corresponding PKI subsystems:             \
   * Data Recovery Manager (DRM)                                        \
   * Online Certificate Status Protocol (OCSP) Manager                  \
   * Token Key Service (TKS)                                            \
+  * Token Processing Service (TPS)                                     \
                                                                        \
 For deployment purposes, PKI Core contains fundamental packages        \
 required by BOTH native-based Apache AND java-based Tomcat             \
 Certificate System instances consisting of the following components:   \
                                                                        \
-  * pki-native-tools                                                   \
-  * pki-selinux                                                        \
-  * pki-setup                                                          \
-  * pki-silent (required for IPA deployments; optional otherwise)      \
+  * pki-tools                                                          \
                                                                        \
 Additionally, PKI Core contains the following fundamental packages     \
 required ONLY by ALL java-based Tomcat Certificate System instances:   \
                                                                        \
-  * pki-common                                                         \
-  * pki-java-tools                                                     \
-  * pki-symkey (ONLY required for TKS subsystems)                      \
-  * pki-util                                                           \
+  * pki-symkey                                                         \
+  * pki-base                                                           \
+  * pki-tools                                                          \
+  * pki-server                                                         \
                                                                        \
 PKI Core also includes the following components:                       \
                                                                        \
-  * pki-common-javadoc                                                 \
-  * pki-java-tools-javadoc                                             \
-  * pki-util-javadoc                                                   \
+  * pki-javadoc                                                        \
                                                                        \
-Finally, for deployment purposes, Certificate System requires ONE AND  \
-ONLY ONE of the following "Mutually-Exclusive" PKI Theme packages:     \
+Finally, if Certificate System is being deployed as an individual or   \
+set of standalone rather than embedded server(s)/service(s), it is     \
+strongly recommended (though not explicitly required) to include at    \
+least one PKI Theme package:                                           \
                                                                        \
   * dogtag-pki-theme (Dogtag Certificate System deployments)           \
-  * ipa-pki-theme    (IPA deployments)                                 \
-  * redhat-pki-theme (Red Hat Certificate System deployments)          \
+    * dogtag-pki-server-theme                                          \
+  * redhat-pki-server-theme (Red Hat Certificate System deployments)   \
+    * redhat-pki-server-theme                                          \
+  * customized pki theme (Customized Certificate System deployments)   \
+    * <customized>-pki-server-theme                                    \
+                                                                       \
+  NOTE:  As a convenience for standalone deployments, top-level meta   \
+         packages may be provided which bind a particular theme to     \
+         these certificate server packages.                            \
                                                                        \
 %{nil}
 
 %description %{overview}
 
 
-%package -n       pki-deploy
-Summary:          Certificate System - PKI Instance Deployment Scripts
-Group:            System Environment/Base
-
-BuildArch:        noarch
-
-%description -n   pki-deploy
-PKI deployment scripts are used to create and remove instances from PKI deployments.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-
-
-%package -n       pki-setup
-Summary:          Certificate System - PKI Instance Creation & Removal Scripts
-Group:            System Environment/Base
-
-BuildArch:        noarch
-
-Requires:         perl(File::Slurp)
-Requires:         perl(XML::LibXML)
-Requires:         perl-Crypt-SSLeay
-Requires:         policycoreutils
-Requires:         openldap-clients
-
-%description -n   pki-setup
-PKI setup scripts are used to create and remove instances from PKI deployments.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-
-
 %package -n       pki-symkey
 Summary:          Symmetric Key JNI Package
 Group:            System Environment/Libraries
 
-Requires:         java >= 1:1.6.0
+Requires:         java >= 1:1.7.0
 Requires:         nss
-%if 0%{?fedora} >= 16
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.2.6-24
-%else
-Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-24
-%endif
+Requires:         jss >= 4.2.6-28
 
 Provides:         symkey = %{version}-%{release}
 
@@ -226,16 +165,73 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
-%package -n       pki-native-tools
-Summary:          Certificate System - Native Tools
+%package -n       pki-base
+Summary:          Certificate System - PKI Framework
 Group:            System Environment/Base
+
+BuildArch:        noarch
+
+Provides:         pki-common = %{version}-%{release}
+Provides:         pki-util = %{version}-%{release}
+
+Obsoletes:        pki-common < %{version}-%{release}
+Obsoletes:        pki-util < %{version}-%{release}
+
+Conflicts:        freeipa-server < 3.0.0
+Requires:         apache-commons-cli
+Requires:         apache-commons-codec
+Requires:         apache-commons-io
+Requires:         apache-commons-lang
+Requires:         apache-commons-logging
+Requires:         java >= 1:1.7.0
+Requires:         javassist
+Requires:         jettison
+Requires:         jpackage-utils >= 0:1.7.5-10
+Requires:         jss >= 4.2.6-28
+Requires:         ldapjdk
+Requires:         python-ldap
+Requires:         python-lxml
+Requires:         python-requests >= 1.1.0-3
+%if  0%{?rhel}
+Requires:    resteasy-base-atom-provider
+Requires:    resteasy-base-jaxb-provider
+Requires:    resteasy-base-jaxrs
+Requires:    resteasy-base-jaxrs-api
+Requires:    resteasy-base-jettison-provider
+%else
+Requires:         resteasy >= 3.0.1-3
+%endif
+Requires:         xalan-j2
+Requires:         xerces-j2
+Requires:         xml-commons-apis
+Requires:         xml-commons-resolver
+
+%description -n   pki-base
+The PKI Framework contains the common and client libraries and utilities.
+This package is a part of the PKI Core used by the Certificate System.
+
+%{overview}
+
+
+%package -n       pki-tools
+Summary:          Certificate System - PKI Tools
+Group:            System Environment/Base
+
+Provides:         pki-native-tools = %{version}-%{release}
+Provides:         pki-java-tools = %{version}-%{release}
+
+Obsoletes:        pki-native-tools < %{version}-%{release}
+Obsoletes:        pki-java-tools < %{version}-%{release}
 
 Requires:         openldap-clients
 Requires:         nss
 Requires:         nss-tools
+Requires:         java >= 1:1.7.0
+Requires:         pki-base = %{version}-%{release}
+Requires:         jpackage-utils >= 0:1.7.5-10
 
-%description -n   pki-native-tools
-These platform-dependent PKI executables are used to help make
+%description -n   pki-tools
+This package contains PKI executables that can be used to help make
 Certificate System into a more complete and robust PKI solution.
 
 This package is a part of the PKI Core used by the Certificate System.
@@ -243,208 +239,56 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
-%package -n       pki-util
-Summary:          Certificate System - PKI Utility Framework
+%package -n       pki-server
+Summary:          Certificate System - PKI Server Framework
 Group:            System Environment/Base
 
 BuildArch:        noarch
 
-Requires:         java >= 1:1.6.0
-Requires:         ldapjdk
-Requires:         apache-commons-codec
-%if 0%{?fedora} >= 16
-Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.2.6-24
-%else
-%if 0%{?fedora} >= 15
-Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-24
-%else
-Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-17
-%endif
-%endif
+Provides:         pki-deploy = %{version}-%{release}
+Provides:         pki-setup = %{version}-%{release}
+Provides:         pki-silent = %{version}-%{release}
 
-%description -n   pki-util
-The PKI Utility Framework is required by the following four PKI subsystems:
+Obsoletes:        pki-deploy < %{version}-%{release}
+Obsoletes:        pki-setup < %{version}-%{release}
+Obsoletes:        pki-silent < %{version}-%{release}
 
-    the Certificate Authority (CA),
-    the Data Recovery Manager (DRM),
-    the Online Certificate Status Protocol (OCSP) Manager, and
-    the Token Key Service (TKS).
+Requires:         java >= 1:1.7.0
+Requires:         java-atk-wrapper
+Requires:         net-tools
+Requires:         perl(File::Slurp)
+Requires:         perl(XML::LibXML)
+Requires:         perl-Crypt-SSLeay
+Requires:         policycoreutils
+Requires:         openldap-clients
+Requires:         pki-base = %{version}-%{release}
+Requires:         pki-tools = %{version}-%{release}
 
-This package is a part of the PKI Core used by the Certificate System.
+Requires:         selinux-policy-base >= 3.11.1-43
+Obsoletes:        pki-selinux
 
-%{overview}
+Requires:         tomcat >= 7.0.47
 
-
-%package -n       pki-util-javadoc
-Summary:          Certificate System - PKI Utility Framework Javadocs
-Group:            Documentation
-
-BuildArch:        noarch
-
-Requires:         pki-util = %{version}-%{release}
-
-%description -n   pki-util-javadoc
-This documentation pertains exclusively to version %{version} of
-the PKI Utility Framework.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-
-
-%package -n       pki-java-tools
-Summary:          Certificate System - PKI Java-Based Tools
-Group:            System Environment/Base
-
-BuildArch:        noarch
-
-Requires:         java >= 1:1.6.0
-Requires:         pki-native-tools = %{version}-%{release}
-Requires:         pki-util = %{version}-%{release}
-%if 0%{?fedora} >= 16
-Requires:         jpackage-utils >= 0:1.7.5-10
-%else
-Requires:         jpackage-utils
-%endif
-
-%description -n   pki-java-tools
-These platform-independent PKI executables are used to help make
-Certificate System into a more complete and robust PKI solution.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-
-
-%package -n       pki-java-tools-javadoc
-Summary:          Certificate System - PKI Java-Based Tools Javadocs
-Group:            Documentation
-
-BuildArch:        noarch
-
-Requires:         pki-java-tools = %{version}-%{release}
-
-%description -n   pki-java-tools-javadoc
-This documentation pertains exclusively to version %{version} of
-the PKI Java-Based Tools.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-
-
-%package -n       pki-common
-Summary:          Certificate System - PKI Common Framework
-Group:            System Environment/Base
-
-BuildArch:        noarch
-
-Requires:         java >= 1:1.6.0
-Requires:         javassist
-Requires:         jettison
-Requires:         pki-common-theme >= 9.0.0
-Requires:         pki-java-tools = %{version}-%{release}
-Requires:         pki-deploy = %{version}-%{release}
-Requires:         pki-setup = %{version}-%{release}
-Requires:         %{_javadir}/ldapjdk.jar
-Requires:         %{_javadir}/velocity.jar
-Requires:         %{_javadir}/xalan-j2.jar
-Requires:         %{_javadir}/xalan-j2-serializer.jar
-Requires:         %{_javadir}/xerces-j2.jar
-Requires:         %{_javadir}/xml-commons-apis.jar
-Requires:         %{_javadir}/xml-commons-resolver.jar
 Requires:         velocity
-%if 0%{?fedora} >= 17
-Requires:         resteasy >= 2.3.2-1
-%endif
-%if 0%{?fedora} >= 16
-Requires:         apache-commons-lang
-Requires:         apache-commons-logging
-Requires:         jss >= 4.2.6-24
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-Requires:         tomcatjss >= 6.0.2
-%else
-%if 0%{?fedora} >= 15
-Requires:         apache-commons-lang
-Requires:         apache-commons-logging
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-Requires:         initscripts
-Requires:         jss >= 4.2.6-24
-Requires:         tomcatjss >= 6.0.0
-%else
-%if 0%{?fedora} >= 14
-Requires:         apache-commons-lang
-Requires:         apache-commons-logging
-Requires:         jss >= 4.2.6-17
-Requires:         tomcatjss >= 2.0.0
-%else
-Requires:         jakarta-commons-lang
-Requires:         jakarta-commons-logging
-Requires:         jss >= 4.2.6-17
-Requires:         tomcatjss >= 2.0.0
-%endif
-%endif
-%endif
 
-%description -n   pki-common
-The PKI Common Framework is required by the following four PKI subsystems:
+Requires:         tomcatjss >= 7.1.0
+
+%description -n   pki-server
+The PKI Server Framework is required by the following four PKI subsystems:
 
     the Certificate Authority (CA),
     the Data Recovery Manager (DRM),
-    the Online Certificate Status Protocol (OCSP) Manager, and
-    the Token Key Service (TKS).
+    the Online Certificate Status Protocol (OCSP) Manager,
+    the Token Key Service (TKS), and
+    the Token Processing Service (TPS).
 
 This package is a part of the PKI Core used by the Certificate System.
+The package contains scripts to create and remove PKI subsystems.
 
 %{overview}
-
-
-%package -n       pki-common-javadoc
-Summary:          Certificate System - PKI Common Framework Javadocs
-Group:            Documentation
-
-BuildArch:        noarch
-
-Requires:         pki-common = %{version}-%{release}
-
-%description -n   pki-common-javadoc
-This documentation pertains exclusively to version %{version} of
-the PKI Common Framework.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-
-
-%package -n       pki-selinux
-Summary:          Certificate System - PKI Selinux Policies
-Group:            System Environment/Base
-
-BuildArch:        noarch
-
-Requires:         policycoreutils
-Requires:         selinux-policy-targeted
-
-%description -n   pki-selinux
-Selinux policies for the PKI components.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-
 
 %package -n       pki-ca
 Summary:          Certificate System - Certificate Authority
@@ -452,33 +296,11 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java >= 1:1.6.0
-Requires:         pki-ca-theme >= 9.0.0
-Requires:         pki-common = %{version}-%{release}
-Requires:         pki-selinux = %{version}-%{release}
-%if 0%{?fedora} >= 16
+Requires:         java >= 1:1.7.0
+Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-%else
-%if 0%{?fedora} >= 15
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-Requires:         initscripts
-%else 
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-%endif
-%endif
 
 %description -n   pki-ca
 The Certificate Authority (CA) is a required PKI subsystem which issues,
@@ -501,33 +323,11 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java >= 1:1.6.0
-Requires:         pki-kra-theme >= 9.0.0
-Requires:         pki-common = %{version}-%{release}
-Requires:         pki-selinux = %{version}-%{release}
-%if 0%{?fedora} >= 16
+Requires:         java >= 1:1.7.0
+Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-%else
-%if 0%{?fedora} >= 15
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-Requires:         initscripts
-%else 
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-%endif
-%endif
 
 %description -n   pki-kra
 The Data Recovery Manager (DRM) is an optional PKI subsystem that can act
@@ -556,33 +356,11 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java >= 1:1.6.0
-Requires:         pki-ocsp-theme >= 9.0.0
-Requires:         pki-common = %{version}-%{release}
-Requires:         pki-selinux = %{version}-%{release}
-%if 0%{?fedora} >= 16
+Requires:         java >= 1:1.7.0
+Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-%else
-%if 0%{?fedora} >= 15
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-Requires:         initscripts
-%else 
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-%endif
-%endif
 
 %description -n   pki-ocsp
 The Online Certificate Status Protocol (OCSP) Manager is an optional PKI
@@ -618,34 +396,12 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java >= 1:1.6.0
-Requires:         pki-tks-theme >= 9.0.0
-Requires:         pki-common = %{version}-%{release}
-Requires:         pki-selinux = %{version}-%{release}
+Requires:         java >= 1:1.7.0
+Requires:         pki-server = %{version}-%{release}
 Requires:         pki-symkey = %{version}-%{release}
-%if 0%{?fedora} >= 16
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-%else
-%if 0%{?fedora} >= 15
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-Requires:         initscripts
-%else 
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-%endif
-%endif
 
 %description -n   pki-tks
 The Token Key Service (TKS) is an optional PKI subsystem that manages the
@@ -669,26 +425,55 @@ provided by the PKI Core used by the Certificate System.
 %{overview}
 
 
-%package -n       pki-silent
-Summary:          Certificate System - Silent Installer
-Group:            System Environment/Base
+%package -n       pki-tps-tomcat
+Summary:          Certificate System - Token Processing Service
+Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java >= 1:1.6.0
-Requires:         pki-common = %{version}-%{release}
+Provides:         pki-tps
+Requires:         java >= 1:1.7.0
+Requires:         pki-server = %{version}-%{release}
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
 
-%description -n   pki-silent
-The PKI Silent Installer may be used to "automatically" configure
-the following PKI subsystems in a non-graphical (batch) fashion
-including:
+%description -n   pki-tps-tomcat
+The Token Processing System (TPS) is an optional PKI subsystem that acts
+as a Registration Authority (RA) for authenticating and processing
+enrollment requests, PIN reset requests, and formatting requests from
+the Enterprise Security Client (ESC).
 
-    the Certificate Authority (CA),
-    the Data Recovery Manager (DRM),
-    the Online Certificate Status Protocol (OCSP) Manager,
-    the Registration Authority (RA),
-    the Token Key Service (TKS), and/or
-    the Token Processing System (TPS).
+TPS is designed to communicate with tokens that conform to
+Global Platform's Open Platform Specification.
+
+TPS communicates over SSL with various PKI backend subsystems (including
+the Certificate Authority (CA), the Data Recovery Manager (DRM), and the
+Token Key Service (TKS)) to fulfill the user's requests.
+
+TPS also interacts with the token database, an LDAP server that stores
+information about individual tokens.
+
+%{overview}
+
+
+%package -n       pki-javadoc
+Summary:          Certificate System - PKI Framework Javadocs
+Group:            Documentation
+
+BuildArch:        noarch
+
+Provides:         pki-util-javadoc = %{version}-%{release}
+Provides:         pki-java-tools-javadoc = %{version}-%{release}
+Provides:         pki-common-javadoc = %{version}-%{release}
+
+Obsoletes:        pki-util-javadoc < %{version}-%{release}
+Obsoletes:        pki-java-tools-javadoc < %{version}-%{release}
+Obsoletes:        pki-common-javadoc < %{version}-%{release}
+
+%description -n   pki-javadoc
+This documentation pertains exclusively to version %{version} of
+the PKI Framework and Tools.
 
 This package is a part of the PKI Core used by the Certificate System.
 
@@ -696,33 +481,27 @@ This package is a part of the PKI Core used by the Certificate System.
 
 
 %prep
-
-
 %setup -q -n %{name}-%{version}%{?prerel}
-
-%if 0%{?fedora} >= 17
-%patch1 -p2 -b .f17
-%else
-%if 0%{?fedora} >= 16
-%patch0 -p2 -b .f16
-%endif
-%endif
-
 %clean
 %{__rm} -rf %{buildroot}
-
 
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var \
+%cmake -DVERSION=%{version}-%{release} \
+	-DVAR_INSTALL_DIR:PATH=/var \
 	-DBUILD_PKI_CORE:BOOL=ON \
 	-DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
 	-DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
+%if 0%{?rhel}
+	-DRESTEASY_LIB=/usr/share/java/resteasy-base \
+%else
+	-DRESTEASY_LIB=/usr/share/java/resteasy \
+%endif
 	%{?_without_javadoc:-DWITH_JAVADOC:BOOL=OFF} \
 	..
 %{__make} VERBOSE=1 %{?_smp_mflags} all
-%{__make} VERBOSE=1 %{?_smp_mflags} test
+# %{__make} VERBOSE=1 %{?_smp_mflags} test
 
 
 %install
@@ -730,75 +509,20 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
-cd %{buildroot}%{_libdir}/symkey
-%{__rm} symkey.jar
-%if 0%{?fedora} >= 16
-%{__rm} %{buildroot}%{_jnidir}/symkey.jar
-%{__mv} symkey-%{version}.jar %{buildroot}%{_jnidir}/symkey.jar
-%else
-%{__ln_s} symkey-%{version}.jar symkey.jar
-%endif
+# Scanning the python code with pylint. A return value of 0 represents there are no
+# errors or warnings reported by pylint.
+sh ../pylint-build-scan.sh %{buildroot} `pwd`
+if [ $? -eq 1 ]; then
+    exit 1
+fi
 
-%if 0%{?rhel} || 0%{?fedora} < 16
-cd %{buildroot}%{_jnidir}
-%{__rm} symkey.jar
-%{__ln_s} %{_libdir}/symkey/symkey.jar symkey.jar
-%endif
-
-%if 0%{?fedora} >= 15
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-%{__mkdir_p} %{buildroot}%{_sysconfdir}/tmpfiles.d
-# generate 'pki-ca.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"    >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
-echo "D /var/lock/pki/ca 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
-echo "D /var/run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
-echo "D /var/run/pki/ca 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
-# generate 'pki-kra.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
-echo "D /var/lock/pki/kra 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
-echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
-echo "D /var/run/pki/kra 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
-# generate 'pki-ocsp.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"      >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
-echo "D /var/lock/pki/ocsp 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
-echo "D /var/run/pki 0755 root root -"       >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
-echo "D /var/run/pki/ocsp 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
-# generate 'pki-tomcat.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"    >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
-echo "D /var/lock/pki/tomcat 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
-echo "D /var/run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
-echo "D /var/run/pki/tomcat 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
-# generate 'pki-tks.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
-echo "D /var/lock/pki/tks 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
-echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
-echo "D /var/run/pki/tks 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
-%endif
-
-%if 0%{?fedora} >= 16
 %{__rm} %{buildroot}%{_initrddir}/pki-cad
 %{__rm} %{buildroot}%{_initrddir}/pki-krad
 %{__rm} %{buildroot}%{_initrddir}/pki-ocspd
 %{__rm} %{buildroot}%{_initrddir}/pki-tksd
-# Create symlink to the pki-jndi-realm jar
-%{__mkdir_p} %{buildroot}%{_javadir}/tomcat6
-%{__ln_s} -f %{_javadir}/pki/pki-jndi-realm.jar %{buildroot}%{_javadir}/tomcat6/pki-jndi-realm.jar
-%else
-%{__rm} %{buildroot}%{_bindir}/pkicontrol
-%{__rm} %{buildroot}%{_bindir}/pkidaemon
-%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-cad.target.wants
-%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-krad.target.wants
-%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-ocspd.target.wants
-%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-tksd.target.wants
-%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
-%{__rm} -rf %{buildroot}%{_unitdir}
-%endif
+%{__rm} %{buildroot}%{_initrddir}/pki-tpsd
 
-%{__rm} -rf %{buildroot}%{_datadir}/pki/shared/lib
+%{__rm} -rf %{buildroot}%{_datadir}/pki/server/lib
 
 # tomcat6 has changed how TOMCAT_LOG is used.
 # Need to adjust accordingly
@@ -813,116 +537,59 @@ if [ -d /etc/sysconfig/pki/%i ]; then                                        \
   done                                                                       \
 fi                                                                           \
 )
+%{__mkdir_p} %{buildroot}%{_localstatedir}/log/pki
+%{__mkdir_p} %{buildroot}%{_sharedstatedir}/pki
 
-# Create PKI subsystem "war" files
-for subsystem in ca kra ocsp tks; do
-    echo "Constructing '${subsystem}.war' . . ."
-    %{__mkdir_p} %{buildroot}%{_datadir}/pki/${subsystem}/war
-    %{__cp} -r %{_datadir}/pki/common-ui/admin %{buildroot}%{_datadir}/pki/${subsystem}/war
-    %{__cp} -r %{_datadir}/pki/common-ui/css %{buildroot}%{_datadir}/pki/${subsystem}/war
-    %{__cp} -r %{_datadir}/pki/common-ui/img %{buildroot}%{_datadir}/pki/${subsystem}/war
-    %{__cp} -r %{_datadir}/pki/${subsystem}-ui/webapps/${subsystem}/* %{buildroot}%{_datadir}/pki/${subsystem}/war
-    %{__cp} -r %{buildroot}%{_datadir}/pki/${subsystem}/webapps/${subsystem}/WEB-INF %{buildroot}%{_datadir}/pki/${subsystem}/war
-    cd %{buildroot}%{_datadir}/pki/${subsystem}/war
-    jar -cvMf ../${subsystem}.war *
-    %{__rm} -rf %{buildroot}%{_datadir}/pki/${subsystem}/war/*
-    %{__mv} ../${subsystem}.war %{buildroot}%{_datadir}/pki/${subsystem}/war
-done
+%if ! 0%{?rhel}
+%pretrans -n pki-base -p <lua>
+function test(a)
+    if posix.stat(a) then
+        for f in posix.files(a) do
+            if f~=".." and f~="." then
+                return true
+            end
+        end
+    end
+    return false
+end
 
-%pre -n pki-selinux
-%saveFileContext targeted
+if (test("/etc/sysconfig/pki/ca") or
+    test("/etc/sysconfig/pki/kra") or
+    test("/etc/sysconfig/pki/ocsp") or
+    test("/etc/sysconfig/pki/tks")) then
+   msg = "Unable to upgrade to Fedora 20.  There are Dogtag 9 instances\n" ..
+         "that will no longer work since they require Tomcat 6, and \n" ..
+         "Tomcat 6 is no longer available in Fedora 20.\n\n" ..
+         "Please follow these instructions to migrate the instances to \n" ..
+         "Dogtag 10:\n\n" ..
+         "http://pki.fedoraproject.org/wiki/Migrating_Dogtag_9_Instances_to_Dogtag_10"
+   error(msg)
+end
+%endif
 
+%post -n pki-base
+sed -i -e 's/^JNI_JAR_DIR=.*$/JNI_JAR_DIR=\/usr\/lib\/java/' %{_datadir}/pki/etc/pki.conf
 
-%post -n pki-selinux
-semodule -s targeted -i %{_datadir}/selinux/modules/pki.pp
-%relabel targeted
+if [ $1 -eq 1 ]
+then
+    # On RPM installation create system upgrade tracker
+    echo "Configuration-Version: %{version}" > %{_sysconfdir}/pki/pki.version
 
-
-%preun -n pki-selinux
-if [ $1 = 0 ]; then
-     %saveFileContext targeted
+else
+    # On RPM upgrade run system upgrade
+    echo "Upgrading system at `/bin/date`." >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
+    /sbin/pki-upgrade --silent >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
+    echo >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
 fi
 
+%postun -n pki-base
 
-%postun -n pki-selinux
-if [ $1 = 0 ]; then
-     semodule -s targeted -r pki
-     %relabel targeted
+if [ $1 -eq 0 ]
+then
+    # On RPM uninstallation remove system upgrade tracker
+    rm -f %{_sysconfdir}/pki/pki.version
 fi
 
-%if 0%{?rhel} || 0%{?fedora} < 16
-%post -n pki-ca 
-# This adds the proper /etc/rc*.d links for the script
-/sbin/chkconfig --add pki-cad || :
-%fix_tomcat_log ca
-
-%post -n pki-kra
-# This adds the proper /etc/rc*.d links for the script
-/sbin/chkconfig --add pki-krad || :
-%fix_tomcat_log kra
-
-%post -n pki-ocsp
-# This adds the proper /etc/rc*.d links for the script
-/sbin/chkconfig --add pki-ocspd || :
-%fix_tomcat_log ocsp
-
-%post -n pki-tks
-# This adds the proper /etc/rc*.d links for the script
-/sbin/chkconfig --add pki-tksd || :
-%fix_tomcat_log tks
-
-
-%preun -n pki-ca
-if [ $1 = 0 ] ; then
-    /sbin/service pki-cad stop >/dev/null 2>&1
-    /sbin/chkconfig --del pki-cad || :
-fi
-
-
-%preun -n pki-kra
-if [ $1 = 0 ] ; then
-    /sbin/service pki-krad stop >/dev/null 2>&1
-    /sbin/chkconfig --del pki-krad || :
-fi
-
-
-%preun -n pki-ocsp
-if [ $1 = 0 ] ; then
-    /sbin/service pki-ocspd stop >/dev/null 2>&1
-    /sbin/chkconfig --del pki-ocspd || :
-fi
-
-
-%preun -n pki-tks
-if [ $1 = 0 ] ; then
-    /sbin/service pki-tksd stop >/dev/null 2>&1
-    /sbin/chkconfig --del pki-tksd || :
-fi
-
-
-%postun -n pki-ca
-if [ "$1" -ge "1" ] ; then
-    /sbin/service pki-cad condrestart >/dev/null 2>&1 || :
-fi
-
-
-%postun -n pki-kra
-if [ "$1" -ge "1" ] ; then
-    /sbin/service pki-krad condrestart >/dev/null 2>&1 || :
-fi
-
-
-%postun -n pki-ocsp
-if [ "$1" -ge "1" ] ; then
-    /sbin/service pki-ocspd condrestart >/dev/null 2>&1 || :
-fi
-
-
-%postun -n pki-tks
-if [ "$1" -ge "1" ] ; then
-    /sbin/service pki-tksd condrestart >/dev/null 2>&1 || :
-fi
-%else 
 %post -n pki-ca
 # Attempt to update ALL old "CA" instances to "systemd"
 if [ -d /etc/sysconfig/pki/ca ]; then
@@ -944,6 +611,9 @@ if [ -d /etc/sysconfig/pki/ca ]; then
                 echo "pkicreate.systemd.servicename=pki-cad@${inst}.service" >> \
                      /var/lib/${inst}/conf/CS.cfg || :
             fi
+        else
+            # Conditionally restart this Dogtag 9 instance
+            /bin/systemctl condrestart pki-cad@${inst}.service
         fi
     done
 fi
@@ -972,6 +642,9 @@ if [ -d /etc/sysconfig/pki/kra ]; then
                 echo "pkicreate.systemd.servicename=pki-krad@${inst}.service" >> \
                      /var/lib/${inst}/conf/CS.cfg || :
             fi
+        else
+            # Conditionally restart this Dogtag 9 instance
+            /bin/systemctl condrestart pki-krad@${inst}.service
         fi
     done
 fi
@@ -1000,6 +673,9 @@ if [ -d /etc/sysconfig/pki/ocsp ]; then
                 echo "pkicreate.systemd.servicename=pki-ocspd@${inst}.service" >> \
                      /var/lib/${inst}/conf/CS.cfg || :
             fi
+        else
+            # Conditionally restart this Dogtag 9 instance
+            /bin/systemctl condrestart pki-ocspd@${inst}.service
         fi
     done
 fi
@@ -1028,6 +704,9 @@ if [ -d /etc/sysconfig/pki/tks ]; then
                 echo "pkicreate.systemd.servicename=pki-tksd@${inst}.service" >> \
                      /var/lib/${inst}/conf/CS.cfg || :
             fi
+        else
+            # Conditionally restart this Dogtag 9 instance
+            /bin/systemctl condrestart pki-tksd@${inst}.service
         fi
     done
 fi
@@ -1035,10 +714,14 @@ fi
 %fix_tomcat_log tks
 
 
-## %post -n pki-common
+%post -n pki-server
 ## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
+
+echo "Upgrading server at `/bin/date`." >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
+/sbin/pki-server-upgrade --silent >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
+echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 
 
 %preun -n pki-ca
@@ -1069,7 +752,7 @@ if [ $1 = 0 ] ; then
 fi
 
 
-## %preun -n pki-common
+## %preun -n pki-server
 ## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
@@ -1103,65 +786,10 @@ if [ "$1" -ge "1" ] ; then
 fi
 
 
-## %postun -n pki-common
+## %postun -n pki-server
 ## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
-%endif
-
-%files -n pki-deploy
-%defattr(-,root,root,-)
-%doc base/deploy/LICENSE
-%{_bindir}/pkispawn
-%{_bindir}/pkidestroy
-#%{_bindir}/pki-setup-proxy
-%dir %{python_sitelib}/pki
-%{python_sitelib}/pki/_*
-%{python_sitelib}/pki/deployment/
-%dir %{_datadir}/pki
-%dir %{_datadir}/pki/deployment
-%{_datadir}/pki/deployment/config/
-%dir %{_datadir}/pki/deployment/spawn
-%{_datadir}/pki/deployment/spawn/ca/
-%{_datadir}/pki/deployment/spawn/kra/
-%{_datadir}/pki/deployment/spawn/ocsp/
-%{_datadir}/pki/deployment/spawn/ra/
-%{_datadir}/pki/deployment/spawn/tks/
-%{_datadir}/pki/deployment/spawn/tps/
-%dir %{_datadir}/pki/deployment/destroy
-%{_datadir}/pki/deployment/destroy/ca/
-%{_datadir}/pki/deployment/destroy/kra/
-%{_datadir}/pki/deployment/destroy/ocsp/
-%{_datadir}/pki/deployment/destroy/ra/
-%{_datadir}/pki/deployment/destroy/tks/
-%{_datadir}/pki/deployment/destroy/tps/
-%dir %{_datadir}/pki/scripts
-%{_datadir}/pki/scripts/operations
-%dir %{_localstatedir}/lock/pki
-%dir %{_localstatedir}/run/pki
-%if 0%{?fedora} >= 16
-%{_bindir}/pkidaemon
-%endif
-
-
-%files -n pki-setup
-%defattr(-,root,root,-)
-%doc base/setup/LICENSE
-%{_bindir}/pki
-%{_bindir}/pkicreate
-%{_bindir}/pkiremove
-%{_bindir}/pki-setup-proxy
-%dir %{_datadir}/pki
-%dir %{_datadir}/pki/scripts
-%{_datadir}/pki/scripts/pkicommon.pm
-%{_datadir}/pki/scripts/functions
-%{_datadir}/pki/scripts/pki_apache_initscript
-%dir %{_localstatedir}/lock/pki
-%dir %{_localstatedir}/run/pki
-%if 0%{?fedora} >= 16
-%{_bindir}/pkicontrol
-%endif
-
 
 %files -n pki-symkey
 %defattr(-,root,root,-)
@@ -1170,37 +798,37 @@ fi
 %{_libdir}/symkey/
 
 
-%files -n pki-native-tools
+%files -n pki-base
+%defattr(-,root,root,-)
+%doc base/common/LICENSE
+%dir %{_datadir}/pki
+%{_datadir}/pki/VERSION
+%{_datadir}/pki/etc/
+%{_datadir}/pki/upgrade/
+%dir %{_sysconfdir}/pki
+%config(noreplace) %{_sysconfdir}/pki/pki.conf
+%dir %{_javadir}/pki
+%{_javadir}/pki/pki-cmsutil.jar
+%{_javadir}/pki/pki-nsutil.jar
+%{_javadir}/pki/pki-certsrv.jar
+%dir %{python_sitelib}/pki
+%{python_sitelib}/pki/*.py
+%{python_sitelib}/pki/*.pyc
+%{python_sitelib}/pki/*.pyo
+%dir %{_localstatedir}/log/pki
+%{_sbindir}/pki-upgrade
+%{_mandir}/man8/pki-upgrade.8.gz
+
+%files -n pki-tools
 %defattr(-,root,root,-)
 %doc base/native-tools/LICENSE base/native-tools/doc/README
+%{_bindir}/pki
 %{_bindir}/p7tool
 %{_bindir}/revoker
 %{_bindir}/setpin
 %{_bindir}/sslget
 %{_bindir}/tkstool
-%dir %{_datadir}/pki
 %{_datadir}/pki/native-tools/
-
-
-%files -n pki-util
-%defattr(-,root,root,-)
-%doc base/util/LICENSE
-%dir %{_javadir}/pki
-%{_javadir}/pki/pki-cmsutil-%{version}.jar
-%{_javadir}/pki/pki-cmsutil.jar
-%{_javadir}/pki/pki-nsutil-%{version}.jar
-%{_javadir}/pki/pki-nsutil.jar
-
-%if %{?_without_javadoc:0}%{!?_without_javadoc:1}
-%files -n pki-util-javadoc
-%defattr(-,root,root,-)
-%{_javadocdir}/pki-util-%{version}/
-%endif
-
-
-%files -n pki-java-tools
-%defattr(-,root,root,-)
-%doc base/java-tools/LICENSE
 %{_bindir}/AtoB
 %{_bindir}/AuditVerify
 %{_bindir}/BtoA
@@ -1221,80 +849,58 @@ fi
 %{_bindir}/PrettyPrintCert
 %{_bindir}/PrettyPrintCrl
 %{_bindir}/TokenInfo
-%{_javadir}/pki/pki-tools-%{version}.jar
 %{_javadir}/pki/pki-tools.jar
 %{_datadir}/pki/java-tools/
+%{_mandir}/man1/pki.1.gz
 
-%if %{?_without_javadoc:0}%{!?_without_javadoc:1}
-%files -n pki-java-tools-javadoc
+
+%files -n pki-server
 %defattr(-,root,root,-)
-%{_javadocdir}/pki-java-tools-%{version}/
-%endif
-
-
-%files -n pki-common
-%defattr(-,root,root,-)
-%doc base/common/LICENSE
-%if 0%{?fedora} >= 16
+%doc base/common/THIRD_PARTY_LICENSES
+%doc base/server/LICENSE
+%{_sysconfdir}/pki/default.cfg
+%{_sbindir}/pkispawn
+%{_sbindir}/pkidestroy
+%{_sbindir}/pki-server-upgrade
+#%{_bindir}/pki-setup-proxy
+%{python_sitelib}/pki/server/
+%dir %{_datadir}/pki/deployment
+%{_datadir}/pki/deployment/config/
+%dir %{_datadir}/pki/scripts
+%{_datadir}/pki/scripts/operations
+%{_datadir}/pki/scripts/pkicommon.pm
+%{_datadir}/pki/scripts/functions
+%{_datadir}/pki/scripts/pki_apache_initscript
+%{_bindir}/pkidaemon
 %dir %{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
 %{_unitdir}/pki-tomcatd@.service
 %{_unitdir}/pki-tomcatd.target
-%endif
-%{_javadir}/pki/pki-certsrv-%{version}.jar
-%{_javadir}/pki/pki-certsrv.jar
-%{_javadir}/pki/pki-cms-%{version}.jar
 %{_javadir}/pki/pki-cms.jar
-%{_javadir}/pki/pki-cmsbundle-%{version}.jar
 %{_javadir}/pki/pki-cmsbundle.jar
-%{_javadir}/pki/pki-cmscore-%{version}.jar
 %{_javadir}/pki/pki-cmscore.jar
-%dir %{_localstatedir}/lock/pki/tomcat
-%dir %{_localstatedir}/run/pki/tomcat
-
-%if 0%{?fedora} >= 16
-# Create symlink to the pki-jndi-realm jar
-%{_javadir}/tomcat6/pki-jndi-realm.jar
-%endif
-%if 0%{?fedora} >= 15
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
-%endif
-
-%{_javadir}/pki/pki-jndi-realm-%{version}.jar
-%{_javadir}/pki/pki-jndi-realm.jar
+%{_javadir}/pki/pki-silent.jar
+%{_javadir}/pki/pki-tomcat.jar
+%dir %{_sharedstatedir}/pki
+%{_bindir}/pkicreate
+%{_bindir}/pkiremove
+%{_bindir}/pki-setup-proxy
+%{_bindir}/pkisilent
+%{_datadir}/pki/silent/
+%{_bindir}/pkicontrol
+%{_mandir}/man5/pki_default.cfg.5.gz
+%{_mandir}/man8/pki-server-upgrade.8.gz
+%{_mandir}/man8/pkidestroy.8.gz
+%{_mandir}/man8/pkispawn.8.gz
 
 %{_datadir}/pki/setup/
-%dir %{_datadir}/pki/shared
-%{_datadir}/pki/shared/conf/
-
-%if %{?_without_javadoc:0}%{!?_without_javadoc:1}
-%files -n pki-common-javadoc
-%defattr(-,root,root,-)
-%{_javadocdir}/pki-common-%{version}/
-%endif
-
-
-%files -n pki-selinux
-%defattr(-,root,root,-)
-%doc base/selinux/LICENSE
-%{_datadir}/selinux/modules/pki.pp
-
+%{_datadir}/pki/server/
 
 %files -n pki-ca
 %defattr(-,root,root,-)
 %doc base/ca/LICENSE
-%if 0%{?fedora} >= 16
 %dir %{_sysconfdir}/systemd/system/pki-cad.target.wants
 %{_unitdir}/pki-cad@.service
 %{_unitdir}/pki-cad.target
-%else 
-%{_initrddir}/pki-cad
-%endif
-%{_javadir}/pki/pki-ca-%{version}.jar
 %{_javadir}/pki/pki-ca.jar
 %dir %{_datadir}/pki/ca
 %{_datadir}/pki/ca/conf/
@@ -1302,118 +908,369 @@ fi
 %dir %{_datadir}/pki/ca/profiles
 %{_datadir}/pki/ca/profiles/ca/
 %{_datadir}/pki/ca/setup/
-%{_datadir}/pki/ca/war/
 %{_datadir}/pki/ca/webapps/
-%dir %{_localstatedir}/lock/pki/ca
-%dir %{_localstatedir}/run/pki/ca
-%if 0%{?fedora} >= 15
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-ca.conf
-%endif
-
 
 %files -n pki-kra
 %defattr(-,root,root,-)
 %doc base/kra/LICENSE
-%if 0%{?fedora} >= 16
 %dir %{_sysconfdir}/systemd/system/pki-krad.target.wants
 %{_unitdir}/pki-krad@.service
 %{_unitdir}/pki-krad.target
-%else 
-%{_initrddir}/pki-krad
-%endif
-%{_javadir}/pki/pki-kra-%{version}.jar
 %{_javadir}/pki/pki-kra.jar
 %dir %{_datadir}/pki/kra
 %{_datadir}/pki/kra/conf/
 %{_datadir}/pki/kra/setup/
-%{_datadir}/pki/kra/war/
 %{_datadir}/pki/kra/webapps/
-%dir %{_localstatedir}/lock/pki/kra
-%dir %{_localstatedir}/run/pki/kra
-%if 0%{?fedora} >= 15
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-kra.conf
-%endif
-
 
 %files -n pki-ocsp
 %defattr(-,root,root,-)
 %doc base/ocsp/LICENSE
-%if 0%{?fedora} >= 16
 %dir %{_sysconfdir}/systemd/system/pki-ocspd.target.wants
 %{_unitdir}/pki-ocspd@.service
 %{_unitdir}/pki-ocspd.target
-%else 
-%{_initrddir}/pki-ocspd
-%endif
-%{_javadir}/pki/pki-ocsp-%{version}.jar
 %{_javadir}/pki/pki-ocsp.jar
 %dir %{_datadir}/pki/ocsp
 %{_datadir}/pki/ocsp/conf/
 %{_datadir}/pki/ocsp/setup/
-%{_datadir}/pki/ocsp/war/
 %{_datadir}/pki/ocsp/webapps/
-%dir %{_localstatedir}/lock/pki/ocsp
-%dir %{_localstatedir}/run/pki/ocsp
-%if 0%{?fedora} >= 15
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
-%endif
-
 
 %files -n pki-tks
 %defattr(-,root,root,-)
 %doc base/tks/LICENSE
-%if 0%{?fedora} >= 16
 %dir %{_sysconfdir}/systemd/system/pki-tksd.target.wants
 %{_unitdir}/pki-tksd@.service
 %{_unitdir}/pki-tksd.target
-%else 
-%{_initrddir}/pki-tksd
-%endif
-%{_javadir}/pki/pki-tks-%{version}.jar
 %{_javadir}/pki/pki-tks.jar
 %dir %{_datadir}/pki/tks
 %{_datadir}/pki/tks/conf/
 %{_datadir}/pki/tks/setup/
-%{_datadir}/pki/tks/war/
 %{_datadir}/pki/tks/webapps/
-%dir %{_localstatedir}/lock/pki/tks
-%dir %{_localstatedir}/run/pki/tks
-%if 0%{?fedora} >= 15
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tks.conf
+
+%files -n pki-tps-tomcat
+%defattr(-,root,root,-)
+%doc base/tps/LICENSE
+%dir %{_sysconfdir}/systemd/system/pki-tpsd.target.wants
+%{_unitdir}/pki-tpsd@.service
+%{_unitdir}/pki-tpsd.target
+%{_javadir}/pki/pki-tps.jar
+%dir %{_datadir}/pki/tps
+%{_datadir}/pki/tps/conf/
+%{_datadir}/pki/tps/setup/
+%{_datadir}/pki/tps/webapps/
+
+%if %{?_without_javadoc:0}%{!?_without_javadoc:1}
+%files -n pki-javadoc
+%defattr(-,root,root,-)
+%{_javadocdir}/pki-%{version}/
 %endif
 
 
-%files -n pki-silent
-%defattr(-,root,root,-)
-%doc base/silent/LICENSE
-%{_bindir}/pkisilent
-%{_javadir}/pki/pki-silent-%{version}.jar
-%{_javadir}/pki/pki-silent.jar
-%{_datadir}/pki/silent/
-
-
 %changelog
-* Mon May 29 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.17.a1
+* Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
+- Trac Ticket 788 - Clean up spec files
+- Update release number for release build
+- Updated requirements for resteasy
+
+* Sun Nov 10 2013 Ade Lee <alee@redhat.com> 10.1.0-0.14
+- Change release number for beta build
+
+* Thu Nov 7 2013 Ade Lee <alee@redhat.com> 10.1.0-0.13
+- Updated requirements for tomcat
+
+* Fri Oct 4 2013 Ade Lee <alee@redhat.com> 10.1.0-0.12
+- Removed additional /var/run, /var/lock references.
+
+* Fri Oct 4 2013 Ade Lee <alee@redhat.com> 10.1.0-0.11
+- Removed delivery of /var/lock and /var/run directories for fedora 20.
+
+* Wed Aug 14 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.10
+- Moved Tomcat-based TPS into pki-core.
+
+* Wed Aug 14 2013 Abhishek Koneru <akoneru@redhat.com> 10.1.0.0.9
+- Listed new packages required during build, due to issues reported
+  by pylint.
+- Packages added: python-requests, python-ldap, libselinux-python,
+                  policycoreutils-python
+
+* Fri Aug 09 2013 Abhishek Koneru <akoneru@redhat.com> 10.1.0.0.8
+- Added pylint scan to the build process.
+ 
+* Mon Jul 22 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.7
+- Added man pages for upgrade tools.
+
+* Wed Jul 17 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.6
+- Cleaned up the code to install man pages.
+
+* Tue Jul 16 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.5
+- Reorganized deployment tools.
+
+* Tue Jul 9 2013 Ade Lee <alee@redhat.com> 10.1.0-0.4
+- Bugzilla Bug 973224 -  resteasy-base must be split into subpackages
+  to simplify dependencies
+
+* Fri Jun 14 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.3
+- Updated dependencies to Java 1.7.
+
+* Wed Jun 5 2013 Matthew Harmsen <mharmsen@redhat.com> 10.1.0-0.2
+- TRAC Ticket 606 - add restart / start at boot info to pkispawn man page
+- TRAC Ticket 610 - Document limitation in using GUI install
+- TRAC Ticket 629 - Package ownership of '/usr/share/pki/etc/' directory
+
+* Tue May 7 2013 Ade Lee <alee@redhat.com> 10.1.0-0.1
+- Change release number for 10.1 development
+
+* Mon May 6 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-5
+- Fixed incorrect JNI_JAR_DIR.
+
+* Sat May 4 2013 Ade Lee <alee@redhat.com> 10.0.2-4
+- TRAC Ticket 605 Junit internal function used in TestRunner,
+  breaks F19 build
+
+* Sat May 4 2013 Ade Lee <alee@redhat.com> 10.0.2-3
+- TRAC Ticket 604 Added fallback methods for pkispawn tests
+
+* Mon Apr 29 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-2
+- Added default pki.conf in /usr/share/pki/etc
+- Create upgrade tracker on install and remove it on uninstall
+
+* Fri Apr 26 2013 Ade Lee <alee@redhat.com> 10.0.2-1
+- Change release number for official release.
+
+* Thu Apr 25 2013 Ade Lee <alee@redhat.com> 10.0.2-0.8
+- Added %pretrans script for f19
+- Added java-atk-wrapper dependency
+
+* Wed Apr 24 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.7
+- Added pki-server-upgrade script and pki.server module.
+- Call upgrade scripts in %post for pki-base and pki-server.
+
+* Tue Apr 23 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.6
+- Added dependency on commons-io.
+
+* Mon Apr 22 2013 Ade Lee <alee@redhat.com> 10.0.2-0.5
+- Add /var/log/pki and /var/lib/pki directories
+
+* Tue Apr 16 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.4
+- Run pki-upgrade on post server installation.
+
+* Mon Apr 15 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.3
+- Added dependency on python-lxml.
+
+* Fri Apr 5 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.2
+- Added pki-upgrade script.
+
+* Fri Apr 5 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.1
+- Updated version number to 10.0.2-0.1.
+
+* Fri Apr 5 2013 Endi S. Dewata <edewata@redhat.com> 10.0.1-9
+- Renamed base/deploy to base/server.
+- Moved pki.conf into pki-base.
+- Removed redundant pki/server folder declaration.
+
+* Tue Mar 19 2013 Ade Lee <alee@redhat.com> 10.0.1-8
+- Removed jython dependency
+
+* Mon Mar 11 2013 Endi S. Dewata <edewata@redhat.com> 10.0.1-7
+- Added minimum python-requests version.
+
+* Fri Mar 8 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.1-6
+- Bugzilla Bug #919476 - pkispawn crashes due to dangling symlink to jss4.jar
+
+* Thu Mar 7 2013 Endi S. Dewata <edewata@redhat.com> 10.0.1-5
+- Added dependency on python-requests.
+- Reorganized Python module packaging.
+
+* Thu Mar 7 2013 Endi S. Dewata <edewata@redhat.com> 10.0.1-4
+- Added dependency on python-ldap.
+
+* Mon Mar  4 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.1-3
+- TRAC Ticket #517 - Clean up theme dependencies
+- TRAC Ticket #518 - Remove UI dependencies from pkispawn . . .
+
+* Fri Mar  1 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.1-2
+- Removed runtime dependency on 'pki-server-theme' to resolve
+  Bugzilla Bug #916134 - unresolved dependency in pki-server: pki-server-theme
+
+* Tue Jan 15 2013 Ade Lee <alee@redhat.com> 10.0.1-1
+- TRAC Ticket 214 - Missing error description for duplicate user
+- TRAC Ticket 213 - Add nonces for cert revocation
+- TRAC Ticket 367 - pkidestroy does not remove connector
+- TRAC Ticket #430 - License for 3rd party code
+- Bugzilla Bug 839426 - [RFE] ECC CRL support for OCSP
+- Fix spec file to allow f17 to work with latest tomcatjss
+- TRAC Ticket 466 - Increase root CA validity to 20 years
+- TRAC Ticket 469 - Fix tomcatjss issue in spec files
+- TRAC Ticket 468 - pkispawn throws exception
+- TRAC Ticket 191 - Mapping HTTP Exceptions to HTTP error codes
+- TRAC Ticket 271 - Dogtag 10: Fix 'status' command in 'pkidaemon' . . .
+- TRAC Ticket 437 - Make admin cert p12 file location configurable
+- TRAC Ticket 393 - pkispawn fails when selinux is disabled
+- Punctuation and formatting changes in man pages
+- Revert to using default config file for pkidestroy
+- Hardcode setting of resteasy-lib for instance
+- TRAC Ticket 436 - Interpolation for pki_subsystem
+- TRAC Ticket 433 - Interpolation for paths
+- TRAC Ticket 435 - Identical instance id and instance name
+- TRAC Ticket 406 - Replace file dependencies with package dependencies
+
+* Wed Jan  9 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-5
+- TRAC Ticket #430 - License for 3rd party code
+
+* Fri Jan  4 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-4
+- TRAC Ticket #469 - Dogtag 10: Fix tomcatjss issue in pki-core.spec and
+  dogtag-pki.spec . . .
+- TRAC Ticket #468 - pkispawn throws exception
+
+* Wed Dec 12 2012 Ade Lee <alee@redhat.com> 10.0.0-3
+- Replaced file dependencies with package dependencies
+
+* Mon Dec 10 2012 Ade Lee <alee@redhat.com> 10.0.0-2
+- Updated man pages
+
+* Fri Dec 7 2012 Ade Lee <alee@redhat.com> 10.0.0-1
+- Update to official release for rc1
+
+* Thu Dec  6 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.56.b3
+- TRAC Ticket #315 - Man pages for pkispawn/pkidestroy.
+- Added place-holders for 'pki.1' and 'pki_default.cfg.5' man pages.
+
+* Thu Dec 6 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.55.b3
+- Added system-wide configuration /etc/pki/pki.conf.
+- Removed redundant lines in %files.
+
+* Tue Dec 4 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.54.b3
+- Moved default deployment configuration to /etc/pki.
+
+* Mon Nov 19 2012 Ade Lee <alee@redhat.com> 10.0.0-0.53.b3
+- Cleaned up spec file to provide only support rhel 7+, f17+
+- Added resteasy-base dependency for rhel 7
+- Update cmake version
+
+* Mon Nov 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.52.b3
+- Update release to b3
+
+* Fri Nov 9 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.51.b2
+- Removed dependency on CA, KRA, OCSP, TKS theme packages.
+
+* Thu Nov 8 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.50.b2
+- Renamed pki-common-theme to pki-server-theme.
+
+* Thu Nov  8 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.49.b2
+- TRAC Ticket #395 - Dogtag 10: Add a Tomcat 7 runtime requirement to
+  'pki-server'
+
+* Mon Oct 29 2012 Ade Lee <alee@redhat.com> 10.0.0-0.48.b2
+- Update release to b2
+
+* Wed Oct 24 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.47.b1
+- TRAC Ticket #350 - Dogtag 10: Remove version numbers from PKI jar files . . .
+
+* Tue Oct 23 2012 Ade Lee <alee@redhat.com> 10.0.0-0.46.b1
+- Added Obsoletes for pki-selinux
+
+* Tue Oct 23 2012 Ade Lee <alee@redhat.com> 10.0.0-0.45.b1
+- Remove build of pki-selinux for f18, use system policy instead
+
+* Fri Oct 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.44.b1
+- Update required tomcatjss version
+- Added net-tools dependency
+
+* Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.43.b1
+- Update selinux-policy version to fix error from latest policy changes
+
+* Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.42.b1
+- Fix typo in selinux policy versions
+
+* Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.41.b1
+- Added build requires for correct version of selinux-policy-devel
+
+* Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.40.b1
+- Update release to b1
+
+* Fri Oct 5 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.40.a2
+- Merged pki-silent into pki-server.
+
+* Fri Oct 5 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.39.a2
+- Renamed "shared" folder to "server".
+
+* Fri Oct 5 2012 Ade Lee <alee@redhat.com> 10.0.0-0.38.a2
+- Added required selinux versions for new policy.
+
+* Tue Oct 2 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.37.a2
+- Added Provides to packages replacing obsolete packages.
+
+* Mon Oct 1 2012 Ade Lee <alee@redhat.com> 10.0.0-0.36.a2
+- Update release to a2
+
+* Sun Sep 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.36.a1
+- Modified CMake to use RPM version number
+
+* Tue Sep 25 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.35.a1
+- Added VERSION file
+
+* Mon Sep 24 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.34.a1
+- Merged pki-setup into pki-server
+
+* Thu Sep 13 2012 Ade Lee <alee@redhat.com> 10.0.0-0.33.a1
+- Added Conflicts for IPA 2.X
+- Added build requires for zip to work around mock problem
+
+* Wed Sep 12 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.32.a1
+- TRAC Ticket #312 - Dogtag 10: Automatically restart any running instances
+  upon RPM "update" . . .
+- TRAC Ticket #317 - Dogtag 10: Move "pkispawn"/"pkidestroy"
+  from /usr/bin to /usr/sbin . . .
+
+* Wed Sep 12 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.31.a1
+- Fixed pki-server to include everything in shared dir.
+
+* Tue Sep 11 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.30.a1
+- Added build dependency on redhat-rpm-config.
+
+* Thu Aug 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.29.a1
+- Merged Javadoc packages.
+
+* Thu Aug 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.28.a1
+- Added pki-tomcat.jar.
+
+* Thu Aug 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.27.a1
+- Moved webapp creation code into pkispawn.
+
+* Mon Aug 20 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.26.a1
+- Split pki-client.jar into pki-certsrv.jar and pki-tools.jar.
+
+* Mon Aug 20 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.25.a1
+- Merged pki-native-tools and pki-java-tools into pki-tools.
+- Modified pki-server to depend on pki-tools.
+
+* Mon Aug 20 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.24.a1
+- Split pki-common into pki-base and pki-server.
+- Merged pki-util into pki-base.
+- Merged pki-deploy into pki-server.
+
+* Thu Aug 16 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.23.a1
+- Updated release of 'tomcatjss' to rely on Tomcat 7 for Fedora 17
+- Changed Dogtag 10 build-time and runtime requirements for 'pki-deploy'
+- Altered PKI Package Dependency Chain (top-to-bottom):
+  pki-ca, pki-kra, pki-ocsp, pki-tks --> pki-deploy --> pki-common
+
+* Mon Aug 13 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.22.a1
+- Added pki-client.jar.
+
+* Fri Jul 27 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.21.a1
+- Merged pki-jndi-realm.jar into pki-cmscore.jar.
+
+* Tue Jul 24 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.20.a1
+- PKI TRAC Task #254 - Dogtag 10: Fix spec file to build successfully
+  via mock on Fedora 17 . . .
+
+* Wed Jul 11 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.19.a1
+- Moved 'pki-jndi-real.jar' link from 'tomcat6' to 'tomcat' (Tomcat 7)
+
+* Thu Jun 14 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.18.a1
+- Updated release of 'tomcatjss' to rely on Tomcat 7 for Fedora 18
+
+* Tue May 29 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.17.a1
 - Added CLI for REST services
 
 * Fri May 18 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.16.a1
@@ -1428,7 +1285,7 @@ fi
 * Thu Apr  5 2012 Christina Fu <cfu@redhat.com> 10.0.0-0.14.a1
 - Bug 745278 - [RFE] ECC encryption keys cannot be archived
 
-* Fri Mar 27 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.13.a1
+* Tue Mar 27 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.13.a1
 - Replaced candlepin-deps with resteasy
 
 * Fri Mar 23 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.12.a1
@@ -1464,7 +1321,7 @@ fi
 -      Bugzilla Bug #739708 - Selinux fix for ephemeral ports (F16)
 -      Bugzilla Bug #795966 - pki-selinux policy is kind of a mess (F17)
 
-* Wed Feb 23 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.4.a1
+* Thu Feb 23 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.4.a1
 - Added dependency on Apache Commons Codec.
 
 * Wed Feb 22 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.3.a1

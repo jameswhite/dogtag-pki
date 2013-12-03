@@ -37,14 +37,17 @@ import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.key.KeyData;
+import com.netscape.certsrv.key.KeyDataInfo;
+import com.netscape.certsrv.key.KeyRequestInfo;
+import com.netscape.certsrv.key.KeyRequestResource;
+import com.netscape.certsrv.kra.KRAClient;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.servlet.base.CMSResourceService;
-import com.netscape.cms.servlet.key.model.KeyData;
-import com.netscape.cms.servlet.key.model.KeyDataInfo;
-import com.netscape.cms.servlet.request.KeyRequestResource;
-import com.netscape.cms.servlet.request.RequestNotFoundException;
-import com.netscape.cms.servlet.request.model.KeyRequestInfo;
+import com.netscape.certsrv.request.RequestNotFoundException;
+import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
@@ -193,10 +196,14 @@ public class DRMTest {
         // Set base URI and get client
 
 
-        String baseUri = protocol + "://" + host + ":" + port + "/kra/pki";
-        DRMRestClient client;
+        KRAClient client;
         try {
-            client = new DRMRestClient(baseUri, clientCertNickname);
+            ClientConfig config = new ClientConfig();
+            config.setServerURI(protocol + "://" + host + ":" + port + "/kra");
+            config.setCertNickname(clientCertNickname);
+
+            client = new KRAClient(new PKIClient(config));
+
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -204,8 +211,8 @@ public class DRMTest {
 
         // Test 1: Get transport certificate from DRM
         transportCert = client.getTransportCert();
-        transportCert = transportCert.substring(CMSResourceService.HEADER.length(),
-                                                transportCert.indexOf(CMSResourceService.TRAILER));
+        transportCert = transportCert.substring(PKIService.HEADER.length(),
+                                                transportCert.indexOf(PKIService.TRAILER));
 
         log("Transport Cert retrieved from DRM: " + transportCert);
 
@@ -483,6 +490,44 @@ public class DRMTest {
             log("Error: getting non-existent request does not throw an exception");
         } catch (RequestNotFoundException e) {
             log("Success: getting non-existent request throws an exception: "+e.getMessage()+" ("+e.getRequestId().toHexString()+")");
+        }
+
+        // Test 24: Request x509 key recovery
+        // This test requires to retrieve keyId and matching certificate
+        // from installed instances of CA and DRM
+        String keyID = "1";
+        String b64Certificate = "MIIC+TCCAeGgAwIBAgIBDDANBgkqhkiG9w0BAQsFADBOMSswKQYDVQQKDCJ1c2Vy"+
+                                "c3lzLnJlZGhhdC5jb20gU2VjdXJpdHkgRG9tYWluMR8wHQYDVQQDDBZDQSBTaWdu"+
+                                "aW5nIENlcnRpZmljYXRlMB4XDTEzMTAyNTE5MzQwM1oXDTE0MDQyMzE5MzQwM1ow"+
+                                "EzERMA8GCgmSJomT8ixkAQEMAXgwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGB"+
+                                "ALhLfGmKvxFsKXPh49q1QsluXU3WlyS1XnpDLgOAhgTNgO4sG6CpPdv6hZYIvQBb"+
+                                "ZQ5bhuML+NXK+Q+EIiNk1cUTxgL3a30sPzy6QaFWxwM8i4uXm4nCBYv7T+n4V6/O"+
+                                "xHIM2Ch/dviAb3vz+M9trErv9t+d2H8jNXT3sHuDb/kvAgMBAAGjgaAwgZ0wHwYD"+
+                                "VR0jBBgwFoAUh1cxWFRY+nMsx4odQQI1GqyFxP8wSwYIKwYBBQUHAQEEPzA9MDsG"+
+                                "CCsGAQUFBzABhi9odHRwOi8vZG9ndGFnMjAudXNlcnN5cy5yZWRoYXQuY29tOjgw"+
+                                "ODAvY2Evb2NzcDAOBgNVHQ8BAf8EBAMCBSAwHQYDVR0lBBYwFAYIKwYBBQUHAwIG"+
+                                "CCsGAQUFBwMEMA0GCSqGSIb3DQEBCwUAA4IBAQCvmbUzQOouE2LgQQcKfmgwwJMJ"+
+                                "9tMrPwDUtyFdaIFoPL4uZaujSscaN4IWK2r5vIMJ65jwYCI7sI9En2ZfO28J9dQj"+
+                                "lpqu6TaJ+xtaMk7OvXpVB7lJk73HAttMGjETlkoq/6EjxcugmJsDqVD0b2tO7Vd0"+
+                                "hroBe2uPDHM2ASewZF415lUcRh0URtmxSazTInbyxpmy1wgSJQ0C6fMCeT+hUFlA"+
+                                "0P4k1TIprapGVq7FpKcqlhK2gTBfTSnoO7gmXG/9MxJiYpb/Aph8ptXq6quHz1Mj"+
+                                "greWr3xTsy6gF2yphUEkGHh4v22XvK+FLx9Jb6zloMWA2GG9gpUpvMnl1fH4";
+
+        log("Requesting X509 key recovery.");
+        recoveryRequestId = client.requestKeyRecovery(keyID, b64Certificate);
+        log("Requesting X509 key recovery request: " + recoveryRequestId);
+
+        // Test 25: Approve x509 key recovery
+        log("Approving X509 key recovery request: " + recoveryRequestId);
+        client.approveRecovery(recoveryRequestId);
+
+        // Test 26: Recover x509 key
+        log("Recovering X509 key based on request: " + recoveryRequestId);
+        try {
+            KeyData recoveredX509Key = client.recoverKey(recoveryRequestId, "netscape");
+            log("Success: X509Key recovered: "+ recoveredX509Key.getP12Data());
+        } catch (RequestNotFoundException e) {
+            log("Error: recovering X509Key");
         }
     }
 

@@ -127,18 +127,16 @@ public class PasswordCache {
         // All this streaming is lame, but Base64OutputStream needs a
         // PrintStream
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        Base64OutputStream b64 = new Base64OutputStream(new
-                PrintStream(new
-                        FilterOutputStream(output)
-                )
-                );
+        try (Base64OutputStream b64 = new Base64OutputStream(
+                new PrintStream(new FilterOutputStream(output)))) {
 
-        b64.write(bytes);
-        b64.flush();
+            b64.write(bytes);
+            b64.flush();
 
-        // This is internationally safe because Base64 chars are
-        // contained within 8859_1
-        return output.toString("8859_1");
+            // This is internationally safe because Base64 chars are
+            // contained within 8859_1
+            return output.toString("8859_1");
+        }
     }
 
     public static void main(String[] av) {
@@ -609,7 +607,9 @@ class PWsdrCache {
 
             if (tmpPWcache.exists()) {
                 // it wasn't removed?
-                tmpPWcache.delete();
+                if (!tmpPWcache.delete()) {
+                    debug("Could not delete the existing " + mPWcachedb + ".tmp file.");
+                }
             }
             outstream = new FileOutputStream(mPWcachedb + ".tmp");
 
@@ -626,7 +626,9 @@ class PWsdrCache {
             try {
                 // Always remove any pre-existing target file
                 if (origFile.exists()) {
-                    origFile.delete();
+                    if (!origFile.delete()) {
+                        debug("Could not delete the existing " + mPWcachedb + "file.");
+                    }
                 }
 
                 if (isNT()) {
@@ -644,7 +646,9 @@ class PWsdrCache {
                 // Remove the temporary file if and only if
                 // the "rename" was successful.
                 if (origFile.exists()) {
-                    tmpPWcache.delete();
+                    if (!tmpPWcache.delete()) {
+                        debug("Could not delete the existing " + mPWcachedb + ".tmp file.");
+                    }
 
                     // Make certain that the final file has
                     // the correct permissions.
@@ -818,9 +822,12 @@ class PWsdrCache {
                  **/
                 return false;
             }
-        } catch (Exception e) {
-            return false;
+        } catch (IOException e) {
+            throw e;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
+        return false;
     }
 
     public void debug(String msg) {

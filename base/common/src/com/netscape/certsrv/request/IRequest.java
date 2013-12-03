@@ -19,6 +19,7 @@ package com.netscape.certsrv.request;
 
 //import java.io.Serializable;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Enumeration;
@@ -40,7 +41,7 @@ import com.netscape.certsrv.base.IAttrSet;
  *
  * @version $Revision$, $Date$
  */
-public interface IRequest {
+public interface IRequest extends Serializable {
 
     public static final String REQ_VERSION = "requestVersion";
 
@@ -149,6 +150,8 @@ public interface IRequest {
     public final static String NETKEY_ATTR_ENC_PRIVKEY_FLAG = "encryptPrivKey";
     public final static String NETKEY_ATTR_USER_CERT = "cert";
     public final static String NETKEY_ATTR_KEY_SIZE = "keysize";
+    public final static String NETKEY_ATTR_KEY_TYPE = "keytype";
+    public final static String NETKEY_ATTR_KEY_EC_CURVE = "eckeycurve";
 
     //Security Data request attributes
     public static final String SECURITY_DATA_ENROLLMENT_REQUEST = "securityDataEnrollment";

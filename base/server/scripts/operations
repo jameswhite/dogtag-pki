@@ -1,0 +1,1534 @@
+#!/bin/bash -X
+
+# From "http://fedoraproject.org/wiki/FCNewInit/Initscripts":
+#
+# Status Exit Codes
+#
+#  0 program is running or service is OK
+#  1 program is dead and /var/run pid file exists
+#  2 program is dead and /var/lock lock file exists
+#  3 program is not running
+#  4 program or service status is unknown
+#  5-99 reserved for future LSB use
+#  100-149 reserved for distribution use
+#  150-199 reserved for application use
+#  200-254 reserved
+#
+# Non-Status Exit Codes
+#
+#  0 action was successful
+#  1 generic or unspecified error (current practice)
+#  2 invalid or excess argument(s)
+#  3 unimplemented feature (for example, "reload")
+#  4 user had insufficient privilege
+#  5 program is not installed
+#  6 program is not configured
+#  7 program is not running
+#  8-99    reserved for future LSB use
+#  100-149 reserved for distribution use
+#  150-199 reserved for application use
+#  200-254 reserved
+#
+
+if [ -f /etc/pki/pki.conf ] ; then
+  . /etc/pki/pki.conf
+fi
+
+default_error=0
+
+case $command in
+    start)
+        # 1 generic or unspecified error (current practice)
+        default_error=1
+        ;;
+    status)
+        # 4 program or service status is unknown
+        default_error=4
+        ;;
+    *)
+        # 2 invalid argument(s)
+        default_error=2
+        ;;
+esac
+
+# Enable nullglob, if set then shell pattern globs which do not match any
+# file returns the empty string rather than the unmodified glob pattern.
+shopt -s nullglob
+
+OS=`uname -s`
+ARCHITECTURE=`uname -i`
+
+# Check to insure that this script's original invocation directory
+# has not been deleted!
+CWD=`/bin/pwd > /dev/null 2>&1`
+if [ $? -ne 0 ] ; then
+    echo "Cannot invoke '$PROG_NAME' from non-existent directory!"
+    exit ${default_error}
+fi
+
+# Check to insure that this script's associated PKI
+# subsystem currently resides on this system.
+PKI_CA_PATH="/usr/share/pki/ca"
+PKI_KRA_PATH="/usr/share/pki/kra"
+PKI_OCSP_PATH="/usr/share/pki/ocsp"
+PKI_RA_PATH="/usr/share/pki/ra"
+PKI_TKS_PATH="/usr/share/pki/tks"
+PKI_TPS_PATH="/usr/share/pki/tps"
+if [ '${PKI_TYPE}' == "apache" ] ; then
+    if [ ! -d ${PKI_RA_PATH} ]  &&
+       [ ! -d ${PKI_TPS_PATH} ] ; then
+        echo "This machine is missing all PKI '${PKI_TYPE}' subsystems!"
+        if [ "${command}" != "status" ]; then
+            # 5 program is not installed
+            exit 5
+        else
+            exit ${default_error}
+        fi
+    fi
+elif [ '${PKI_TYPE}' == "tomcat" ] ; then
+    if [ ! -d ${PKI_CA_PATH} ]   &&
+       [ ! -d ${PKI_KRA_PATH} ]  &&
+       [ ! -d ${PKI_OCSP_PATH} ] &&
+       [ ! -d ${PKI_TKS_PATH} ] ; then
+        echo "This machine is missing all PKI '${PKI_TYPE}' subsystems!"
+        if [ "${command}" != "status" ]; then
+            # 5 program is not installed
+            exit 5
+        else
+            exit ${default_error}
+        fi
+    fi
+fi
+
+PKI_INSTANCE_TYPES="apache tomcat"
+PKI_REGISTRY_ENTRIES=""
+PKI_SUBSYSTEMS=""
+TOTAL_PKI_REGISTRY_ENTRIES=0
+TOTAL_UNCONFIGURED_PKI_ENTRIES=0
+
+# Gather ALL registered instances of this PKI web server type
+for INSTANCE in ${PKI_REGISTRY}/*; do
+    if [ -d "$INSTANCE" ] ; then
+        for REGISTRY in ${INSTANCE}/*; do
+            if [ -f "$REGISTRY" ] ; then
+                PKI_REGISTRY_ENTRIES="${PKI_REGISTRY_ENTRIES} $REGISTRY"
+                TOTAL_PKI_REGISTRY_ENTRIES=`expr ${TOTAL_PKI_REGISTRY_ENTRIES} + 1`
+            fi
+        done
+    fi
+done
+
+# Execute the specified registered instance of this PKI web server type
+if [ -n "${pki_instance_id}" ]; then
+    for INSTANCE in ${PKI_REGISTRY_ENTRIES}; do
+        if [ "`basename ${INSTANCE}`" == "${pki_instance_id}" ]; then
+            PKI_REGISTRY_ENTRIES="${INSTANCE}"
+            TOTAL_PKI_REGISTRY_ENTRIES=1
+            break
+        fi
+    done
+fi
+
+usage()
+{
+    echo -n "Usage: /usr/bin/pkidaemon "
+    echo -n "{start"
+    echo -n "|status} "
+    echo -n "instance-type "
+    echo -n "[instance-name]"
+    echo
+    echo
+}
+
+list_instance_types()
+{
+    echo
+    for PKI_INSTANCE_TYPE in $PKI_INSTANCE_TYPES; do
+        echo "    $PKI_INSTANCE_TYPE"
+    done
+    echo
+}
+
+list_instances()
+{
+    echo
+    for INSTANCE in /etc/sysconfig/pki/apache/*; do
+        if [ -d "${INSTANCE}" ] ; then
+            instance_name=`basename ${INSTANCE}`
+            echo "    $instance_name"
+        fi
+    done
+    for INSTANCE in /etc/sysconfig/pki/tomcat/*; do
+        if [ -d "${INSTANCE}" ] ; then
+            instance_name=`basename ${INSTANCE}`
+            echo "    $instance_name"
+        fi
+    done
+    echo
+}
+
+get_subsystems()
+{
+    # Re-initialize PKI_SUBSYSTEMS for each instance
+    PKI_SUBSYSTEMS=""
+    case ${PKI_WEB_SERVER_TYPE} in
+        tomcat)
+            for SUBSYSTEM in ca kra ocsp tks; do
+                if [ -d ${PKI_INSTANCE_PATH}/conf/${SUBSYSTEM} ]; then
+                    if [ '${PKI_SUBSYSTEMS}' == "" ] ; then
+                        PKI_SUBSYSTEMS="${SUBSYSTEM}"
+                    else
+                        PKI_SUBSYSTEMS="${PKI_SUBSYSTEMS} ${SUBSYSTEM}"
+                    fi
+                fi
+            done
+            ;;
+        apache)
+            for SUBSYSTEM in ra tps; do
+                if [ -d ${PKI_INSTANCE_PATH}/conf/${SUBSYSTEM} ]; then
+                    if [ '${PKI_SUBSYSTEMS}' == "" ] ; then
+                        PKI_SUBSYSTEMS="${SUBSYSTEM}"
+                    else
+                        PKI_SUBSYSTEMS="${PKI_SUBSYSTEMS} ${SUBSYSTEM}"
+                    fi
+                fi
+            done
+            ;;
+        *)
+            echo "Unknown web server type ($PKI_WEB_SERVER_TYPE)"
+            exit ${default_error}
+            ;;
+    esac
+}
+
+# Check arguments
+if [ $# -lt 2 ] ; then
+    #     [insufficient arguments]
+    echo "$PROG_NAME:  Insufficient arguments!"
+    echo
+    usage
+    echo "where valid instance types include:"
+    list_instance_types
+    echo "and where valid instance names include:"
+    list_instances
+    exit 3
+elif [ ${default_error} -eq 2 ] ; then
+    # 2 invalid argument
+    echo "$PROG_NAME:  Invalid arguments!"
+    echo
+    usage
+    echo "where valid instance types include:"
+    list_instance_types
+    echo "and where valid instance names include:"
+    list_instances
+    exit 2
+elif [ $# -gt 3 ] ; then
+    echo "$PROG_NAME:  Excess arguments!"
+    echo
+    usage
+    echo "where valid instance types include:"
+    list_instance_types
+    echo "and where valid instance names include:"
+    list_instances
+    if [ "${command}" != "status" ]; then
+        # 2 excess arguments
+        exit 2
+    else
+        # 4 program or service status is unknown
+        exit 4
+    fi
+fi
+
+# If an "instance" was supplied, check that it is a "valid" instance
+if [ -n "${pki_instance_id}" ]; then
+    valid=0
+    for PKI_REGISTRY_ENTRY in $PKI_REGISTRY_ENTRIES; do
+        instance_name=`basename $PKI_REGISTRY_ENTRY`
+        if [ "${pki_instance_id}" == "${instance_name}" ]; then
+            valid=1
+            break
+        fi
+    done
+    if [ $valid -eq 0 ]; then
+        if [ "${pki_instance_type}" != "apache" ] &&
+           [ "${pki_instance_type}" != "tomcat" ]; then
+            echo -n "unknown instance type (${pki_instance_type})"
+        else
+            echo -n "${pki_instance_id} is an invalid '${PKI_TYPE}' instance"
+        fi
+        echo
+
+        if [ "${command}" != "status" ]; then
+            # 5 program is not installed
+            exit 5
+        else
+            # 4 program or service status is unknown
+            exit 4
+        fi
+    fi
+fi
+
+check_pki_configuration_status()
+{
+    rv=0
+
+    case ${PKI_WEB_SERVER_TYPE} in
+        tomcat)
+            for SUBSYSTEM in ca kra ocsp tks; do
+                if [ -d ${PKI_INSTANCE_PATH}/conf/${SUBSYSTEM} ]; then
+                    rv=`grep -c ^preop ${PKI_INSTANCE_PATH}/conf/${SUBSYSTEM}/CS.cfg`
+                    rv=`expr ${rv} + 0`
+                fi
+            done
+            ;;
+        apache)
+            # TBD
+            ;;
+        *)
+            echo "Unknown web server type ($PKI_WEB_SERVER_TYPE)"
+            exit ${default_error}
+            ;;
+    esac
+
+    if [ $rv -ne 0 ] ; then
+        echo "    '${PKI_INSTANCE_NAME}' must still be CONFIGURED!"
+        echo "    (see /var/log/${PKI_INSTANCE_NAME}-install.log)"
+        if [ "${command}" != "status" ]; then
+            # 6 program is not configured
+            rv=6
+        else
+            # 4 program or service status is unknown
+            rv=4
+        fi
+        TOTAL_UNCONFIGURED_PKI_ENTRIES=`expr ${TOTAL_UNCONFIGURED_PKI_ENTRIES} + 1`
+    elif [ -f ${RESTART_SERVER} ] ; then
+        echo -n "    Although '${PKI_INSTANCE_NAME}' has been CONFIGURED, "
+        echo -n "it must still be RESTARTED!"
+        echo
+        if [ "${command}" != "status" ]; then
+            # 1 generic or unspecified error (current practice)
+            rv=1
+        else
+            # 4 program or service status is unknown
+            rv=4
+        fi
+    fi
+
+    return $rv
+}
+
+get_pki_status_definitions()
+{
+    case $PKI_WEB_SERVER_TYPE in
+        tomcat)
+            PKI_SERVER_XML_CONF=${PKI_INSTANCE_PATH}/conf/server.xml
+            get_pki_status_definitions_tomcat
+            return $?
+            ;;
+        ra)
+            get_pki_status_definitions_ra
+            return $?
+            ;;
+        tps)
+            get_pki_status_definitions_tps
+            return $?
+            ;;
+        *)
+            echo "Unknown web server type ($PKI_WEB_SERVER_TYPE)"
+            exit ${default_error}
+            ;;
+    esac
+}
+
+get_pki_status_definitions_ra()
+{
+    # establish well-known strings
+    total_ports=0
+    PKI_UNSECURE_PORT=""
+    CLIENTAUTH_PORT=""
+    NON_CLIENTAUTH_PORT=""
+
+    # check to see that an instance-specific "httpd.conf" file exists
+    if [ ! -f ${PKI_HTTPD_CONF} ] ; then
+        echo "File '${PKI_HTTPD_CONF}' does not exist!"
+        exit ${default_error}
+    fi
+
+    # check to see that an instance-specific "nss.conf" file exists
+    if [ ! -f ${PKI_NSS_CONF} ] ; then
+        echo "File '${PKI_NSS_CONF}' does not exist!"
+        exit ${default_error}
+    fi
+
+    # Iterate over Listen statements
+    for port in `sed -n 's/^[ \t]*Listen[ \t][ \t]*\([^ \t][^ \t]*\)/\1/p' ${PKI_HTTPD_CONF}`; do
+        PKI_UNSECURE_PORT=$port
+        if [ $total_ports -eq 0 ]; then
+            echo "    Unsecure URL               = http://${PKI_HOSTNAME}:${PKI_UNSECURE_PORT}"
+        else
+            echo "ERROR: extra Unsecure URL  = http://${PKI_HOSTNAME}:${PKI_UNSECURE_PORT}"
+        fi
+        total_ports=`expr ${total_ports} + 1`
+
+    done
+
+    # Iterate over Listen statements
+    for port in `sed -n 's/^[ \t]*Listen[ \t][ \t]*\([^ \t][^ \t]*\)/\1/p' ${PKI_NSS_CONF}`; do
+        PKI_UNSECURE_PORT=$port
+        if [ $total_ports -eq 1 ]; then
+            CLIENTAUTH_PORT=$port
+            echo "    Secure Clientauth URL      = https://${PKI_HOSTNAME}:${CLIENTAUTH_PORT}"
+        fi
+        if [ $total_ports -eq 2 ]; then
+            NON_CLIENTAUTH_PORT=$port
+            echo "    Secure Non-Clientauth URL  = https://${PKI_HOSTNAME}:${NON_CLIENTAUTH_PORT}"
+        fi
+        total_ports=`expr ${total_ports} + 1`
+
+    done
+
+    return 0;
+}
+
+get_pki_status_definitions_tps()
+{
+    # establish well-known strings
+    total_ports=0
+    PKI_UNSECURE_PORT=""
+    CLIENTAUTH_PORT=""
+    NON_CLIENTAUTH_PORT=""
+
+    # check to see that an instance-specific "httpd.conf" file exists
+    if [ ! -f ${PKI_HTTPD_CONF} ] ; then
+        echo "File '${PKI_HTTPD_CONF}' does not exist!"
+        exit ${default_error}
+    fi
+
+    # check to see that an instance-specific "nss.conf" file exists
+    if [ ! -f ${PKI_NSS_CONF} ] ; then
+        echo "File '${PKI_NSS_CONF}' does not exist!"
+        exit ${default_error}
+    fi
+
+    # Iterate over Listen statements
+    for port in `sed -n 's/^[ \t]*Listen[ \t][ \t]*\([^ \t][^ \t]*\)/\1/p' ${PKI_HTTPD_CONF}`; do
+        PKI_UNSECURE_PORT=$port
+        if [ $total_ports -eq 0 ]; then
+            echo "    Unsecure URL               = http://${PKI_HOSTNAME}:${PKI_UNSECURE_PORT}/cgi-bin/so/enroll.cgi"
+            echo "                                 (ESC Security Officer Enrollment)"
+            echo "    Unsecure URL               = http://${PKI_HOSTNAME}:${PKI_UNSECURE_PORT}/cgi-bin/home/index.cgi"
+            echo "                                 (ESC Phone Home)"
+        else
+            echo "ERROR: extra Unsecure URL  = http://${PKI_HOSTNAME}:${PKI_UNSECURE_PORT}"
+        fi
+        total_ports=`expr ${total_ports} + 1`
+
+    done
+
+    # Iterate over Listen statements
+    for port in `sed -n 's/^[ \t]*Listen[ \t][ \t]*\([^ \t][^ \t]*\)/\1/p' ${PKI_NSS_CONF}`; do
+        PKI_UNSECURE_PORT=$port
+        if [ $total_ports -eq 1 ]; then
+            CLIENTAUTH_PORT=$port
+            echo "    Secure Clientauth URL      = https://${PKI_HOSTNAME}:${CLIENTAUTH_PORT}/cgi-bin/sow/welcome.cgi"
+            echo "                                 (ESC Security Officer Workstation)"
+            echo "    Secure Clientauth URL      = https://${PKI_HOSTNAME}:${CLIENTAUTH_PORT}/tus"
+            echo "                                 (TPS Roles - Operator/Administrator/Agent)"
+        fi
+        if [ $total_ports -eq 2 ]; then
+            NON_CLIENTAUTH_PORT=$port
+            echo "    Secure Non-Clientauth URL  = https://${PKI_HOSTNAME}:${NON_CLIENTAUTH_PORT}/cgi-bin/so/enroll.cgi"
+            echo "                                 (ESC Security Officer Enrollment)"
+            echo "    Secure Non-Clientauth URL  = https://${PKI_HOSTNAME}:${NON_CLIENTAUTH_PORT}/cgi-bin/home/index.cgi"
+            echo "                                 (ESC Phone Home)"
+        fi
+        total_ports=`expr ${total_ports} + 1`
+
+    done
+
+    return 0;
+}
+
+get_pki_status_definitions_tomcat()
+{
+    # establish well-known strings
+    begin_pki_status_comment="<!-- DO NOT REMOVE - Begin PKI Status Definitions -->"
+    begin_ca_status_comment="<!-- CA Status Definitions -->"
+    begin_kra_status_comment="<!-- KRA Status Definitions -->"
+    begin_ocsp_status_comment="<!-- OCSP Status Definitions -->"
+    begin_tks_status_comment="<!-- TKS Status Definitions -->"
+    end_pki_status_comment="<!-- Begin DO NOT REMOVE - End PKI Status Definitions -->"
+    total_ports=0
+    unsecure_port_statement="Unsecure Port"
+    secure_agent_port_statement="Secure Agent Port"
+    secure_ee_port_statement="Secure EE Port"
+    secure_ee_client_auth_port_statement="EE Client Auth Port"
+    secure_admin_port_statement="Secure Admin Port"
+    pki_console_port_statement="PKI Console Port"
+    unsecure_url_statement="Unsecure URL"
+    secure_agent_url_statement="Secure Agent URL"
+    secure_ee_url_statement="Secure EE URL"
+    secure_ee_client_auth_url_statement="EE Client Auth URL"
+    secure_admin_url_statement="Secure Admin URL"
+    pki_console_command_statement="PKI Console Command"
+    tomcat_port_statement="Tomcat Port"
+
+    # initialize looping variables
+    pki_status_comment_found=0
+    display_pki_ca_status_banner=0
+    display_pki_kra_status_banner=0
+    display_pki_ocsp_status_banner=0
+    display_pki_tks_status_banner=0
+    process_pki_ca_status=0
+    process_pki_kra_status=0
+    process_pki_ocsp_status=0
+    process_pki_tks_status=0
+
+    # first check to see that an instance-specific "server.xml" file exists
+    if [ ! -f ${PKI_SERVER_XML_CONF} ] ; then
+        echo "File '${PKI_SERVER_XML_CONF}' does not exist!"
+        exit ${default_error}
+    fi
+
+    # identify all PKI subsystems present within this PKI instance
+    if [ -e ${PKI_INSTANCE_PATH}/ca ]; then
+        display_pki_ca_status_banner=1
+    fi
+    if [ -e ${PKI_INSTANCE_PATH}/kra ]; then
+        display_pki_kra_status_banner=1
+    fi
+    if [ -e ${PKI_INSTANCE_PATH}/ocsp ]; then
+        display_pki_ocsp_status_banner=1
+    fi
+    if [ -e ${PKI_INSTANCE_PATH}/tks ]; then
+        display_pki_tks_status_banner=1
+    fi
+
+    # read this instance-specific "server.xml" file line-by-line
+    # to obtain the current PKI Status Definitions
+    exec < ${PKI_SERVER_XML_CONF}
+    while read line; do
+        # first look for the well-known end PKI Status comment
+        # (to turn off processing)
+        if [ "$line" == "$end_pki_status_comment" ] ; then
+            # always turn off processing TKS status at this point
+            process_pki_tks_status=0
+            pki_status_comment_found=0
+            break;
+        fi
+
+        # then look for the well-known begin PKI Status comment
+        # (to turn on processing)
+        if [ "$line" == "$begin_pki_status_comment" ] ; then
+            pki_status_comment_found=1
+        fi
+
+        # once the well-known begin PKI Status comment has been found,
+        # begin processing to obtain all of the PKI Status Definitions
+        if [ $pki_status_comment_found -eq 1 ] ; then
+            head=`echo "$line" | sed -e 's/^\([^=]*\)[ \t]*= .*$/\1/' -e 's/[ \t]*$//'`
+            if   [ "$line" == "$begin_ca_status_comment" ] ; then
+                 if [ $display_pki_ca_status_banner -eq 1 ] ; then
+                     # print CA Status Definition banner
+                     echo
+                     echo "    [CA Status Definitions]"
+                     # turn on processing CA status at this point
+                     process_pki_ca_status=1
+                 fi
+            elif [ "$line" == "$begin_kra_status_comment" ] ; then
+                 # always turn off processing CA status at this point
+                 process_pki_ca_status=0
+                 if [ $display_pki_kra_status_banner -eq 1 ] ; then
+                     # print DRM Status Definition banner
+                     echo
+                     echo "    [DRM Status Definitions]"
+                     # turn on processing DRM status at this point
+                     process_pki_kra_status=1
+                 fi
+            elif [ "$line" == "$begin_ocsp_status_comment" ] ; then
+                 # always turn off processing DRM status at this point
+                 process_pki_kra_status=0
+                 if [ $display_pki_ocsp_status_banner -eq 1 ] ; then
+                     # print OCSP Status Definition banner
+                     echo
+                     echo "    [OCSP Status Definitions]"
+                     # turn on processing OCSP status at this point
+                     process_pki_ocsp_status=1
+                 fi
+            elif [ "$line" == "$begin_tks_status_comment" ] ; then
+                 # always turn off processing OCSP status at this point
+                 process_pki_ocsp_status=0
+                 if [ $display_pki_tks_status_banner -eq 1 ] ; then
+                     # print TKS Status Definition banner
+                     echo
+                     echo "    [TKS Status Definitions]"
+                     # turn on processing TKS status at this point
+                     process_pki_tks_status=1
+                 fi
+            elif [ $process_pki_ca_status -eq 1 ]    ||
+                 [ $process_pki_kra_status -eq 1 ]   ||
+                 [ $process_pki_ocsp_status -eq 1 ]  ||
+                 [ $process_pki_tks_status -eq 1 ] ; then
+                 # look for a PKI Status Definition and print it
+                 if [ "$head" == "$unsecure_port_statement"     ]          ||
+                    [ "$head" == "$secure_agent_port_statement" ]          ||
+                    [ "$head" == "$secure_ee_port_statement"    ]          ||
+                    [ "$head" == "$secure_admin_port_statement" ]          ||
+                    [ "$head" == "$secure_ee_client_auth_port_statement" ] ||
+                    [ "$head" == "$pki_console_port_statement"  ]          ||
+                    [ "$head" == "$unsecure_url_statement"      ]          ||
+                    [ "$head" == "$secure_agent_url_statement"  ]          ||
+                    [ "$head" == "$secure_ee_url_statement"     ]          ||
+                    [ "$head" == "$secure_admin_url_statement"  ]          ||
+                    [ "$head" == "$secure_ee_client_auth_url_statement" ]  ||
+                    [ "$head" == "$pki_console_command_statement"  ]       ||
+                    [ "$head" == "$tomcat_port_statement"       ] ; then
+                     echo "    $line"
+                     total_ports=`expr ${total_ports} + 1`
+                 fi
+            fi
+        fi
+    done
+
+    return 0;
+}
+
+get_pki_configuration_definitions()
+{
+    # Obtain the PKI Subsystem Type
+    line=`grep -e '^[ \t]*cs.type[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
+    pki_subsystem=`echo "${line}" | sed -e 's/^[^=]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
+    if [ "${line}" != "" ] ; then
+        if  [ "${pki_subsystem}" != "CA"   ]  &&
+            [ "${pki_subsystem}" != "KRA"  ]  &&
+            [ "${pki_subsystem}" != "OCSP" ]  &&
+            [ "${pki_subsystem}" != "TKS"  ]  &&
+            [ "${pki_subsystem}" != "RA"   ]  &&
+            [ "${pki_subsystem}" != "TPS"  ]
+        then
+            return ${default_error}
+        fi
+        if    [ "${pki_subsystem}" == "KRA"   ] ; then
+            # Rename "KRA" to "DRM"
+            pki_subsystem="DRM"
+        fi
+    else
+        return ${default_error}
+    fi
+
+    # If "${pki_subsystem}" is a CA, DRM, OCSP, or TKS,
+    # check to see if "${pki_subsystem}" is a "Clone"
+    pki_clone=""
+    if  [ "${pki_subsystem}" == "CA"   ]  ||
+        [ "${pki_subsystem}" == "DRM"  ]  ||
+        [ "${pki_subsystem}" == "OCSP" ]  ||
+        [ "${pki_subsystem}" == "TKS"  ]
+    then
+        line=`grep -e '^[ \t]*subsystem.select[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
+        if [ "${line}" != "" ] ; then
+            pki_clone=`echo "${line}" | sed -e 's/^[^=]*[ \t]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
+            if [ "${pki_clone}" != "Clone" ] ; then
+                # Reset "${pki_clone}" to be empty
+                pki_clone=""
+            fi
+        else
+            return ${default_error}
+        fi
+    fi
+
+    # If "${pki_subsystem}" is a CA, and is NOT a "Clone", check to
+    # see "${pki_subsystem}" is a "Root" or a "Subordinate" CA
+    pki_hierarchy=""
+    if    [ "${pki_subsystem}" == "CA" ]  &&
+        [ "${pki_clone}" != "Clone"  ]
+    then
+        line=`grep -e '^[ \t]*hierarchy.select[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
+        if [ "${line}" != "" ] ; then
+            pki_hierarchy=`echo "${line}" | sed -e 's/^[^=]*[ \t]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
+        else
+            return ${default_error}
+        fi
+    fi
+
+    # If ${pki_subsystem} is a CA, check to
+    # see if it is also a Security Domain
+    pki_security_domain=""
+    if    [ "${pki_subsystem}" == "CA" ] ; then
+        line=`grep -e '^[ \t]*securitydomain.select[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
+        if [ "${line}" != "" ] ; then
+            pki_security_domain=`echo "${line}" | sed -e 's/^[^=]*[ \t]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
+            if [ "${pki_security_domain}" == "new" ] ; then
+                # Set a fixed value for "${pki_security_domain}"
+                pki_security_domain="(Security Domain)"
+            else
+                # Reset "${pki_security_domain}" to be empty
+                pki_security_domain=""
+            fi
+        else
+            return ${default_error}
+        fi
+    fi
+
+    # If ${pki_subsystem} is a DRM or OCSP, check to see if
+    # it is either a Stand-alone DRM or a Stand-alone OCSP
+    #
+    #     NOTE:  Ignore errors when the '<pki>.standalone' parameter
+    #            is not present as this is most likely a legacy instance!
+    #
+    pki_standalone=""
+    if  [ "${pki_subsystem}" == "DRM"  ] ; then
+        line=`grep -e '^[ \t]*kra.standalone[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
+        if [ "${line}" != "" ] ; then
+            pki_standalone=`echo "${line}" | sed -e 's/^[^=]*[ \t]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
+            if [ "${pki_standalone}" == "true" ] ; then
+                # Set a fixed value for "${pki_standalone}"
+                pki_standalone="(Stand-alone)"
+            else
+                # Reset "${pki_standalone}" to be empty
+                pki_standalone=""
+            fi
+        fi
+    elif [ "${pki_subsystem}" == "OCSP" ] ; then
+        line=`grep -e '^[ \t]*ocsp.standalone[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
+        if [ "${line}" != "" ] ; then
+            pki_standalone=`echo "${line}" | sed -e 's/^[^=]*[ \t]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
+            if [ "${pki_standalone}" == "true" ] ; then
+                # Set a fixed value for "${pki_standalone}"
+                pki_standalone="(Stand-alone)"
+            else
+                # Reset "${pki_standalone}" to be empty
+                pki_standalone=""
+            fi
+        fi
+    fi
+
+    # Always obtain this PKI instance's "registered"
+    # security domain information
+    pki_security_domain_name=""
+    pki_security_domain_hostname=""
+    pki_security_domain_https_admin_port=""
+
+    line=`grep -e '^[ \t]*securitydomain.name[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
+    if [ "${line}" != "" ] ; then
+        pki_security_domain_name=`echo "${line}" | sed -e 's/^[^=]*[ \t]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
+    else
+        return ${default_error}
+    fi
+
+    line=`grep -e '^[ \t]*securitydomain.host[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
+    if [ "${line}" != "" ] ; then
+        pki_security_domain_hostname=`echo "${line}" | sed -e 's/^[^=]*[ \t]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
+    else
+        return ${default_error}
+    fi
+
+    line=`grep -e '^[ \t]*securitydomain.httpsadminport[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
+    if [ "${line}" != "" ] ; then
+        pki_security_domain_https_admin_port=`echo "${line}" | sed -e 's/^[^=]*[ \t]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
+    else
+        return ${default_error}
+    fi
+
+    # Compose the "PKI Instance Name" Status Line
+    pki_instance_name="PKI Instance Name:   ${PKI_INSTANCE_NAME}"
+
+    # Compose the "PKI Subsystem Type" Status Line
+    header="PKI Subsystem Type: "
+    if   [ "${pki_clone}" != "" ] ; then
+        if [ "${pki_security_domain}" != "" ]; then
+            # Possible Values:
+            #
+            #     "CA Clone (Security Domain)"
+            #
+            data="${pki_subsystem} ${pki_clone} ${pki_security_domain}"
+        else
+            # Possible Values:
+            #
+            #     "CA Clone"
+            #     "DRM Clone"
+            #     "OCSP Clone"
+            #     "TKS Clone"
+            #
+            data="${pki_subsystem} ${pki_clone}"
+        fi
+    elif [ "${pki_hierarchy}" != "" ] ; then
+        if [ "${pki_security_domain}" != "" ]; then
+            # Possible Values:
+            #
+            #     "Root CA (Security Domain)"
+            #     "Subordinate CA (Security Domain)"
+            #
+            data="${pki_hierarchy} ${pki_subsystem} ${pki_security_domain}"
+        else
+            # Possible Values:
+            #
+            #     "Root CA"
+            #     "Subordinate CA"
+            #
+            data="${pki_hierarchy} ${pki_subsystem}"
+        fi
+    elif [ "${pki_standalone}" != "" ] ; then
+        # Possible Values:
+        #
+        #     "DRM (Stand-alone)"
+        #     "OCSP (Stand-alone)"
+        #
+        data="${pki_subsystem} ${pki_standalone}"
+    else
+        # Possible Values:
+        #
+        #     "DRM"
+        #     "OCSP"
+        #     "RA"
+        #     "TKS"
+        #     "TPS"
+        #
+        data="${pki_subsystem}"
+    fi
+    pki_subsystem_type="${header} ${data}"
+
+    # Compose the "Registered PKI Security Domain Information" Status Line
+    header="Name: "
+    registered_pki_security_domain_name="${header} ${pki_security_domain_name}"
+
+    header="URL:  "
+    if  [ "${pki_security_domain_hostname}" != ""         ] &&
+        [ "${pki_security_domain_https_admin_port}" != "" ]
+    then
+        data="https://${pki_security_domain_hostname}:${pki_security_domain_https_admin_port}"
+    else
+        return ${default_error}
+    fi
+    registered_pki_security_domain_url="${header} ${data}"
+
+    # Print the "PKI Subsystem Type" Status Line
+    echo
+    echo "    [${pki_subsystem} Configuration Definitions]"
+    echo "    ${pki_instance_name}"
+
+    # Print the "PKI Subsystem Type" Status Line
+    echo
+    echo "    ${pki_subsystem_type}"
+
+    # Print the "Registered PKI Security Domain Information" Status Line
+    echo
+    echo "    Registered PKI Security Domain Information:"
+    echo "    =========================================================================="
+    echo "    ${registered_pki_security_domain_name}"
+    echo "    ${registered_pki_security_domain_url}"
+    echo "    =========================================================================="
+
+    return 0
+}
+
+display_configuration_information()
+{
+    result=0
+    check_pki_configuration_status
+    rv=$?
+    if [ $rv -eq 0 ] ; then
+        get_pki_status_definitions
+        rv=$?
+        if [ $rv -ne 0 ] ; then
+            result=$rv
+            echo
+            echo "${PKI_INSTANCE_NAME} Status Definitions not found"
+        else
+            get_subsystems
+            for SUBSYSTEM in ${PKI_SUBSYSTEMS}; do
+                PKI_SUBSYSTEM_CONFIGURATION_FILE="${PKI_INSTANCE_PATH}/conf/${SUBSYSTEM}/CS.cfg"
+                get_pki_configuration_definitions
+                rv=$?
+                if [ $rv -ne 0 ] ; then
+                    result=$rv
+                    echo
+                    echo "${PKI_INSTANCE_NAME} Configuration Definitions not found for ${SUBSYSTEM}"
+                fi
+            done
+        fi
+    fi
+    return $result
+}
+
+display_instance_status_systemd()
+{
+    echo -n "Status for ${PKI_INSTANCE_NAME}: "
+    systemctl status "$PKI_SYSTEMD_TARGET@$PKI_INSTANCE_NAME.service" > /dev/null 2>&1
+    rv=$?
+
+    if [ $rv -eq 0 ] ; then
+        echo "$PKI_INSTANCE_NAME is running .."
+        display_configuration_information
+    else
+        echo "$PKI_INSTANCE_NAME is stopped"
+    fi
+
+    return $rv
+}
+
+display_instance_status()
+{
+    # Verify there is an initscript for this instance
+    if [ ! -f $PKI_INSTANCE_INITSCRIPT ]; then
+        # 4 program or service status is unknown
+        return 4
+    fi
+
+    # Invoke the initscript for this instance
+    $PKI_INSTANCE_INITSCRIPT status
+    rv=$?
+
+    if [ $rv -eq 0 ] ; then
+        display_configuration_information
+    fi
+
+    return $rv
+}
+
+make_symlink()
+{
+    symlink="${1}"
+    target="${2}"
+    user="${3}"
+    group="${4}"
+
+    rv=0
+
+    echo "INFO:  Attempting to create '${symlink}' -> '${target}' . . ."
+    # Check to make certain that the expected target exists.
+    #
+    #     NOTE:  The symbolic link does NOT exist at this point.
+    #
+    if [ -e ${target} ]; then
+        # Check that the expected target is fully resolvable!
+        if [ ! `readlink -qe ${target}` ]; then
+            # Issue an ERROR that the target to which the
+            # symbolic link is expected to point is NOT fully resolvable!
+            echo "ERROR:  Failed making '${symlink}' -> '${target}'"\
+                 "since target '${target}' is NOT fully resolvable!"
+            rv=1
+        else
+            # Attempt to remove any existing symbolic link.
+            # This is likely pointing to a non-existent target
+            if [ `readlink ${symlink}` ]; then
+                rm ${symlink}
+            fi
+
+            # Attempt to create a symbolic link and 'chown' it.
+            ln -s ${target} ${symlink}
+            rv=$?
+            if [ $rv -eq 0 ]; then
+                # NOTE:  Ignore 'chown' errors.
+                chown -h ${user}:${group} ${symlink}
+                echo "SUCCESS:  Created '${symlink}' -> '${target}'"
+            else
+                echo "ERROR:  Failed to create '${symlink}' -> '${target}'!"
+                rv=1
+            fi
+        fi
+    else
+        # Issue an ERROR that the target to which the
+        # symbolic link is expected to point does NOT exist.
+        echo "ERROR:  Failed making '${symlink}' -> '${target}'"\
+             "since target '${target}' does NOT exist!"
+        rv=1
+    fi
+
+    return $rv
+}
+
+check_symlinks()
+{
+    # declare -p symlinks
+    path="${1}"
+    user="${2}"
+    group="${3}"
+
+    rv=0
+
+    # process key/value pairs (symlink/target) in the associative array
+    for key in "${!symlinks[@]}"
+    do
+        symlink="${path}/${key}"
+        target=${symlinks[${key}]}
+        if [ -e ${symlink} ]; then
+            if [ -h ${symlink} ]; then
+                current_target=`readlink ${symlink}`
+                # Verify that the current target to which the
+                # symlink points is the expected target
+                if [ ${current_target} == ${target} ]; then
+                    # Check to make certain that the expected target exists.
+                    if [ -e ${target} ]; then
+                        # Check that the expected target is fully resolvable!
+                        if [ ! `readlink -qe ${target}` ]; then
+                            # Issue an ERROR that the target to which the
+                            # symbolic link is expected to point is NOT
+                            # fully resolvable!
+                            echo "WARNING:  Symbolic link '${symlink}'"\
+                                 "exists, but is a dangling symlink!"\
+                            echo "ERROR:  Unable to create"\
+                                 "'${symlink}' -> '${target}'"\
+                                 "since target '${target}' is NOT fully"\
+                                 "resolvable!"
+                            rv=1
+                        else
+                            # ALWAYS run 'chown' on an existing '${symlink}'
+                            # that points to a fully resolvable '${target}'
+                            #
+                            #     NOTE:  Ignore 'chown' errors.
+                            #
+                            chown -h ${user}:${group} ${symlink}
+                            # echo "SUCCESS:  '${symlink}' -> '${target}'"
+                        fi
+                    else
+                        # Issue an ERROR that the target to which the
+                        # symbolic link is expected to point does NOT exist.
+                        echo "WARNING:  Symbolic link '${symlink}'"\
+                             "exists, but is a dangling symlink!"\
+                        echo "ERROR:  Unable to create"\
+                             "'${symlink}' -> '${target}'"\
+                             "since target '${target}' does NOT exist!"
+                        rv=1
+                    fi
+                else
+                    # Attempt to remove this symbolic link and
+                    # issue a WARNING that a new symbolic link is
+                    # being created to point to the expected target
+                    # rather than the current target to which it
+                    # points.
+                    echo "WARNING:  Attempting to change symbolic link"\
+                         "'${symlink}' to point to target '${target}'"\
+                         "INSTEAD of current target '${current_target}'!"
+                    rm ${symlink}
+                    rv=$?
+                    if [ $rv -ne 0 ]; then
+                        echo "ERROR:  Failed to remove"\
+                             "'${symlink}' -> '${current_target}'!"
+                        rv=1
+                    else
+                        echo "INFO:  Removed"\
+                             "'${symlink}' -> '${current_target}'!"
+                        # Attempt to create the symbolic link and chown it.
+                        make_symlink ${symlink} ${target} ${user} ${group}
+                        rv=$?
+                    fi
+                fi
+            elif [ -f ${symlink} ]; then
+                # Issue a WARNING that the administrator may have replaced
+                # the symbolic link with a file for debugging purposes.
+                echo "WARNING:  '${symlink}' exists but is NOT a symbolic link!"
+            else
+                # Issue an ERROR that the symbolic link has been replaced
+                # by something unusable (such as a directory).
+                echo "ERROR:  '${symlink}' exists but is NOT a symbolic link!"
+                rv=1
+            fi
+        else
+            # Issue a WARNING that this symbolic link does not exist.
+            echo "WARNING:  Symbolic link '${symlink}' does NOT exist!"
+            # Attempt to create the symbolic link and chown it.
+            make_symlink ${symlink} ${target} ${user} ${group}
+            rv=$?
+        fi
+    done
+
+    return $rv
+}
+
+# Detect and correct any missing or incorrect symlinks.
+#
+#     Use the following command to locate PKI 'instance' symlinks:
+#
+#        find ${PKI_INSTANCE_PATH} -type l | sort | xargs file
+#
+verify_symlinks()
+{
+    # declare associative arrays
+    declare -A base_symlinks
+    declare -A ca_symlinks
+    declare -A kra_symlinks
+    declare -A ocsp_symlinks
+    declare -A tks_symlinks
+    declare -A tps_symlinks
+    declare -A common_jar_symlinks
+    declare -A ca_jar_symlinks
+    declare -A kra_jar_symlinks
+    declare -A ocsp_jar_symlinks
+    declare -A tks_jar_symlinks
+    declare -A tps_jar_symlinks
+    declare -A systemd_symlinks
+
+    # Dogtag 10 Conditional Variables
+    jni_jar_dir=`source /usr/share/pki/etc/pki.conf && echo $JNI_JAR_DIR`
+
+    # Dogtag 10 Symbolic Link Target Variables
+    java_dir="/usr/share/java"
+    pki_systemd_service="pki-${PKI_WEB_SERVER_TYPE}d@.service"
+    systemd_dir="/lib/systemd/system"
+
+    # Dogtag 10 Symbolic Link Variables
+    pki_common_jar_dir="${PKI_INSTANCE_PATH}/common/lib"
+    pki_registry_dir="/etc/sysconfig/pki/${PKI_WEB_SERVER_TYPE}/${PKI_INSTANCE_NAME}"
+    pki_systemd_dir="/etc/systemd/system/pki-tomcatd.target.wants"
+    pki_systemd_link="pki-${PKI_WEB_SERVER_TYPE}d@${PKI_INSTANCE_NAME}.service"
+    pki_ca_jar_dir="${PKI_INSTANCE_PATH}/webapps/ca/WEB-INF/lib"
+    pki_kra_jar_dir="${PKI_INSTANCE_PATH}/webapps/kra/WEB-INF/lib"
+    pki_ocsp_jar_dir="${PKI_INSTANCE_PATH}/webapps/ocsp/WEB-INF/lib"
+    pki_tks_jar_dir="${PKI_INSTANCE_PATH}/webapps/tks/WEB-INF/lib"
+    pki_tps_jar_dir="${PKI_INSTANCE_PATH}/webapps/tps/WEB-INF/lib"
+
+    # '${PKI_INSTANCE_PATH}' symlinks
+    base_symlinks=(
+        [alias]=/etc/pki/${PKI_INSTANCE_NAME}/alias
+        [bin]=/usr/share/tomcat/bin
+        [conf]=/etc/pki/${PKI_INSTANCE_NAME}
+        [logs]=/var/log/pki/${PKI_INSTANCE_NAME})
+
+    # '${PKI_INSTANCE_PATH}/ca' symlinks
+    ca_symlinks=(
+        [alias]=${PKI_INSTANCE_PATH}/alias
+        [conf]=/etc/pki/${PKI_INSTANCE_NAME}/ca
+        [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/ca
+        [registry]=${pki_registry_dir}
+        [webapps]=${PKI_INSTANCE_PATH}/webapps)
+
+    # '${pki_ca_jar_dir}' symlinks
+    ca_jar_symlinks=(
+        [pki-certsrv.jar]=${java_dir}/pki/pki-certsrv.jar
+        [pki-cms.jar]=${java_dir}/pki/pki-cms.jar
+        [pki-cmsbundle.jar]=${java_dir}/pki/pki-cmsbundle.jar
+        [pki-cmscore.jar]=${java_dir}/pki/pki-cmscore.jar
+        [pki-cmsutil.jar]=${java_dir}/pki/pki-cmsutil.jar
+        [pki-nsutil.jar]=${java_dir}/pki/pki-nsutil.jar
+        [pki-ca.jar]=${java_dir}/pki/pki-ca.jar)
+
+    # '${PKI_INSTANCE_PATH}/kra' symlinks
+    kra_symlinks=(
+        [alias]=${PKI_INSTANCE_PATH}/alias
+        [conf]=/etc/pki/${PKI_INSTANCE_NAME}/kra
+        [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/kra
+        [registry]=${pki_registry_dir}
+        [webapps]=${PKI_INSTANCE_PATH}/webapps)
+
+    # '${pki_kra_jar_dir}' symlinks
+    kra_jar_symlinks=(
+        [pki-certsrv.jar]=${java_dir}/pki/pki-certsrv.jar
+        [pki-cms.jar]=${java_dir}/pki/pki-cms.jar
+        [pki-cmsbundle.jar]=${java_dir}/pki/pki-cmsbundle.jar
+        [pki-cmscore.jar]=${java_dir}/pki/pki-cmscore.jar
+        [pki-cmsutil.jar]=${java_dir}/pki/pki-cmsutil.jar
+        [pki-nsutil.jar]=${java_dir}/pki/pki-nsutil.jar
+        [pki-kra.jar]=${java_dir}/pki/pki-kra.jar)
+
+    # '${PKI_INSTANCE_PATH}/ocsp' symlinks
+    ocsp_symlinks=(
+        [alias]=${PKI_INSTANCE_PATH}/alias
+        [conf]=/etc/pki/${PKI_INSTANCE_NAME}/ocsp
+        [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/ocsp
+        [registry]=${pki_registry_dir}
+        [webapps]=${PKI_INSTANCE_PATH}/webapps)
+
+    # '${pki_ocsp_jar_dir}' symlinks
+    ocsp_jar_symlinks=(
+        [pki-certsrv.jar]=${java_dir}/pki/pki-certsrv.jar
+        [pki-cms.jar]=${java_dir}/pki/pki-cms.jar
+        [pki-cmsbundle.jar]=${java_dir}/pki/pki-cmsbundle.jar
+        [pki-cmscore.jar]=${java_dir}/pki/pki-cmscore.jar
+        [pki-cmsutil.jar]=${java_dir}/pki/pki-cmsutil.jar
+        [pki-nsutil.jar]=${java_dir}/pki/pki-nsutil.jar
+        [pki-ocsp.jar]=${java_dir}/pki/pki-ocsp.jar)
+
+    # '${PKI_INSTANCE_PATH}/tks' symlinks
+    tks_symlinks=(
+        [alias]=${PKI_INSTANCE_PATH}/alias
+        [conf]=/etc/pki/${PKI_INSTANCE_NAME}/tks
+        [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/tks
+        [registry]=${pki_registry_dir}
+        [webapps]=${PKI_INSTANCE_PATH}/webapps)
+
+    # '${pki_tks_jar_dir}' symlinks
+    tks_jar_symlinks=(
+        [pki-certsrv.jar]=${java_dir}/pki/pki-certsrv.jar
+        [pki-cms.jar]=${java_dir}/pki/pki-cms.jar
+        [pki-cmsbundle.jar]=${java_dir}/pki/pki-cmsbundle.jar
+        [pki-cmscore.jar]=${java_dir}/pki/pki-cmscore.jar
+        [pki-cmsutil.jar]=${java_dir}/pki/pki-cmsutil.jar
+        [pki-nsutil.jar]=${java_dir}/pki/pki-nsutil.jar
+        [pki-tks.jar]=${java_dir}/pki/pki-tks.jar)
+
+    # '${PKI_INSTANCE_PATH}/tps' symlinks
+    tps_symlinks=(
+        [alias]=${PKI_INSTANCE_PATH}/alias
+        [conf]=/etc/pki/${PKI_INSTANCE_NAME}/tps
+        [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/tps
+        [registry]=${pki_registry_dir}
+        [webapps]=${PKI_INSTANCE_PATH}/webapps)
+
+    # '${pki_tps_jar_dir}' symlinks
+    tps_jar_symlinks=(
+        [pki-certsrv.jar]=${java_dir}/pki/pki-certsrv.jar
+        [pki-cms.jar]=${java_dir}/pki/pki-cms.jar
+        [pki-cmsbundle.jar]=${java_dir}/pki/pki-cmsbundle.jar
+        [pki-cmscore.jar]=${java_dir}/pki/pki-cmscore.jar
+        [pki-cmsutil.jar]=${java_dir}/pki/pki-cmsutil.jar
+        [pki-nsutil.jar]=${java_dir}/pki/pki-nsutil.jar
+        [pki-tps.jar]=${java_dir}/pki/pki-tps.jar)
+
+    # '${pki_common_jar_dir}' symlinks
+    common_jar_symlinks=(
+        [apache-commons-codec.jar]=${java_dir}/commons-codec.jar
+        [apache-commons-collections.jar]=${java_dir}/apache-commons-collections.jar
+        [apache-commons-io.jar]=${java_dir}/apache-commons-io.jar
+        [apache-commons-lang.jar]=${java_dir}/apache-commons-lang.jar
+        [apache-commons-logging.jar]=${java_dir}/apache-commons-logging.jar
+        [httpclient.jar]=${java_dir}/httpcomponents/httpclient.jar
+        [httpcore.jar]=${java_dir}/httpcomponents/httpcore.jar
+        [javassist.jar]=${java_dir}/javassist.jar
+        [jaxrs-api.jar]=${RESTEASY_LIB}/jaxrs-api.jar
+        [jettison.jar]=${java_dir}/jettison.jar
+        [jss4.jar]=${jni_jar_dir}/jss4.jar
+        [ldapjdk.jar]=${java_dir}/ldapjdk.jar
+        [pki-tomcat.jar]=${java_dir}/pki/pki-tomcat.jar
+        [resteasy-atom-provider.jar]=${RESTEASY_LIB}/resteasy-atom-provider.jar
+        [resteasy-jaxb-provider.jar]=${RESTEASY_LIB}/resteasy-jaxb-provider.jar
+        [resteasy-jaxrs.jar]=${RESTEASY_LIB}/resteasy-jaxrs.jar
+        [resteasy-jettison-provider.jar]=${RESTEASY_LIB}/resteasy-jettison-provider.jar
+        [scannotation.jar]=${java_dir}/scannotation.jar
+        [tomcatjss.jar]=${java_dir}/tomcatjss.jar
+        [velocity.jar]=${java_dir}/velocity.jar
+        [xerces-j2.jar]=${java_dir}/xerces-j2.jar
+        [xml-commons-apis.jar]=${java_dir}/xml-commons-apis.jar
+        [xml-commons-resolver.jar]=${java_dir}/xml-commons-resolver.jar)
+
+    if [ -e ${PKI_INSTANCE_PATH}/tks ]; then
+        common_jar_symlinks[symkey.jar]=${jni_jar_dir}/symkey.jar
+    fi
+
+    # '${pki_systemd_dir}' symlinks
+    systemd_symlinks[${pki_systemd_link}]=${systemd_dir}/${pki_systemd_service}
+
+    # Detect and correct 'Tomcat' symbolic links
+    #
+    #     (1) convert the specified associative array into a string
+    #     (2) create a new global 'symlinks' associative array from this
+    #         specified string which will be used by the "check_symlinks()"
+    #         subroutine
+    #     (3) call "check_symlinks()" with the appropriate arguments to
+    #         detect and correct this specified associative array;
+    #         "check_symlinks()" returns 0 on success and 1 on failure
+    #
+    if [ ${PKI_WEB_SERVER_TYPE} == 'tomcat' ]; then
+        # Detect and correct 'base_symlinks'
+        base_symlinks_string=$(declare -p base_symlinks)
+        eval "declare -A symlinks=${base_symlinks_string#*=}"
+        check_symlinks ${PKI_INSTANCE_PATH} ${PKI_USER} ${PKI_GROUP}
+        rv=$?
+        if [ $rv -ne 0 ]; then
+            return $rv
+        fi
+
+        if [ -e ${PKI_INSTANCE_PATH}/ca ]; then
+            # Detect and correct 'ca_symlinks'
+            ca_symlinks_string=$(declare -p ca_symlinks)
+            eval "declare -A symlinks=${ca_symlinks_string#*=}"
+            check_symlinks ${PKI_INSTANCE_PATH}/ca ${PKI_USER} ${PKI_GROUP}
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+            # Detect and correct 'ca_jar_symlinks'
+            ca_jar_symlinks_string=$(declare -p ca_jar_symlinks)
+            eval "declare -A symlinks=${ca_jar_symlinks_string#*=}"
+            check_symlinks ${pki_ca_jar_dir} ${PKI_USER} ${PKI_GROUP}
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+        fi
+
+        if [ -e ${PKI_INSTANCE_PATH}/kra ]; then
+            # Detect and correct 'kra_symlinks'
+            kra_symlinks_string=$(declare -p kra_symlinks)
+            eval "declare -A symlinks=${kra_symlinks_string#*=}"
+            check_symlinks ${PKI_INSTANCE_PATH}/kra ${PKI_USER} ${PKI_GROUP}
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+            # Detect and correct 'kra_jar_symlinks'
+            kra_jar_symlinks_string=$(declare -p kra_jar_symlinks)
+            eval "declare -A symlinks=${kra_jar_symlinks_string#*=}"
+            check_symlinks ${pki_kra_jar_dir} ${PKI_USER} ${PKI_GROUP}
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+        fi
+
+        if [ -e ${PKI_INSTANCE_PATH}/ocsp ]; then
+            # Detect and correct 'ocsp_symlinks'
+            ocsp_symlinks_string=$(declare -p ocsp_symlinks)
+            eval "declare -A symlinks=${ocsp_symlinks_string#*=}"
+            check_symlinks ${PKI_INSTANCE_PATH}/ocsp ${PKI_USER} ${PKI_GROUP}
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+            # Detect and correct 'ocsp_jar_symlinks'
+            ocsp_jar_symlinks_string=$(declare -p ocsp_jar_symlinks)
+            eval "declare -A symlinks=${ocsp_jar_symlinks_string#*=}"
+            check_symlinks ${pki_ocsp_jar_dir} ${PKI_USER} ${PKI_GROUP}
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+        fi
+
+        if [ -e ${PKI_INSTANCE_PATH}/tks ]; then
+            # Detect and correct 'tks_symlinks'
+            tks_symlinks_string=$(declare -p tks_symlinks)
+            eval "declare -A symlinks=${tks_symlinks_string#*=}"
+            check_symlinks ${PKI_INSTANCE_PATH}/tks ${PKI_USER} ${PKI_GROUP}
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+            # Detect and correct 'tks_jar_symlinks'
+            tks_jar_symlinks_string=$(declare -p tks_jar_symlinks)
+            eval "declare -A symlinks=${tks_jar_symlinks_string#*=}"
+            check_symlinks ${pki_tks_jar_dir} ${PKI_USER} ${PKI_GROUP}
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+        fi
+
+        # Detect and correct 'common_jar_symlinks'
+        common_jar_symlinks_string=$(declare -p common_jar_symlinks)
+        eval "declare -A symlinks=${common_jar_symlinks_string#*=}"
+        check_symlinks ${pki_common_jar_dir} ${PKI_USER} ${PKI_GROUP}
+        rv=$?
+        if [ $rv -ne 0 ]; then
+            return $rv
+        fi
+
+        # Detect and correct 'systemd_symlinks'
+        systemd_symlinks_string=$(declare -p systemd_symlinks)
+        eval "declare -A symlinks=${systemd_symlinks_string#*=}"
+        check_symlinks ${pki_systemd_dir} ${PKI_USER} ${PKI_GROUP}
+        rv=$?
+        if [ $rv -ne 0 ]; then
+            return $rv
+        fi
+    fi
+
+    return 0
+}
+
+start_instance()
+{
+    rv=0
+
+    if [ -f ${RESTART_SERVER} ] ; then
+        rm -f ${RESTART_SERVER}
+    fi
+
+    # Verify symbolic links (detecting and correcting them if possible)
+    verify_symlinks
+    rv=$?
+    if [ $rv -ne 0 ] ; then
+        return $rv
+    fi
+
+    # Generate catalina.policy dynamically.
+    cat /usr/share/pki/server/conf/catalina.policy \
+        /usr/share/tomcat/conf/catalina.policy \
+        /usr/share/pki/server/conf/pki.policy \
+        /var/lib/pki/$PKI_INSTANCE_NAME/conf/custom.policy > \
+        /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
+
+    # We no longer start tomcat instances here.
+    # instead we rely on the tomcat unit scripts
+
+    # From the PKI point of view a returned error code of 6 implies
+    # that the program is not "configured". An error code of 1 implies
+    # that the program was "configured" but must still be restarted.
+    #
+    # If the return code is 6 return this value unchanged to the
+    # calling routine so that the total number of configuration errors
+    # may be counted. Other return codes are ignored.
+    #
+    check_pki_configuration_status
+    rv=$?
+    if [ $rv -eq 6 ]; then
+        # 6 program is not configured
+        return 6
+    else
+        # 0 success
+        return 0
+    fi
+}
+
+start()
+{
+    error_rv=0
+    rv=0
+    config_errors=0
+    errors=0
+
+    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -eq 0 ]; then
+        echo
+        echo "ERROR:  No '${PKI_TYPE}' instances installed!"
+        # 5 program is not installed
+        return 5
+    fi
+
+    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ]; then
+        echo "BEGIN STARTING '${PKI_TYPE}' INSTANCES:"
+    fi
+
+    # Start every PKI instance of this type that isn't already running
+    for PKI_REGISTRY_ENTRY in ${PKI_REGISTRY_ENTRIES}; do
+        # Source values associated with this particular PKI instance
+        [ -f ${PKI_REGISTRY_ENTRY} ] &&
+        . ${PKI_REGISTRY_ENTRY}
+
+        [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] && echo
+
+        start_instance
+        rv=$?
+        if [ $rv = 6 ] ; then
+            # Since at least ONE configuration error exists, then there
+            # is at least ONE unconfigured instance from the PKI point
+            # of view.
+            #
+            # However, it must still be considered that the
+            # instance is "running" from the point of view of other
+            # OS programs such as 'chkconfig'.
+            #
+            # Therefore, ignore non-zero return codes resulting
+            # from configuration errors.
+            #
+
+            config_errors=`expr $config_errors + 1`
+            rv=0
+        elif [ $rv != 0 ] ; then
+            errors=`expr $errors + 1`
+            error_rv=$rv
+        fi
+    done
+
+    # ONLY print a "WARNING" message if multiple
+    # instances are being examined
+    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] ; then
+        # NOTE:  "bad" return code(s) OVERRIDE configuration errors!
+        if [ ${errors} -eq 1 ]; then
+            # Since only ONE error exists, return that "bad" error code.
+            rv=${error_rv}
+        elif [ ${errors} -gt 1 ]; then
+            # Since MORE than ONE error exists, return an OVERALL status
+            # of "1 generic or unspecified error (current practice)"
+            rv=1
+        fi
+
+        if [ ${errors} -ge 1 ]; then
+            echo
+            echo -n "WARNING:  "
+            echo -n "${errors} of ${TOTAL_PKI_REGISTRY_ENTRIES} "
+            echo -n "'${PKI_TYPE}' instances failed to start!"
+            echo
+        fi
+
+        if [ ${TOTAL_UNCONFIGURED_PKI_ENTRIES} -ge 1 ]; then
+            echo
+            echo -n "WARNING:  "
+            echo -n "${TOTAL_UNCONFIGURED_PKI_ENTRIES} "
+            echo -n "of ${TOTAL_PKI_REGISTRY_ENTRIES} "
+            echo -n "'${PKI_TYPE}' instances MUST be configured!"
+            echo
+        fi
+
+        echo
+        echo "FINISHED STARTING '${PKI_TYPE}' INSTANCE(S)."
+    fi
+
+    return $rv
+}
+
+registry_status()
+{
+    error_rv=0
+    rv=0
+    errors=0
+
+    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -eq 0 ]; then
+        echo
+        echo "ERROR:  No '${PKI_TYPE}' instances installed!"
+        # 4 program or service status is unknown
+        return 4
+    fi
+
+    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] ; then
+        echo "REPORT STATUS OF '${PKI_TYPE}' INSTANCE(S):"
+    fi
+
+    # Obtain status of every PKI instance of this type
+    for PKI_REGISTRY_ENTRY in ${PKI_REGISTRY_ENTRIES}; do
+        # Source values associated with this particular PKI instance
+        [ -f ${PKI_REGISTRY_ENTRY} ] &&
+        . ${PKI_REGISTRY_ENTRY}
+
+        [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] && echo
+
+        case $PKI_WEB_SERVER_TYPE in
+            tomcat)
+                display_instance_status_systemd
+                rv=$?
+                ;;
+            apache)
+                display_instance_status
+                rv=$?
+                ;;
+        esac
+        if [ $rv -ne 0 ] ; then
+            errors=`expr $errors + 1`
+            error_rv=$rv
+        fi
+    done
+
+    # ONLY print a "WARNING" message if multiple
+    # instances are being examined
+    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] ; then
+        if [ ${errors} -eq 1 ]; then
+            # Since only ONE error exists, return that "bad" error code.
+            rv=${error_rv}
+        elif [ ${errors} -gt 1 ]; then
+            # Since MORE than ONE error exists, return an OVERALL status
+            # of "4 - program or service status is unknown"
+            rv=4
+        fi
+
+        if [ ${errors} -ge 1 ]; then
+            echo
+            echo -n "WARNING:  "
+            echo -n "${errors} of ${TOTAL_PKI_REGISTRY_ENTRIES} "
+            echo -n "'${PKI_TYPE}' instances reported status failures!"
+            echo
+        fi
+
+        if [ ${TOTAL_UNCONFIGURED_PKI_ENTRIES} -ge 1 ]; then
+            echo
+            echo -n "WARNING:  "
+            echo -n "${TOTAL_UNCONFIGURED_PKI_ENTRIES} "
+            echo -n "of ${TOTAL_PKI_REGISTRY_ENTRIES} "
+            echo -n "'${PKI_TYPE}' instances MUST be configured!"
+            echo
+        fi
+
+        echo
+        echo "FINISHED REPORTING STATUS OF '${PKI_TYPE}' INSTANCE(S)."
+    fi
+
+    return $rv
+}
+

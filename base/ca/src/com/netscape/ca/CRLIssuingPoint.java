@@ -62,6 +62,8 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.IElementProcessor;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
@@ -236,6 +238,11 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * next update grace period
      */
     private long mNextUpdateGracePeriod;
+
+     /**
+      * next update as this update extension
+      */
+    private long mNextAsThisUpdateExtension; 
 
     /**
      * Boolean flag controlling whether CRLv2 extensions are to be
@@ -700,6 +707,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         // get next update grace period
         mNextUpdateGracePeriod = MINUTE * config.getInteger(Constants.PR_GRACE_PERIOD, 0);
 
+        // get next update as this update extension 
+        mNextAsThisUpdateExtension = MINUTE * config.getInteger(Constants.PR_NEXT_AS_THIS_EXTENSION, 0);
+
         // Get V2 or V1 CRL
         mAllowExtensions = config.getBoolean(Constants.PR_EXTENSIONS, false);
 
@@ -1041,6 +1051,16 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     try {
                         if (value != null && value.length() > 0) {
                             mNextUpdateGracePeriod = MINUTE * Long.parseLong(value.trim());
+                        }
+                    } catch (NumberFormatException e) {
+                        noRestart = false;
+                    }
+                }
+
+                if (name.equals(Constants.PR_NEXT_AS_THIS_EXTENSION)) {
+                    try {
+                        if (value != null && value.length() > 0) {
+                            mNextAsThisUpdateExtension = MINUTE * Long.parseLong(value.trim());
                         }
                     } catch (NumberFormatException e) {
                         noRestart = false;
@@ -1868,7 +1888,29 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      */
     public void processRevokedCerts(IElementProcessor p)
             throws EBaseException {
-        mCertRepository.processRevokedCerts(p, getFilter(), mPageSize);
+        CertRecProcessor cp = (CertRecProcessor) p;
+        String filter = getFilter();
+
+        // NOTE: dangerous cast.
+        // correct way would be to modify interface and add
+        // accessor but we don't want to touch the interface
+        CertificateRepository cr = (CertificateRepository) mCertRepository;
+
+        synchronized (cr.certStatusUpdateTask) {
+            CMS.debug("Starting processRevokedCerts (entered lock)");
+            ICertRecordList list = mCertRepository.findCertRecordsInList(
+                    filter,
+                    new String[] {
+                            ICertRecord.ATTR_ID, ICertRecord.ATTR_REVO_INFO, "objectclass"
+                    },
+                    "serialno",
+                    mPageSize);
+
+            int totalSize = list.getSize();
+
+            list.processCertRecords(0, totalSize - 1, cp);
+            CMS.debug("processRevokedCerts done");
+        }
     }
 
     /**
@@ -2390,6 +2432,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mLastUpdate = thisUpdate;
         // mNextUpdate = nextUpdate;
         mNextDeltaUpdate = (nextDeltaUpdate != null) ? new Date(nextDeltaUpdate.getTime()) : null;
+        if (mNextAsThisUpdateExtension > 0) {
+            Date nextUpdateAsThisUpdateExtension = new Date(thisUpdate.getTime()+mNextAsThisUpdateExtension);
+            if (nextUpdate != null && nextUpdate.before(nextUpdateAsThisUpdateExtension)) {
+                nextUpdate = nextUpdateAsThisUpdateExtension;
+            }
+            if (nextDeltaUpdate != null && nextDeltaUpdate.before(nextUpdateAsThisUpdateExtension)) {
+                nextDeltaUpdate = nextUpdateAsThisUpdateExtension;
+            }
+        }
         if (nextUpdate != null) {
             nextUpdate.setTime((nextUpdate.getTime()) + mNextUpdateGracePeriod);
         }

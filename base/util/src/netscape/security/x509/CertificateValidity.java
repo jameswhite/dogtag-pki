@@ -42,9 +42,7 @@ import netscape.security.util.DerValue;
  * @see CertAttrSet
  */
 public class CertificateValidity implements CertAttrSet, Serializable {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = 8277703278213804194L;
     /**
      * Identifier for this attribute, to be used with the
@@ -156,13 +154,11 @@ public class CertificateValidity implements CertAttrSet, Serializable {
         construct(derVal);
     }
 
-    private synchronized void writeObject(ObjectOutputStream stream)
-            throws IOException {
+    private void writeObject(ObjectOutputStream stream) throws IOException {
         encode(stream);
     }
 
-    private synchronized void readObject(ObjectInputStream stream)
-            throws IOException {
+    private void readObject(ObjectInputStream stream) throws IOException {
         decode(stream);
     }
 
@@ -173,29 +169,28 @@ public class CertificateValidity implements CertAttrSet, Serializable {
      * @exception IOException on errors.
      */
     public void encode(OutputStream out) throws IOException {
-
         // in cases where default constructor is used check for
         // null values
         if (notBefore == null || notAfter == null) {
             throw new IOException("CertAttrSet:CertificateValidity:" +
-                                  " null values to encode.\n");
+                    " null values to encode.\n");
         }
-        DerOutputStream pair = new DerOutputStream();
+        try (DerOutputStream pair = new DerOutputStream();
+             DerOutputStream seq = new DerOutputStream()) {
+            if (notBefore.getTime() < YR_2050) {
+                pair.putUTCTime(notBefore);
+            } else
+                pair.putGeneralizedTime(notBefore);
 
-        if (notBefore.getTime() < YR_2050) {
-            pair.putUTCTime(notBefore);
-        } else
-            pair.putGeneralizedTime(notBefore);
+            if (notAfter.getTime() < YR_2050) {
+                pair.putUTCTime(notAfter);
+            } else {
+                pair.putGeneralizedTime(notAfter);
+            }
+            seq.write(DerValue.tag_Sequence, pair);
 
-        if (notAfter.getTime() < YR_2050) {
-            pair.putUTCTime(notAfter);
-        } else {
-            pair.putGeneralizedTime(notAfter);
+            out.write(seq.toByteArray());
         }
-        DerOutputStream seq = new DerOutputStream();
-        seq.write(DerValue.tag_Sequence, pair);
-
-        out.write(seq.toByteArray());
     }
 
     /**

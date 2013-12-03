@@ -251,7 +251,7 @@ public class CRLDistributionPoint implements ASN1Value {
         return templateInstance;
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws GeneralNamesException, IOException, InvalidBERException {
         ByteArrayOutputStream bos = null;
         FileOutputStream fos = null;
         try {
@@ -337,22 +337,15 @@ public class CRLDistributionPoint implements ASN1Value {
             }
             System.out.println("Done");
 
-        } catch (Exception e) {
-            e.printStackTrace();
         } finally {
             if (bos != null) {
-                try {
-                    bos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                bos.close();
             }
             if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                fos.close();
+            }
+            if (fos != null) {
+                fos.close();
             }
         }
     }

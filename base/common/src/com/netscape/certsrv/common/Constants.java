@@ -21,6 +21,8 @@ package com.netscape.certsrv.common;
  * This interface contains constants that are shared
  * by certificate server and its client SDK.
  *
+ * @author Jack Pan-Chen
+ * @author Christine Ho
  * @version $Revision$, $Date$
  */
 public interface Constants {
@@ -213,6 +215,7 @@ public interface Constants {
     public final static String PR_ENABLE_FREQ = "enableUpdateInterval";
     public final static String PR_UPDATE_FREQ = "autoUpdateInterval";
     public final static String PR_GRACE_PERIOD = "nextUpdateGracePeriod";
+    public final static String PR_NEXT_AS_THIS_EXTENSION = "nextAsThisUpdateExtension";
     public final static String PR_ENABLE_CACHE = "enableCRLCache";
     public final static String PR_CACHE_FREQ = "cacheUpdateInterval";
     public final static String PR_CACHE_RECOVERY = "enableCacheRecovery";
@@ -344,6 +347,8 @@ public interface Constants {
     public final static String PR_ALL_ALGORITHMS = "allSigningAlgorithms";
     public final static String PR_SERIAL = "startSerialNumber";
     public final static String PR_MAXSERIAL = "maxSerialNumber";
+    public final static String PR_SN_MANAGEMENT = "serialNumberManagement";
+    public final static String PR_RANDOM_SN = "randomSerialNumbers";
 
     /*========================================================
      * Access Control

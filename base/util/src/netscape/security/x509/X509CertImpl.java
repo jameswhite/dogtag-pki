@@ -405,7 +405,7 @@ public class X509CertImpl extends X509Certificate
     public void sign(PrivateKey key, String algorithm, String provider)
             throws CertificateException, NoSuchAlgorithmException,
             InvalidKeyException, NoSuchProviderException, SignatureException {
-        try {
+        try (DerOutputStream out = new DerOutputStream()){
             if (readOnly)
                 throw new CertificateEncodingException(
                               "cannot over-write existing certificate");
@@ -420,7 +420,6 @@ public class X509CertImpl extends X509Certificate
             // in case the name is reset
             algId = AlgorithmId.get(sigEngine.getAlgorithm());
 
-            DerOutputStream out = new DerOutputStream();
             DerOutputStream tmp = new DerOutputStream();
 
             // encode certificate info
@@ -976,6 +975,7 @@ public class X509CertImpl extends X509Certificate
      * @param oid the Object Identifier value for the extension.
      */
     public byte[] getExtensionValue(String oid) {
+        DerOutputStream out = null;
         try {
             String extAlias = OIDMap.getName(new ObjectIdentifier(oid));
             Extension certExt = null;
@@ -1008,11 +1008,19 @@ public class X509CertImpl extends X509Certificate
             if (extData == null)
                 return null;
 
-            DerOutputStream out = new DerOutputStream();
+            out = new DerOutputStream();
             out.putOctetString(extData);
             return out.toByteArray();
         } catch (Exception e) {
             return null;
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -1140,8 +1148,7 @@ public class X509CertImpl extends X509Certificate
      * (Actually they serialize as some type data from the
      * serialization subsystem, then the cert data.)
      */
-    private synchronized void writeObject(ObjectOutputStream stream)
-            throws CertificateException, IOException {
+    private void writeObject(ObjectOutputStream stream) throws CertificateException, IOException {
         encode(stream);
     }
 
@@ -1149,8 +1156,7 @@ public class X509CertImpl extends X509Certificate
      * Serialization read ... X.509 certificates serialize as
      * themselves, and they're parsed when they get read back.
      */
-    private synchronized void readObject(ObjectInputStream stream)
-            throws CertificateException, IOException {
+    private void readObject(ObjectInputStream stream) throws CertificateException, IOException {
         decode(stream);
     }
 

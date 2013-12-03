@@ -1637,6 +1637,10 @@ public final class CMS {
         return _engine.getSecurityDomainSessionTable();
     }
 
+    public static String getServerStatus() {
+        return _engine.getServerStatus();
+    }
+
     /**
      * Main driver to start CMS.
      */
@@ -1657,5 +1661,22 @@ public final class CMS {
             start(path);
         } catch (EBaseException e) {
         }
+
+        // Use shutdown hook in stand-alone application
+        // to catch SIGINT, SIGTERM, or SIGHUP.
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                /*LogDoc
+                *
+                * @phase watchdog check
+                */
+                CMS.getLogger().log(ILogger.EV_SYSTEM,
+                        ILogger.S_OTHER,
+                        ILogger.LL_INFO,
+                        "CMSEngine: Received shutdown signal");
+
+                CMS.shutdown();
+            };
+        });
     }
 }

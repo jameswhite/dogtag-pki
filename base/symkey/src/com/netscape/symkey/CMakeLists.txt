@@ -40,15 +40,15 @@ add_custom_command(
     OUTPUT
         ${symkey_library_HDRS}
     COMMAND
-        ${JAVA_HEADER}
-            -classpath ${SYMKEY_JAVA_OBJECT_DIR}:${JAVA_LIB_INSTALL_DIR}/jss4.jar
+        ${Java_JAVAH_EXECUTABLE}
+            -classpath ${CMAKE_BINARY_DIR}/classes:${JAVA_LIB_INSTALL_DIR}/jss4.jar
             -jni -d ${CMAKE_CURRENT_BINARY_DIR}
             com.netscape.symkey.SessionKey
 )
 
 add_library(${SYMKEY_SHARED_LIBRARY} SHARED ${symkey_library_HDRS} ${symkey_library_SRCS})
 target_link_libraries(${SYMKEY_SHARED_LIBRARY} ${SYMKEY_LINK_LIBRARIES})
-add_dependencies(${SYMKEY_SHARED_LIBRARY} symkey)
+add_dependencies(${SYMKEY_SHARED_LIBRARY} symkey-jar)
 
 set_target_properties(${SYMKEY_SHARED_LIBRARY}
     PROPERTIES

@@ -225,7 +225,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
      */
     public void encode(DerOutputStream outStrm) throws CRLException,
             X509ExtensionException {
-        try {
+        try (DerOutputStream seq = new DerOutputStream()) {
             if (revokedCert == null) {
                 DerOutputStream tmp = new DerOutputStream();
                 // sequence { serialNumber, revocationDate, extensions }
@@ -237,7 +237,6 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
                 if (extensions != null)
                     extensions.encode(tmp, isExplicit);
 
-                DerOutputStream seq = new DerOutputStream();
                 seq.write(DerValue.tag_Sequence, tmp);
 
                 revokedCert = seq.toByteArray();
@@ -348,7 +347,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
     public byte[] getExtensionValue(String oid) {
         if (extensions == null)
             return null;
-        try {
+        try (DerOutputStream out = new DerOutputStream()) {
             String extAlias = OIDMap.getName(new ObjectIdentifier(oid));
             Extension crlExt = null;
 
@@ -372,7 +371,6 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
             if (extData == null)
                 return null;
 
-            DerOutputStream out = new DerOutputStream();
             out.putOctetString(extData);
             return out.toByteArray();
         } catch (Exception e) {
@@ -432,8 +430,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
      * they're parsed when they get read back. (Actually they serialize as some
      * type data from the serialization subsystem, then the cert data.)
      */
-    private synchronized void writeObject(ObjectOutputStream stream)
-            throws CRLException, X509ExtensionException, IOException {
+    private void writeObject(ObjectOutputStream stream) throws CRLException, X509ExtensionException, IOException {
         DerOutputStream dos = new DerOutputStream();
         encode(dos);
         dos.derEncode(stream);
@@ -443,8 +440,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
      * Serialization read ... X.509 certificates serialize as themselves, and
      * they're parsed when they get read back.
      */
-    private synchronized void readObject(ObjectInputStream stream)
-            throws CRLException, X509ExtensionException, IOException {
+    private void readObject(ObjectInputStream stream) throws CRLException, X509ExtensionException, IOException {
         decode(stream);
     }
 

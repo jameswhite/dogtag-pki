@@ -326,10 +326,9 @@ public class X509CRLImpl extends X509CRL {
      */
     public void encodeInfo(OutputStream out)
             throws CRLException, X509ExtensionException {
-        try {
+        try (DerOutputStream seq = new DerOutputStream()) {
             DerOutputStream tmp = new DerOutputStream();
             DerOutputStream rCerts = new DerOutputStream();
-            DerOutputStream seq = new DerOutputStream();
 
             if (version != 0) // v2 crl encode version
                 tmp.putInteger(new BigInt(version));
@@ -413,6 +412,14 @@ public class X509CRLImpl extends X509CRL {
                 sigAlg = "SHA1/RSA";
             } else if (sigAlg.equals("SHA1withDSA")) {
                 sigAlg = "SHA1/DSA";
+            } else if (sigAlg.equals("SHA1withEC")) {
+                sigAlg = "SHA1/EC";
+            } else if (sigAlg.equals("SHA256withEC")) {
+                sigAlg = "SHA256/EC";
+            } else if (sigAlg.equals("SHA384withEC")) {
+                sigAlg = "SHA384/EC";
+            } else if (sigAlg.equals("SHA512withEC")) {
+                sigAlg = "SHA512/EC";
             }
         }
         sigVerf = Signature.getInstance(sigAlg, sigProvider);
@@ -468,7 +475,7 @@ public class X509CRLImpl extends X509CRL {
     public void sign(PrivateKey key, String algorithm, String provider)
             throws CRLException, NoSuchAlgorithmException, InvalidKeyException,
             NoSuchProviderException, SignatureException, X509ExtensionException {
-        try {
+        try (DerOutputStream out = new DerOutputStream()){
             if (readOnly)
                 throw new CRLException("cannot over-write existing CRL");
             Signature sigEngine = null;
@@ -483,7 +490,6 @@ public class X509CRLImpl extends X509CRL {
             sigAlgId = AlgorithmId.get(sigEngine.getAlgorithm());
             infoSigAlgId = sigAlgId;
 
-            DerOutputStream out = new DerOutputStream();
             DerOutputStream tmp = new DerOutputStream();
 
             // encode crl info
@@ -840,7 +846,7 @@ public class X509CRLImpl extends X509CRL {
     public byte[] getExtensionValue(String oid) {
         if (extensions == null)
             return null;
-        try {
+        try (DerOutputStream out = new DerOutputStream()) {
             String extAlias = OIDMap.getName(new ObjectIdentifier(oid));
             Extension crlExt = null;
 
@@ -863,7 +869,7 @@ public class X509CRLImpl extends X509CRL {
             byte[] extData = crlExt.getExtensionValue();
             if (extData == null)
                 return null;
-            DerOutputStream out = new DerOutputStream();
+
             out.putOctetString(extData);
             return out.toByteArray();
         } catch (Exception e) {

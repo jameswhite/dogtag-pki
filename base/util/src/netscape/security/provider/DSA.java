@@ -163,8 +163,7 @@ public final class DSA extends Signature {
         BigInt rAsBigInt = new BigInt(r.toByteArray());
         BigInt sAsBigInt = new BigInt(s.toByteArray());
 
-        try {
-            DerOutputStream outseq = new DerOutputStream(100);
+        try (DerOutputStream outseq = new DerOutputStream(100)) {
             outseq.putInteger(rAsBigInt);
             outseq.putInteger(sAsBigInt);
             DerValue result = new DerValue(DerValue.tag_Sequence,
@@ -311,11 +310,12 @@ public final class DSA extends Signature {
      */
     private int compareSeeds(int[] seed1, int[] seed2) {
 
-        if ((seed1 == null && seed1 == null) ||
-                (seed1 == null && seed2 != null) ||
-                (seed1 != null && seed2 == null) ||
-                seed1.length != seed2.length)
+        if (seed1 == null || seed2 == null) {
             return 1;
+        }
+        if (seed1.length != seed2.length) {
+            return 1;
+        }
 
         for (int i = 0; i < seed1.length; i++) {
             if (seed1[i] != seed2[i])
