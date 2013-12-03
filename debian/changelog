@@ -1,6 +1,6 @@
-pki (10.0~git20120703+dfsg1-1) UNRELEASED; urgency=low
+pki (10.1.0+dfsg1-1) UNRELEASED; urgency=low
 
-  * New upstream snapshot of the 10.x branch.
+  * New upstream version from the 10.1 branch.
   * Drop get-rid-of-osutil.diff, applied upstream.
   * Refresh debian-support.diff.
   * control: Add  libhttpclient-java, libjavassist-java and
