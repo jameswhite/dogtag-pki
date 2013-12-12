@@ -28,7 +28,7 @@ Build-Depends: debhelper (>= 9), pkg-config, quilt,
  python-dev,
  selinux-policy-dev,
  velocity,
- apache2-dev,
+# apache2-dev,
 Standards-Version: 3.9.4
 Homepage: http://pki.fedoraproject.org
 Vcs-Git: git://git.debian.org/pkg-freeipa/pki.git
