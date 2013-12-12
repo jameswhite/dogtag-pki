@@ -90,7 +90,7 @@ Description: Symmetric Key JNI Package
 
 Package: pki-base
 Architecture: all
-Depends: ${java:Depends}, ${misc:Depends},
+Depends: ${java:Depends}, ${misc:Depends}, ${python:Depends},
  libcommons-codec-java,
  libcommons-lang-java,
  libcommons-logging-java,
@@ -114,7 +114,7 @@ Description: Certificate System - PKI Framework
  This package is a part of the PKI Core used by the Certificate System.
 
 Package: pki-tools
-Architecture: all
+Architecture: any
 Depends: ${java:Depends}, ${misc:Depends}, ${shlib:Depends},
  ldap-utils,
  libnss3-tools,
@@ -127,7 +127,7 @@ Description: Certificate System - PKI Tools
 
 Package: pki-server
 Architecture: all
-Depends: ${java:Depends}, ${misc:Depends},
+Depends: ${java:Depends}, ${misc:Depends}, ${python:Depends},
  dogtag-pki-common-theme | pki-common-theme,
  pki-base (= ${binary:Version}),
  pki-tools (= ${binary:Version}),
@@ -204,7 +204,7 @@ Description: Certificate System - PKI Console
 Package: pki-kra
 Architecture: any
 Depends: ${java:Depends}, ${misc:Depends},
- pki-server (= ${binary:Version}),
+ pki-server (= ${source:Version}),
 Suggests: pki-ca,
 Description: Certificate System - Data Recovery Manager
  Certificate System (CS) is an enterprise software system designed
@@ -227,7 +227,7 @@ Description: Certificate System - Data Recovery Manager
 Package: pki-ocsp
 Architecture: any
 Depends: ${java:Depends}, ${misc:Depends},
- pki-server (= ${binary:Version}),
+ pki-server (= ${source:Version}),
 Suggests: pki-ca
 Description: Certificate System - Online Certificate Status Protocol Manager
  Certificate System (CS) is an enterprise software system designed
@@ -257,7 +257,7 @@ Description: Certificate System - Online Certificate Status Protocol Manager
 Package: pki-ra
 Architecture: any
 Depends: ${java:Depends}, ${misc:Depends}, ${perl:Depends},
- pki-server (= ${binary:Version}),
+ pki-server (= ${source:Version}),
  pki-server-theme (= ${binary:Version}),
  libapache2-mod-nss,
  libapache2-mod-perl2,
@@ -284,7 +284,7 @@ Description: Certificate System - Registration Authority
 Package: pki-tks
 Architecture: any
 Depends: ${java:Depends}, ${misc:Depends},
- pki-server (= ${binary:Version}),
+ pki-server (= ${source:Version}),
  libpki-symkey-java (= ${binary:Version}),
 Suggests: pki-ca
 Description: Certificate System - Token Key Service
@@ -309,7 +309,7 @@ Description: Certificate System - Token Key Service
 Package: pki-tps
 Architecture: any
 Depends: ${shlibs:Depends}, ${java:Depends}, ${misc:Depends}, ${perl:Depends},
- pki-server (= ${binary:Version}),
+ pki-server (= ${source:Version}),
 Suggests: pki-ca, pki-tks, pki-kra
 Description: Certificate System - Token Processing System
  Certificate System (CS) is an enterprise software system designed

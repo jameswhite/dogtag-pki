@@ -99,14 +99,6 @@ override_dh_auto_install:
 	install -m 0755 $(DEB_BUILD_DIR)/core/base/symkey/src/com/netscape/symkey/libsymkey.so \
 		$(CURDIR)/debian/libpki-symkey-java/usr/lib/jni/
 
-override_jh_installjavadoc:
-	jh_installjavadoc -ppki-javadoc \
-		$(DEB_BUILD_DIR)/core/base/common/src/javadoc/pki-common-*
-	jh_installjavadoc -ppki-javadoc \
-		$(DEB_BUILD_DIR)/core/base/java-tools/src/javadoc/pki-java-tools-*
-	jh_installjavadoc -ppki-javadoc \
-		$(DEB_BUILD_DIR)/core/base/util/src/javadoc/pki-util-*
-
 override_dh_installinit:
 	dh_installinit -ppki-ca --name=pki-cad --error-handler=invoke_failure
 	dh_installinit -ppki-kra --name=pki-krad --error-handler=invoke_failure
@@ -116,6 +108,9 @@ override_dh_installinit:
 	dh_installinit -ppki-tps --name=pki-tpsd --error-handler=invoke_failure
 
 override_dh_install:
+	# we don't use these
+	rm -rf $(CURDIR)/debian/tmp/etc/rc.d
+
 	dh_install --list-missing
 
 	mkdir -p $(CURDIR)/debian/pki-setup/usr/share/pki/scripts
