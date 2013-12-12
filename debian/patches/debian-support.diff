@@ -3,7 +3,7 @@ Description: fix various hardcoded values to match debian & ubuntu
 
 --- a/base/setup/pkicommon.pm
 +++ b/base/setup/pkicommon.pm
-@@ -49,7 +49,7 @@
+@@ -49,7 +49,7 @@ our @EXPORT = qw(
   format_install_info get_install_info_description
   parse_install_info parse_old_cleanup read_old_cleanup
   read_install_info read_install_info_from_dir write_install_info_to_dir uninstall
@@ -12,7 +12,7 @@ Description: fix various hardcoded values to match debian & ubuntu
   set_library_path get_library_path fedora_release
   check_for_root_UID user_disallows_shell
   user_exists create_user
-@@ -174,6 +174,7 @@
+@@ -174,6 +174,7 @@ our $default_system_user_binaries  = und
  our $default_system_user_libraries = undef;
  our $default_java_path             = undef;
  our $default_pki_java_path         = undef;
@@ -20,7 +20,7 @@ Description: fix various hardcoded values to match debian & ubuntu
  our $default_x86_64_jni_java_path  = undef;
  our $default_system_jni_java_path  = undef;
  our @default_jar_path              = undef;
-@@ -203,9 +204,9 @@
+@@ -203,9 +204,9 @@ my $is_IPv6 = 0;
  
  # Compute "hardware platform" of Operating System
  if ($^O eq "linux") {
@@ -32,14 +32,12 @@ Description: fix various hardcoded values to match debian & ubuntu
      $default_lockdir = "/var/lock/pki";
      $default_hardware_platform = `uname -i`;
      $default_hardware_platform =~ s/\s+$//g;
-@@ -217,19 +218,20 @@
-         $default_system_user_binaries  = "/usr/bin";
+@@ -218,18 +219,19 @@ if ($^O eq "linux") {
          $default_system_user_libraries = "/usr/lib";
          $default_java_path             = "/usr/share/java";
--        $default_pki_java_path         = "/usr/share/java/pki";
+         $default_pki_java_path         = "/usr/share/java/pki";
 -        $default_system_jni_java_path  = "/usr/lib/java";
 -        @default_jar_path = ($default_pki_java_path, $default_java_path, $default_system_jni_java_path, $resteasy_path, $httpcomponents_path);
-+        $default_pki_java_path         = "/usr/share/java";
 +        $default_i386_jni_java_path    = "/usr/lib/i386-linux-gnu/jni";
 +        $default_system_jni_java_path  = "/usr/lib/jni";
 +        @default_jar_path = ($default_pki_java_path, $default_java_path, $default_i386_jni_java_path, $default_system_jni_java_path, $resteasy_path, $httpcomponents_path);
@@ -52,16 +50,15 @@ Description: fix various hardcoded values to match debian & ubuntu
 -        $default_system_user_libraries = "/usr/lib64";
 +        $default_system_user_libraries = "/usr/lib";
          $default_java_path             = "/usr/share/java";
--        $default_pki_java_path         = "/usr/share/java/pki";
+         $default_pki_java_path         = "/usr/share/java/pki";
 -        $default_x86_64_jni_java_path  = "/usr/lib64/java";
 -        $default_system_jni_java_path  = "/usr/lib/java";
-+        $default_pki_java_path         = "/usr/share/java";
 +        $default_x86_64_jni_java_path  = "/usr/lib/x86_64-linux-gnu/jni";
 +        $default_system_jni_java_path  = "/usr/lib/jni";
          @default_jar_path = ($default_pki_java_path, $default_java_path, $default_x86_64_jni_java_path,
                               $default_system_jni_java_path, $resteasy_path, $httpcomponents_path);
      } else {
-@@ -814,6 +816,18 @@
+@@ -814,6 +816,18 @@ sub is_RHEL4 {
      }
  
      return 0;
@@ -82,7 +79,7 @@ Description: fix various hardcoded values to match debian & ubuntu
  # no args
 --- a/base/setup/pkicreate
 +++ b/base/setup/pkicreate
-@@ -184,7 +184,7 @@
+@@ -184,7 +184,7 @@ my $commons_codec_jar_base_name   = "com
  my $symkey_jar_base_name          = "symkey.jar";          # CA, KRA, OCSP, TKS
  my $tomcatjss_jar_base_name       = "tomcatjss.jar";       # CA, KRA, OCSP, TKS
  my $velocity_jar_base_name        = "velocity.jar";        # CA, KRA, OCSP, TKS
@@ -91,7 +88,7 @@ Description: fix various hardcoded values to match debian & ubuntu
  
  # resteasy jars
  my $javassist_jar_base_name       = "javassist.jar";                               # CA, KRA, OCSP, TKS
-@@ -196,14 +196,14 @@
+@@ -196,14 +196,14 @@ my $jettison_jar_base_name        = "jet
  my $resteasy_atom_provider_jar_base_name = "resteasy-atom-provider.jar";           # CA, KRA, OCSP, TKS
  my $resteasy_jettison_provider_jar_base_name = "resteasy-jettison-provider.jar";   # CA, KRA, OCSP, TKS
  
@@ -111,7 +108,7 @@ Description: fix various hardcoded values to match debian & ubuntu
  my $httpclient_jar_base_name              = "httpclient.jar";
  
  my $conf_base_name                = "conf";                   # CA, KRA, OCSP, TKS,
-@@ -616,7 +616,7 @@
+@@ -612,7 +612,7 @@ if ($^O eq "linux") {
      }
  
      # Tomcat instance config directory
@@ -120,7 +117,7 @@ Description: fix various hardcoded values to match debian & ubuntu
  
      # Superuser and group to give to PKI installed files
      $root_user = "root";
-@@ -2467,6 +2467,24 @@
+@@ -2297,6 +2297,24 @@ LoadModule authz_host_module /etc/httpd/
  LoadModule nss_module  /etc/httpd/modules/libmodnss.so
  ";
          }
@@ -145,7 +142,7 @@ Description: fix various hardcoded values to match debian & ubuntu
          else {
              $slot_hash{$FORTITUDE_APACHE}  = "Apache";
              $slot_hash{$FORTITUDE_DIR}     = "/opt/fortitude";
-@@ -2878,6 +2896,10 @@
+@@ -2718,6 +2736,10 @@ sub process_pki_files_and_symlinks
          return 0 if !create_symlink($perl_instance_symlink_path, $perl_subsystem_path,
                                      $pki_user, $pki_group);
  
@@ -156,7 +153,7 @@ Description: fix various hardcoded values to match debian & ubuntu
          return 0 if !create_symlink($run_instance_symlink_path,
                                      "${default_apache_pids_path}/${subsystem_type}",
                                      $pki_user, $pki_group);
-@@ -3421,7 +3443,7 @@
+@@ -3253,7 +3275,7 @@ ASK_AGAIN:
              "/bin/systemctl restart $pki_instance_systemd_service_name";
      } else {
          $pki_registry_initscript_command = 
@@ -167,7 +164,7 @@ Description: fix various hardcoded values to match debian & ubuntu
      $command = "${pki_registry_initscript_command}";
 --- a/base/setup/pkiremove
 +++ b/base/setup/pkiremove
-@@ -502,10 +502,10 @@
+@@ -509,10 +509,10 @@ ASK_AGAIN:
                  "/bin/systemctl stop $pki_instance_systemd_service_name";
          } else {
              if (entity_exists("$default_initscripts_path/$pki_instance_name")) {
@@ -182,7 +179,7 @@ Description: fix various hardcoded values to match debian & ubuntu
      } else {
 --- a/base/setup/scripts/pkicontrol
 +++ b/base/setup/scripts/pkicontrol
-@@ -28,7 +28,7 @@
+@@ -28,7 +28,7 @@ pki_subsystem_type="$2"
  pki_instance="$3"
  
  PKI_PATH="/usr/share/pki/${pki_subsystem_type}"
@@ -193,7 +190,7 @@ Description: fix various hardcoded values to match debian & ubuntu
  SYSTEMD=1
 --- a/base/ca/shared/conf/tomcat6.conf
 +++ b/base/ca/shared/conf/tomcat6.conf
-@@ -30,7 +30,8 @@
+@@ -30,7 +30,8 @@ CATALINA_BASE="[PKI_INSTANCE_PATH]"
  #JAVA_OPTS="-Djava.library.path=/usr/lib64"
  
  # What user should run tomcat
@@ -205,7 +202,7 @@ Description: fix various hardcoded values to match debian & ubuntu
  #LANG="en_US"
 --- a/base/kra/shared/conf/tomcat6.conf
 +++ b/base/kra/shared/conf/tomcat6.conf
-@@ -30,7 +30,8 @@
+@@ -30,7 +30,8 @@ CATALINA_BASE="[PKI_INSTANCE_PATH]"
  #JAVA_OPTS="-Djava.library.path=/usr/lib64"
  
  # What user should run tomcat
@@ -217,7 +214,7 @@ Description: fix various hardcoded values to match debian & ubuntu
  #LANG="en_US"
 --- a/base/ocsp/shared/conf/tomcat6.conf
 +++ b/base/ocsp/shared/conf/tomcat6.conf
-@@ -30,7 +30,8 @@
+@@ -30,7 +30,8 @@ CATALINA_BASE="[PKI_INSTANCE_PATH]"
  #JAVA_OPTS="-Djava.library.path=/usr/lib64"
  
  # What user should run tomcat
@@ -229,7 +226,7 @@ Description: fix various hardcoded values to match debian & ubuntu
  #LANG="en_US"
 --- a/base/tks/shared/conf/tomcat6.conf
 +++ b/base/tks/shared/conf/tomcat6.conf
-@@ -30,7 +30,8 @@
+@@ -30,7 +30,8 @@ CATALINA_BASE="[PKI_INSTANCE_PATH]"
  #JAVA_OPTS="-Djava.library.path=/usr/lib64"
  
  # What user should run tomcat
@@ -241,7 +238,7 @@ Description: fix various hardcoded values to match debian & ubuntu
  #LANG="en_US"
 --- a/base/setup/scripts/functions
 +++ b/base/setup/scripts/functions
-@@ -826,6 +826,9 @@
+@@ -1242,6 +1242,9 @@ start_instance()
              #
              case $PKI_SUBSYSTEM_TYPE in
                  ca|kra|ocsp|tks)
@@ -251,7 +248,7 @@ Description: fix various hardcoded values to match debian & ubuntu
                      if [ -h ${PKI_PIDFILE} ]; then
                          rm -f ${PKI_PIDFILE}
                      fi
-@@ -833,12 +836,15 @@
+@@ -1249,12 +1252,15 @@ start_instance()
                          ln -s ${TOMCAT_PIDFILE} ${PKI_PIDFILE}
                          chown -h ${TOMCAT_USER}:${TOMCAT_GROUP} ${PKI_PIDFILE}
                      fi
@@ -270,7 +267,7 @@ Description: fix various hardcoded values to match debian & ubuntu
                      ;;
              esac
  
-@@ -923,6 +929,9 @@
+@@ -1339,6 +1345,9 @@ start()
      done
  
      if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt ${errors} ] ; then
@@ -282,7 +279,7 @@ Description: fix various hardcoded values to match debian & ubuntu
      fi
 --- a/base/ra/apache/conf/httpd.conf
 +++ b/base/ra/apache/conf/httpd.conf
-@@ -240,8 +240,6 @@
+@@ -247,8 +247,6 @@ LoadModule userdir_module [FORTITUDE_LIB
  LoadModule dir_module [FORTITUDE_LIB_DIR]/modules/mod_dir.so
  # Required module for command 'TypesConfig':
  LoadModule mime_module [FORTITUDE_LIB_DIR]/modules/mod_mime.so
@@ -293,7 +290,7 @@ Description: fix various hardcoded values to match debian & ubuntu
  # Required module for command 'SetEnvIf':
 --- a/base/tps/apache/conf/httpd.conf
 +++ b/base/tps/apache/conf/httpd.conf
-@@ -240,8 +240,6 @@
+@@ -247,8 +247,6 @@ LoadModule userdir_module [FORTITUDE_LIB
  LoadModule dir_module [FORTITUDE_LIB_DIR]/modules/mod_dir.so
  # Required module for command 'TypesConfig':
  LoadModule mime_module [FORTITUDE_LIB_DIR]/modules/mod_mime.so
@@ -304,22 +301,22 @@ Description: fix various hardcoded values to match debian & ubuntu
  # Required module for command 'SetEnvIf':
 --- a/base/ra/setup/registry_instance
 +++ b/base/ra/setup/registry_instance
-@@ -59,7 +59,7 @@
+@@ -62,7 +62,7 @@ export RESTART_SERVER
  # available, but does not work with some modules (such as PHP).
  # The service must be stopped before changing this variable.
  #
--PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/httpd.worker
+-PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/httpd
 +PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/apache2
  export PKI_HTTPD
  
  #
 --- a/base/tps/setup/registry_instance
 +++ b/base/tps/setup/registry_instance
-@@ -59,7 +59,7 @@
+@@ -62,7 +62,7 @@ export RESTART_SERVER
  # available, but does not work with some modules (such as PHP).
  # The service must be stopped before changing this variable.
  #
--PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/httpd.worker
+-PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/httpd
 +PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/apache2
  export PKI_HTTPD
  

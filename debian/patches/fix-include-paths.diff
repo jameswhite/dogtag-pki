@@ -3,7 +3,7 @@ Description: fix include paths for debian & ubuntu
 
 --- a/base/tps/src/engine/RA.cpp
 +++ b/base/tps/src/engine/RA.cpp
-@@ -29,7 +29,7 @@
+@@ -29,7 +29,7 @@ extern "C"
  #include <string.h>
  #include <unistd.h>
  
@@ -14,12 +14,13 @@ Description: fix include paths for debian & ubuntu
  #include "plstr.h"
 --- a/base/tps/src/modules/tokendb/mod_tokendb.cpp
 +++ b/base/tps/src/modules/tokendb/mod_tokendb.cpp
-@@ -55,14 +55,14 @@
+@@ -55,15 +55,15 @@ extern "C"
  #include "prthread.h"
  #include "cert.h"
  #include "regex.h"
 -#include "nss3/base64.h"
 +#include "nss/base64.h"
+ #include "prprf.h"
  
 -#include "httpd/httpd.h"
 -#include "httpd/http_config.h"
@@ -38,7 +39,7 @@ Description: fix include paths for debian & ubuntu
  
 --- a/base/tps/src/modules/tps/AP_Context.cpp
 +++ b/base/tps/src/modules/tps/AP_Context.cpp
-@@ -23,8 +23,8 @@
+@@ -23,8 +23,8 @@ extern "C"
  {
  #endif
  
@@ -51,7 +52,7 @@ Description: fix include paths for debian & ubuntu
  #include "modules/tps/AP_Context.h"
 --- a/base/tps/src/modules/tps/AP_Session.cpp
 +++ b/base/tps/src/modules/tps/AP_Session.cpp
-@@ -27,8 +27,8 @@
+@@ -27,8 +27,8 @@ extern "C"
  #include <stdlib.h>
  #include <stdarg.h>
  #include "nspr.h"
@@ -64,7 +65,7 @@ Description: fix include paths for debian & ubuntu
  #include "main/Util.h"
 --- a/base/tps/src/modules/tps/mod_tps.cpp
 +++ b/base/tps/src/modules/tps/mod_tps.cpp
-@@ -41,11 +41,11 @@
+@@ -41,11 +41,11 @@ extern "C"
  #include <unistd.h>
  #include "nspr.h"
  
