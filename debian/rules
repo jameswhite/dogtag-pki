@@ -28,7 +28,7 @@ confflags =
 confflags-common = $(confflags) \
 	-DSYSTEMD_LIB_INSTALL_DIR=/lib/systemd/system \
 	-DVAR_INSTALL_DIR:PATH=/var \
-	-DRESTEASY_LIB=/usr/share/java/resteasy \
+	-DRESTEASY_LIB=/usr/share/java/ \
 	-DPKI_CERTSRV_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-certsrv.jar \
 	-DPKI_CMS_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-cms.jar \
 	-DPKI_CMSCORE_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-cmscore.jar \
@@ -41,22 +41,19 @@ confflags-core = \
 	-DSERVLET_JAR=/usr/share/java/servlet-api-2.5.jar \
 	-DXERCES_JAR=/usr/share/java/xercesImpl.jar \
 	-DXALAN_JAR=/usr/share/java/xalan2.jar \
-	$(confflags)
+	$(confflags-common)
 
 confflags-console = \
-	-DVAR_INSTALL_DIR:PATH=/var \
-	-DBUILD_PKI_CONSOLE:BOOL=ON
+	-DBUILD_PKI_CONSOLE:BOOL=ON \
+	$(confflags-common)
 
 confflags-ra = \
-	-DSYSTEMD_LIB_INSTALL_DIR=/lib/systemd/system \
-	-DVAR_INSTALL_DIR:PATH=/var \
-	-DBUILD_PKI_RA:BOOL=ON
+	-DBUILD_PKI_RA:BOOL=ON \
+	$(confflags-common)
 
 confflags-tps = \
-	-DSYSTEMD_LIB_INSTALL_DIR=/lib/systemd/system \
-	-DVAR_INSTALL_DIR:PATH=/var \
-	-DRESTEASY_LIB=/usr/share/java/resteasy \
-	-DBUILD_PKI_TPS:BOOL=ON
+	-DBUILD_PKI_TPS:BOOL=ON \
+	$(confflags-common)
 
 confflags-dogtag-pki-theme = \
 	-DBUILD_DOGTAG_PKI_THEME:BOOL=ON \
