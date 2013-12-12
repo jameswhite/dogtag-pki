@@ -1,0 +1,6 @@
+lib/systemd/system/pki-tpsd@.service
+lib/systemd/system/pki-tpsd.target
+usr/share/java/pki/pki-tps.jar
+usr/share/pki/tps/conf/
+usr/share/pki/tps/setup/
+usr/share/pki/tps/webapps/

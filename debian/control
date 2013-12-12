@@ -3,7 +3,8 @@ Section: java
 Priority: extra
 Maintainer: Debian FreeIPA Team <pkg-freeipa-devel@lists.alioth.debian.org>
 Uploaders: Timo Aaltonen <tjaalton@ubuntu.com>
-Build-Depends: debhelper (>= 8.0.0), pkg-config, quilt,
+Build-Depends: debhelper (>= 9), pkg-config, quilt,
+ dh-systemd,
  cmake,
  javahelper,
  default-jdk,
@@ -22,10 +23,11 @@ Build-Depends: debhelper (>= 8.0.0), pkg-config, quilt,
  libxalan2-java,
  libxerces2-java,
  policycoreutils,
+ python-dev,
  selinux-policy-dev,
  velocity,
  apache2-threaded-dev,
-Standards-Version: 3.9.3
+Standards-Version: 3.9.4
 Homepage: http://pki.fedoraproject.org
 Vcs-Git: git://git.debian.org/pkg-freeipa/pki.git
 Vcs-Browser: http://git.debian.org/?p=pkg-freeipa/pki.git;a=summary
@@ -35,19 +37,24 @@ Architecture: all
 Depends: ${misc:Depends},
  libjss-java,
  libtomcatjss-java,
+ dogtag-pki-console-theme,
+ dogtag-pki-server-theme,
+# core
  pki-ca,
- pki-common,
- pki-console,
- pki-java-tools,
+ pki-server,
+ libpki-symkey-java,
+ pki-tools,
+ pki-base,
+# javadoc
+ pki-javadoc,
+# subsystems
  pki-kra,
  pki-ocsp,
  pki-ra,
-# pki-selinux,
- pki-setup,
- pki-silent,
  pki-tks,
  pki-tps,
-# esc,
+# console
+ pki-console,
 Description: Dogtag Public Key Infrastructure (PKI) Suite
  The Dogtag Public Key Infrastructure (PKI) Suite is comprised of the following
  six subsystems and a client (for use by a Token Management System):
@@ -65,19 +72,6 @@ Description: Dogtag Public Key Infrastructure (PKI) Suite
  of the Dogtag API, as well as various command-line tools used to assist with
  a PKI deployment.
 
-Package: pki-setup
-Architecture: all
-Depends: ${misc:Depends}, ${perl:Depends},
- libfile-slurp-perl,
- libcrypt-ssleay-perl,
- libxml-libxml-perl,
- policycoreutils,
- ldap-utils,
-Description: Certificate System - PKI Instance Creation & Removal Scripts
- PKI setup scripts are used to create and remove instances from PKI deployments.
- .
- This package is a part of the PKI Core used by the Certificate System.
-
 Package: libpki-symkey-java
 Architecture: any
 Depends: ${shlibs:Depends}, ${java:Depends}, ${misc:Depends},
@@ -89,85 +83,9 @@ Description: Symmetric Key JNI Package
  .
  This package is a part of the PKI Core used by the Certificate System.
 
-Package: pki-native-tools
-Architecture: any
-Section: admin
-Depends: ${shlibs:Depends}, ${misc:Depends},
- ldap-utils,
- libnss3,
- libnss3-tools,
-Description: Certificate System - Native Tools
- These platform-dependent PKI executables are used to help make
- Certificate System into a more complete and robust PKI solution.
- .
- This package is a part of the PKI Core used by the Certificate System.
-
-Package: libpki-util-java
+Package: pki-base
 Architecture: all
 Depends: ${java:Depends}, ${misc:Depends},
- libjss-java,
- libldap-java,
-Suggests: libpki-util-java-doc (= ${binary:Version})
-Description: Certificate System - PKI Utility Framework - Java bindings
- The PKI Utility Framework is required by the following four PKI subsystems:
- .
-      the Certificate Authority (CA),
-      the Data Recovery Manager (DRM),
-      the Online Certificate Status Protocol (OCSP) Manager, and
-      the Token Key Service (TKS).
- .
- This package is a part of the PKI Core used by the Certificate System.
-
-Package: libpki-util-java-doc
-Architecture: all
-Section: doc
-Depends: ${java:Depends}, ${misc:Depends},
-Description: Certificate System - PKI Utility Framework Javadocs
- This documentation pertains exclusively to version %{version} of
- the PKI Utility Framework.
- .
- This package is a part of the PKI Core used by the Certificate System.
-
-Package: pki-java-tools
-Architecture: all
-Depends: ${java:Depends}, ${misc:Depends},
- pki-native-tools,
- libpki-util-java (= ${binary:Version}),
- libpki-tools-java (= ${binary:Version}),
-Description: Certificate System - PKI Java-Based Tools
- These platform-independent PKI executables are used to help make
- Certificate System into a more complete and robust PKI solution.
- .
- This package is a part of the PKI Core used by the Certificate System.
-
-Package: libpki-tools-java
-Architecture: all
-Depends: ${java:Depends}, ${misc:Depends},
-Suggests: libpki-tools-java-doc (= ${binary:Version})
-Description: Certificate System - PKI Java-Based Tools - Java bindings
- These platform-independent PKI executables are used to help make
- Certificate System into a more complete and robust PKI solution.
- .
- This package is a part of the PKI Core used by the Certificate System.
-
-Package: libpki-tools-java-doc
-Architecture: all
-Section: doc
-Depends: ${java:Depends}, ${misc:Depends},
-Description: Certificate System - PKI Java-Based Tools Javadocs
- This documentation pertains exclusively to version %{version} of
- the PKI Java-Based Tools.
- .
- This package is a part of the PKI Core used by the Certificate System.
-
-Package: pki-common
-Architecture: all
-Depends: ${java:Depends}, ${misc:Depends},
- libpki-common-java (= ${binary:Version}),
- libpki-symkey-java (>= ${binary:Version}),
- dogtag-pki-common-theme | pki-common-theme,
- pki-java-tools (= ${binary:Version}),
- pki-setup (= ${binary:Version}),
  libcommons-codec-java,
  libcommons-lang-java,
  libcommons-logging-java,
@@ -177,16 +95,47 @@ Depends: ${java:Depends}, ${misc:Depends},
  libjss-java,
  libldap-java,
  libservlet2.4-java,
- libtomcatjss-java (>= 6.0.0),
  libxalan2-java,
  libxerces2-java,
- velocity,
+ libxml-commons-external-java,
+ libxml-commons-resolver1.1-java,
+ python-ldap,
+ python-lxml,
+ python-requests,
+ resteasy,
+Description: Certificate System - PKI Framework
+ The PKI Framework contains the common and client libraries and utilities.
+ .
+ This package is a part of the PKI Core used by the Certificate System.
+
+Package: pki-tools
+Architecture: all
+Depends: ${java:Depends}, ${misc:Depends}, ${shlib:Depends},
+ ldap-utils,
+ libnss3-tools,
+ pki-base (= ${binary:Version}),
+Description: Certificate System - PKI Tools
+ This package contains PKI executables that can be used to help make
+ Certificate System into a more complete and robust PKI solution.
+ .
+ This package is a part of the PKI Core used by the Certificate System.
+
+Package: pki-server
+Architecture: all
+Depends: ${java:Depends}, ${misc:Depends},
+ dogtag-pki-common-theme | pki-common-theme,
+ pki-base (= ${binary:Version}),
+ pki-tools (= ${binary:Version}),
+ libservlet2.4-java,
+ libtomcatjss-java (>= 7.1.0),
  libxml-commons-external-java,
  libxml-commons-resolver1.1-java,
  adduser,
- tomcat6,
-Description: Certificate System - PKI Common Framework
- The PKI Common Framework is required by the following four PKI subsystems:
+ ldap-utils,
+ velocity,
+ tomcat7,
+Description: Certificate System - PKI Server Framework
+ The PKI Server Framework is required by the following four PKI subsystems:
  .
      the Certificate Authority (CA),
      the Data Recovery Manager (DRM),
@@ -194,48 +143,12 @@ Description: Certificate System - PKI Common Framework
      the Token Key Service (TKS).
  .
  This package is a part of the PKI Core used by the Certificate System.
-
-Package: libpki-common-java
-Architecture: all
-Depends: ${java:Depends}, ${misc:Depends},
-Suggests: libpki-common-java-doc (= ${binary:Version})
-Description: Certificate System - PKI Common Framework - Java bindings
- The PKI Common Framework is required by the following four PKI subsystems:
- .
-     the Certificate Authority (CA),
-     the Data Recovery Manager (DRM),
-     the Online Certificate Status Protocol (OCSP) Manager, and
-     the Token Key Service (TKS).
- .
- This package is a part of the PKI Core used by the Certificate System.
-
-Package: libpki-common-java-doc
-Architecture: all
-Section: doc
-Depends: ${java:Depends}, ${misc:Depends},
-Description: Certificate System - PKI Common Framework Javadocs
- This documentation pertains exclusively to version %{version} of
- the PKI Common Framework.
- .
- This package is a part of the PKI Core used by the Certificate System.
-
-#Package: pki-selinux
-#Architecture: all
-#Depends: ${java:Depends}, ${misc:Depends},
-# policycoreutils,
-# selinux-policy,
-#Description: Certificate System - PKI Selinux Policies
-# Selinux policies for the PKI components.
-# .
-# This package is a part of the PKI Core used by the Certificate System.
+ The package contains scripts to create and remove PKI subsystems.
 
 Package: pki-ca
 Architecture: all
 Depends: ${java:Depends}, ${misc:Depends},
- libpki-ca-java (= ${binary:Version}),
- dogtag-pki-ca-theme | pki-ca-theme,
- pki-common,
-# pki-selinux,
+ pki-server (= ${binary:Version}),
 Suggests: 389-ds-base
 Description: Certificate System - Certificate Authority
  The Certificate Authority (CA) is a required PKI subsystem which issues,
@@ -248,127 +161,6 @@ Description: Certificate System - Certificate Authority
  .
  This package is a part of the PKI Core used by the Certificate System.
 
-Package: libpki-ca-java
-Architecture: all
-Depends: ${java:Depends}, ${misc:Depends},
-Description: Certificate System - Certificate Authority - Java bindings
- The Certificate Authority (CA) is a required PKI subsystem which issues,
- renews, revokes, and publishes certificates as well as compiling and
- publishing Certificate Revocation Lists (CRLs).
- .
- The Certificate Authority can be configured as a self-signing Certificate
- Authority, where it is the root CA, or it can act as a subordinate CA,
- where it obtains its own signing certificate from a public CA.
- .
- This package is a part of the PKI Core used by the Certificate System.
-
-Package: pki-silent
-Architecture: all
-Depends: ${java:Depends}, ${misc:Depends}, ${perl:Depends},
- libpki-silent-java (= ${binary:Version}),
- pki-common,
-Description: Certificate System - Silent Installer
- The PKI Silent Installer may be used to "automatically" configure
- the following PKI subsystems in a non-graphical (batch) fashion
- including:
- .
-     the Certificate Authority (CA),
-     the Data Recovery Manager (DRM),
-     the Online Certificate Status Protocol (OCSP) Manager,
-     the Registration Authority (RA),
-     the Token Key Service (TKS), and/or
-     the Token Processing System (TPS).
- .
- This package is a part of the PKI Core used by the Certificate System.
-
-Package: libpki-silent-java
-Architecture: all
-Depends: ${java:Depends}, ${misc:Depends},
-Description: Certificate System - Silent Installer - Java bindings
- The PKI Silent Installer may be used to "automatically" configure
- the following PKI subsystems in a non-graphical (batch) fashion
- including:
- .
-     the Certificate Authority (CA),
-     the Data Recovery Manager (DRM),
-     the Online Certificate Status Protocol (OCSP) Manager,
-     the Registration Authority (RA),
-     the Token Key Service (TKS), and/or
-     the Token Processing System (TPS).
- .
- This package is a part of the PKI Core used by the Certificate System.
-
-Package: dogtag-pki-common-theme
-Architecture: any
-Depends: ${misc:Depends},
-Provides: pki-common-theme, pki-common-ui
-Description: Certificate System - PKI Common Framework User Interface
- This PKI Common Framework User Interface contains
- the Dogtag textual and graphical user interface for the PKI Common Framework.
- .
- This package is used by the Dogtag Certificate System.
-
-Package: dogtag-pki-ca-theme
-Architecture: any
-Depends: ${misc:Depends}, dogtag-pki-common-theme (= ${binary:Version})
-Provides: pki-ca-theme, pki-ca-ui
-Description: Certificate System - Certificate Authority User Interface
- This Certificate Authority (CA) User Interface contains
- the Dogtag textual and graphical user interface for the CA.
- .
- This package is used by the Dogtag Certificate System.
-
-Package: dogtag-pki-kra-theme
-Architecture: any
-Depends: ${misc:Depends}, dogtag-pki-common-theme (= ${binary:Version})
-Provides: pki-kra-theme, pki-kra-ui
-Description: Certificate System - Data Recovery Manager User Interface
- This Data Recovery Manager (DRM) User Interface contains
- the Dogtag textual and graphical user interface for the DRM.
- .
- This package is used by the Dogtag Certificate System.
-
-Package: dogtag-pki-ocsp-theme
-Architecture: any
-Depends: ${misc:Depends}, dogtag-pki-common-theme (= ${binary:Version})
-Provides: pki-ocsp-theme, pki-ocsp-ui
-Description: Certificate System - Online Certificate Status Protocol Manager User Interface
- This Online Certificate Status Protocol (OCSP) Manager
- User Interface contains the Dogtag textual and graphical
- user interface for the OCSP Manager.
- .
- This package is used by the Dogtag Certificate System.
-
-Package: dogtag-pki-ra-theme
-Architecture: any
-Depends: ${misc:Depends},
-Provides: pki-ra-theme, pki-ra-ui
-Description: Certificate System - Registration Authority User Interface
- This Registration Authority (RA) User Interface contains
- the Dogtag textual and graphical user interface for the RA.
- .
- This package is used by the Dogtag Certificate System.
-
-Package: dogtag-pki-tks-theme
-Architecture: any
-Depends: ${misc:Depends}, dogtag-pki-common-theme (= ${binary:Version})
-Provides: pki-tks-theme, pki-tks-ui
-Description: Certificate System - Token Key Service User Interface
- This Token Key Service (TKS) User Interface contains
- the Dogtag textual and graphical user interface for the TKS.
- .
- This package is used by the Dogtag Certificate System.
-
-Package: dogtag-pki-tps-theme
-Architecture: any
-Depends: ${perl:Depends}, ${misc:Depends},
-Provides: pki-tps-theme, pki-tps-ui
-Description: Certificate System - Token Processing System User Interface
- This Token Processing System (TPS) User Interface contains
- the Dogtag textual and graphical user interface for the TPS.
- .
- This package is used by the Dogtag Certificate System.
-
 Package: dogtag-pki-console-theme
 Architecture: any
 Section: java
@@ -380,9 +172,20 @@ Description: Certificate System - PKI Console User Interface
  .
  This package is used by the Dogtag Certificate System.
 
+Package: dogtag-pki-server-theme
+Architecture: any
+Depends: ${misc:Depends},
+Provides: pki-server-theme, pki-common-theme, pki-common-ui
+Description: Certificate System - PKI Server User Interface
+ This PKI Common Framework User Interface contains
+ the Dogtag textual and graphical user interface for the PKI Common Framework.
+ .
+ This package is used by the Dogtag Certificate System.
+
 Package: pki-console
 Architecture: any
 Depends: ${java:Depends}, ${misc:Depends},
+ pki-base (>= 10.0),
  pki-console-theme,
  libidm-console-framework-java,
  libjss-java,
@@ -396,10 +199,8 @@ Description: Certificate System - PKI Console
 Package: pki-kra
 Architecture: any
 Depends: ${java:Depends}, ${misc:Depends},
- pki-common,
- pki-kra-theme,
-# pki-selinux,
-Suggests: pki-ca
+ pki-server (= ${binary:Version}),
+Suggests: pki-ca,
 Description: Certificate System - Data Recovery Manager
  Certificate System (CS) is an enterprise software system designed
  to manage enterprise Public Key Infrastructure (PKI) deployments.
@@ -421,9 +222,7 @@ Description: Certificate System - Data Recovery Manager
 Package: pki-ocsp
 Architecture: any
 Depends: ${java:Depends}, ${misc:Depends},
- pki-common,
- pki-ocsp-theme,
-# pki-selinux,
+ pki-server (= ${binary:Version}),
 Suggests: pki-ca
 Description: Certificate System - Online Certificate Status Protocol Manager
  Certificate System (CS) is an enterprise software system designed
@@ -453,10 +252,8 @@ Description: Certificate System - Online Certificate Status Protocol Manager
 Package: pki-ra
 Architecture: any
 Depends: ${java:Depends}, ${misc:Depends}, ${perl:Depends},
- pki-common,
- pki-ra-theme,
-# pki-selinux,
- pki-setup,
+ pki-server (= ${binary:Version}),
+ pki-server-theme (= ${binary:Version}),
  libapache2-mod-nss,
  libapache2-mod-perl2,
  libapache2-mod-rev,
@@ -464,7 +261,8 @@ Depends: ${java:Depends}, ${misc:Depends}, ${perl:Depends},
  libparse-recdescent-perl,
  libxml-simple-perl,
  apache2-mpm-worker,
-Suggests: pki-ca
+ sqlite3,
+Suggests: pki-ca,
 Description: Certificate System - Registration Authority
  Certificate System (CS) is an enterprise software system designed
  to manage enterprise Public Key Infrastructure (PKI) deployments.
@@ -481,9 +279,8 @@ Description: Certificate System - Registration Authority
 Package: pki-tks
 Architecture: any
 Depends: ${java:Depends}, ${misc:Depends},
- pki-common,
-# pki-selinux,
- pki-tks-theme,
+ pki-server (= ${binary:Version}),
+ libpki-symkey-java (= ${binary:Version}),
 Suggests: pki-ca
 Description: Certificate System - Token Key Service
  Certificate System (CS) is an enterprise software system designed
@@ -504,22 +301,10 @@ Description: Certificate System - Token Key Service
  Because of the sensitivity of the data that TKS manages, TKS should be set up
  behind the firewall with restricted access.
 
-Package: pki-tps
+Package: pki-tps-tomcat
 Architecture: any
 Depends: ${shlibs:Depends}, ${java:Depends}, ${misc:Depends}, ${perl:Depends},
- pki-common,
- pki-native-tools,
-# pki-selinux,
- pki-setup,
- pki-tps-theme,
- ldap-utils,
- libapache2-mod-nss,
- libapache2-mod-perl2,
- libapache2-mod-rev,
- libmozilla-ldap-perl,
- libparse-recdescent-perl,
- libxml-simple-perl,
- apache2-mpm-worker,
+ pki-server (= ${binary:Version}),
 Suggests: pki-ca, pki-tks, pki-kra
 Description: Certificate System - Token Processing System
  Certificate System (CS) is an enterprise software system designed
@@ -540,24 +325,12 @@ Description: Certificate System - Token Processing System
  TPS also interacts with the token database, an LDAP server that stores
  information about individual tokens.
 
-Package: ipa-pki-common-theme
+Package: pki-javadoc
 Architecture: any
-Depends: ${misc:Depends}
-Provides: pki-common-theme, pki-common-ui
-Conflicts: dogtag-pki-common-theme, dogtag-pki-common-ui
-Description: Certificate System - PKI Common Framework User Interface
- This PKI Common Framework User Interface contains
- no textual or graphical user interface for the PKI Common Framework.
+Section: doc
+Depends: ${java:Depends}, ${misc:Depends},
+Description: Certificate System - PKI Framework Javadocs
+ This documentation pertains exclusively to version 10 of
+ the PKI Framework and Tools.
  .
- This package is used by the Certificate System utilized by IPA.
-
-Package: ipa-pki-ca-theme
-Architecture: any
-Depends: ${misc:Depends}, ipa-pki-common-theme (= ${binary:Version})
-Provides: pki-ca-theme, pki-ca-ui
-Conflicts: dogtag-pki-ca-theme
-Description: Certificate System - Certificate Authority User Interface
- This Certificate Authority (CA) User Interface contains
- no textual or graphical user interface for the CA.
- .
- This package is used by the Certificate System utilized by IPA.
+ This package is a part of the PKI Core used by the Certificate System.

@@ -1,3 +1,9 @@
+usr/bin/pki
+usr/bin/p7tool
+usr/bin/revoker
+usr/bin/setpin
+usr/bin/sslget
+usr/bin/tkstool
 usr/bin/AtoB
 usr/bin/AuditVerify
 usr/bin/BtoA
@@ -18,4 +24,7 @@ usr/bin/PKCS12Export
 usr/bin/PrettyPrintCert
 usr/bin/PrettyPrintCrl
 usr/bin/TokenInfo
+usr/share/java/pki/pki-tools.jar
 usr/share/pki/java-tools/
+usr/share/pki/native-tools/
+usr/share/man/man1/pki.1.gz

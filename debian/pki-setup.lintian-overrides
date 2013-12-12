@@ -1,3 +1,0 @@
-binary-without-manpage usr/bin/pkicontrol
-binary-without-manpage usr/bin/pkicreate
-binary-without-manpage usr/bin/pkiremove

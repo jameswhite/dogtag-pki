@@ -16,13 +16,8 @@ DEB_BUILD_DIR ?= $(CURDIR)/build
 
 CONFIGS = core \
 	  console \
-	  kra \
-	  ocsp \
-	  ra \
-	  tks \
 	  tps \
-	  dogtag-pki-theme \
-	  ipa-pki-theme
+	  dogtag-pki-theme
 
 STAMP_DIR = debian/stamp
 STAMP = $(STAMP_DIR)/$(DEB_BUILD_GNU_TYPE)
@@ -31,6 +26,8 @@ BUILD_STAMPS = $(addprefix $(STAMP)-build-, $(CONFIGS))
 confflags = 
 
 confflags-common = $(confflags) \
+	-DSYSTEMD_LIB_INSTALL_DIR=/lib/systemd/system \
+	-DRESTEASY_LIB=/usr/share/java/resteasy \
 	-DPKI_CERTSRV_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-certsrv.jar \
 	-DPKI_CMS_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-cms.jar \
 	-DPKI_CMSCORE_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-cmscore.jar \
@@ -70,10 +67,6 @@ confflags-dogtag-pki-theme = \
 	-DBUILD_DOGTAG_PKI_THEME:BOOL=ON \
 	$(confflags-common)
 
-confflags-ipa-pki-theme = \
-	-DBUILD_IPA_PKI_THEME:BOOL=ON \
-	$(confflags-common)
-
 override_dh_auto_clean:
 	rm -rf $(CURDIR)/build
 
@@ -96,7 +89,7 @@ $(STAMP)-build-%:
 override_dh_auto_build: build-stamp
 
 override_dh_auto_install:
-	set -e; for config in $(filter-out ipa-pki-theme, $(CONFIGS)); do \
+	set -e; for config in $(CONFIGS); do \
 		make -C $(DEB_BUILD_DIR)/$$config DESTDIR=$(CURDIR)/debian/tmp install; \
 	done
 
@@ -116,11 +109,11 @@ override_jh_installlibs:
 		$(DEB_BUILD_DIR)/core/base/symkey/src/symkey.jar
 
 override_jh_installjavadoc:
-	jh_installjavadoc -plibpki-common-java-doc \
+	jh_installjavadoc -ppki-javadoc \
 		$(DEB_BUILD_DIR)/core/base/common/src/javadoc/pki-common-*
-	jh_installjavadoc -plibpki-tools-java-doc \
+	jh_installjavadoc -ppki-javadoc \
 		$(DEB_BUILD_DIR)/core/base/java-tools/src/javadoc/pki-java-tools-*
-	jh_installjavadoc -plibpki-util-java-doc \
+	jh_installjavadoc -ppki-javadoc \
 		$(DEB_BUILD_DIR)/core/base/util/src/javadoc/pki-util-*
 
 override_dh_installinit:
@@ -139,7 +132,7 @@ override_dh_install:
 		$(CURDIR)/debian/pki-setup/usr/share/pki/scripts
 
 %:
-	dh $@ --with javahelper,quilt --builddirectory=build/
+	dh $@ --with javahelper,quilt,python2,systemd --builddirectory=build/
 
 # For maintainer use only, generate a tarball:
 gentarball: UV=$(shell dpkg-parsechangelog|awk '/^Version:/ {print $$2}'|sed 's/-.*$$//')

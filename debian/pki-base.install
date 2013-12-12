@@ -1,0 +1,13 @@
+etc/pki/pki.conf
+usr/lib/python*/site-packages/pki/*.py
+usr/lib/python*/site-packages/pki/*.pyc
+usr/lib/python*/site-packages/pki/*.pyo
+usr/sbin/pki-upgrade
+usr/share/pki/VERSION
+usr/share/pki/etc
+usr/share/pki/upgrade
+usr/share/java/pki/pki-cmsutil.jar
+usr/share/java/pki/pki-nsutil.jar
+usr/share/java/pki/pki-certsrv.jar
+usr/share/man/man8/pki-upgrade.8.gz
+

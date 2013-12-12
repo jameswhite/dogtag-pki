@@ -1,5 +1,8 @@
+lib/systemd/system/pki-cad@.service
+lib/systemd/system/pki-cad.target
+usr/share/java/pki/pki-ca.jar
 usr/share/pki/ca/conf/
 usr/share/pki/ca/emails/
-usr/share/pki/ca/profiles/
+usr/share/pki/ca/profiles/ca/
 usr/share/pki/ca/setup/
 usr/share/pki/ca/webapps/

@@ -1,4 +1,6 @@
-usr/share/java/pki/pki-ocsp*.jar usr/share/java
+lib/systemd/system/pki-ocspd@.service
+lib/systemd/system/pki-ocspd.target
+usr/share/java/pki/pki-ocsp.jar
 usr/share/pki/ocsp/conf
 usr/share/pki/ocsp/setup
 usr/share/pki/ocsp/webapps

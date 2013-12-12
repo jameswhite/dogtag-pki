@@ -1,3 +1,5 @@
+lib/systemd/system/pki-rad@.service
+lib/systmed/system/pki-rad.target
 usr/share/pki/ra/conf
 usr/share/pki/ra/docroot
 usr/share/pki/ra/lib
