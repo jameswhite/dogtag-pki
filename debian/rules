@@ -16,6 +16,7 @@ DEB_BUILD_DIR ?= $(CURDIR)/build
 
 CONFIGS = core \
 	  console \
+	  ra \
 	  tps \
 	  dogtag-pki-theme
 
@@ -88,8 +89,6 @@ override_dh_auto_install:
 		make -C $(DEB_BUILD_DIR)/$$config DESTDIR=$(CURDIR)/debian/tmp install; \
 	done
 
-	make -C $(DEB_BUILD_DIR)/ipa-pki-theme DESTDIR=$(CURDIR)/debian/tmp/ipa install
-
 	find $(CURDIR)/debian/tmp/usr/share/pki -name '*.cgi' -exec chmod 755 '{}' ';'
 	find $(CURDIR)/debian/tmp/usr/share/pki -name '*.pl' -exec chmod 755 '{}' ';'
 	cd $(CURDIR)/debian/tmp/usr/share/pki/tps/docroot && \
@@ -120,7 +119,7 @@ override_dh_installinit:
 	dh_installinit -ppki-tps --name=pki-tpsd --error-handler=invoke_failure
 
 override_dh_install:
-	dh_install
+	dh_install --list-missing
 
 	mkdir -p $(CURDIR)/debian/pki-setup/usr/share/pki/scripts
 	install -m 755 $(CURDIR)/debian/local/pki_apache_initscript \

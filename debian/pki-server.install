@@ -7,7 +7,7 @@ usr/bin/pkidaemon
 usr/bin/pkiremove
 usr/bin/pki-setup-proxy
 usr/bin/pkisilent
-usr/lib/python*/site-packages/pki/server
+usr/lib/python*/dist-packages/pki/server
 usr/sbin/pkispawn
 usr/sbin/pkidestroy
 usr/sbin/pki-server-upgrade
@@ -16,10 +16,10 @@ usr/share/java/pki/pki-cmsbundle.jar
 usr/share/java/pki/pki-cmscore.jar
 usr/share/java/pki/pki-silent.jar
 usr/share/java/pki/pki-tomcat.jar
-usr/share/man/man5/pki_default.cfg.5.gz
-usr/share/man/man8/pki-server-upgrade.8.gz
-usr/share/man/man8/pkidestroy.8.gz
-usr/share/man/man8/pkispawn.8.gz
+usr/share/man/man5/pki_default.cfg.5
+usr/share/man/man8/pki-server-upgrade.8
+usr/share/man/man8/pkidestroy.8
+usr/share/man/man8/pkispawn.8
 usr/share/pki/deployment/config
 usr/share/pki/scripts/operations
 usr/share/pki/scripts/pkicommon.pm
