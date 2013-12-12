@@ -27,6 +27,7 @@ confflags =
 
 confflags-common = $(confflags) \
 	-DSYSTEMD_LIB_INSTALL_DIR=/lib/systemd/system \
+	-DVAR_INSTALL_DIR:PATH=/var \
 	-DRESTEASY_LIB=/usr/share/java/resteasy \
 	-DPKI_CERTSRV_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-certsrv.jar \
 	-DPKI_CMS_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-cms.jar \
@@ -42,25 +43,18 @@ confflags-core = \
 	$(confflags)
 
 confflags-console = \
-	-DBUILD_PKI_CONSOLE:BOOL=ON \
-	$(confflags-common)
-
-confflags-kra = \
-	-DBUILD_PKI_KRA:BOOL=ON \
-	$(confflags-common)
-
-confflags-ocsp = \
-	-DBUILD_PKI_OCSP:BOOL=ON \
-	$(confflags-common)
+	-DVAR_INSTALL_DIR:PATH=/var \
+	-DBUILD_PKI_CONSOLE:BOOL=ON
 
 confflags-ra = \
+	-DSYSTEMD_LIB_INSTALL_DIR=/lib/systemd/system \
+	-DVAR_INSTALL_DIR:PATH=/var \
 	-DBUILD_PKI_RA:BOOL=ON
 
-confflags-tks = \
-	-DBUILD_PKI_TKS:BOOL=ON \
-	$(confflags-common)
-
 confflags-tps = \
+	-DSYSTEMD_LIB_INSTALL_DIR=/lib/systemd/system \
+	-DVAR_INSTALL_DIR:PATH=/var \
+	-DRESTEASY_LIB=/usr/share/java/resteasy \
 	-DBUILD_PKI_TPS:BOOL=ON
 
 confflags-dogtag-pki-theme = \
