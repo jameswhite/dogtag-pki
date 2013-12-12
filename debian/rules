@@ -11,7 +11,7 @@ VER :=  $(shell dpkg-parsechangelog | sed -n 's/^Version: *\(.*\)-.*$$/\1/ p' | 
 SOURCE=pki
 JAVA_HOME=/usr/lib/jvm/default-java
 export CFLAGS += -I/usr/include/nss
-export CXXFLAGS += -I/usr/include/nss
+export CXXFLAGS += -I/usr/include/nss -I/usr/include/apr-1.0
 DEB_BUILD_DIR ?= $(CURDIR)/build
 
 CONFIGS = core \
