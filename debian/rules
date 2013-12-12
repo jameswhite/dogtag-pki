@@ -29,11 +29,11 @@ confflags-common = $(confflags) \
 	-DSYSTEMD_LIB_INSTALL_DIR=/lib/systemd/system \
 	-DVAR_INSTALL_DIR:PATH=/var \
 	-DRESTEASY_LIB=/usr/share/java/ \
-	-DPKI_CERTSRV_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-certsrv.jar \
-	-DPKI_CMS_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-cms.jar \
-	-DPKI_CMSCORE_JAR=$(DEB_BUILD_DIR)/core/base/common/src/pki-cmscore.jar \
-	-DPKI_CMSUTIL_JAR=$(DEB_BUILD_DIR)/core/base/util/src/pki-cmsutil.jar \
-	-DPKI_NSUTIL_JAR=$(DEB_BUILD_DIR)/core/base/util/src/pki-nsutil.jar \
+	-DPKI_CERTSRV_JAR=$(DEB_BUILD_DIR)/core/dist/pki-certsrv.jar \
+	-DPKI_CMS_JAR=$(DEB_BUILD_DIR)/core/dist/pki-cms.jar \
+	-DPKI_CMSCORE_JAR=$(DEB_BUILD_DIR)/core/dist/pki-cmscore.jar \
+	-DPKI_CMSUTIL_JAR=$(DEB_BUILD_DIR)/core/dist/pki-cmsutil.jar \
+	-DPKI_NSUTIL_JAR=$(DEB_BUILD_DIR)/core/dist/pki-nsutil.jar \
 
 confflags-core = \
 	-DBUILD_PKI_CORE:BOOL=ON \
