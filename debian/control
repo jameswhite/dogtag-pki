@@ -306,7 +306,7 @@ Description: Certificate System - Token Key Service
  Because of the sensitivity of the data that TKS manages, TKS should be set up
  behind the firewall with restricted access.
 
-Package: pki-tps-tomcat
+Package: pki-tps
 Architecture: any
 Depends: ${shlibs:Depends}, ${java:Depends}, ${misc:Depends}, ${perl:Depends},
  pki-server (= ${binary:Version}),

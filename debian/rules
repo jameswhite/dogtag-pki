@@ -32,6 +32,7 @@ confflags-common = $(confflags) \
 	-DRESTEASY_LIB=/usr/share/java/ \
 	-DPKI_CERTSRV_JAR=$(DEB_BUILD_DIR)/core/dist/pki-certsrv.jar \
 	-DPKI_CMS_JAR=$(DEB_BUILD_DIR)/core/dist/pki-cms.jar \
+	-DPKI_CMSBUNDLE_JAR=$(DEB_BUILD_DIR)/core/dist/pki-cmsbundle.jar \
 	-DPKI_CMSCORE_JAR=$(DEB_BUILD_DIR)/core/dist/pki-cmscore.jar \
 	-DPKI_CMSUTIL_JAR=$(DEB_BUILD_DIR)/core/dist/pki-cmsutil.jar \
 	-DPKI_NSUTIL_JAR=$(DEB_BUILD_DIR)/core/dist/pki-nsutil.jar \
