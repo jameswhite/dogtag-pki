@@ -40,6 +40,8 @@ confflags-core = \
 	-DAPACHE_COMMONS_CLI_JAR=/usr/share/java/commons-cli.jar \
 	-DAPACHE_COMMONS_LANG_JAR=/usr/share/java/commons-lang.jar \
 	-DSERVLET_JAR=/usr/share/java/servlet-api-2.5.jar \
+	-DTOMCAT_CATALINA_JAR=/usr/share/java/tomcat-catalina.jar \
+	-DTOMCAT_UTIL_JAR=/usr/share/java/tomcat-util.jar \
 	-DXERCES_JAR=/usr/share/java/xercesImpl.jar \
 	-DXALAN_JAR=/usr/share/java/xalan2.jar \
 	$(confflags-common)
