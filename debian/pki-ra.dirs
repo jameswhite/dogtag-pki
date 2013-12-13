@@ -1,3 +1,1 @@
 etc/systemd/system/pki-rad.target.wants
-var/lock/pki/ra
-var/run/pki/ra

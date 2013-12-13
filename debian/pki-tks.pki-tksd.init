@@ -27,13 +27,15 @@
 # All rights reserved.
 # --- END COPYRIGHT BLOCK ---
 #
-# pki-tksd   Startup script for pki-tks with tomcat6
+# pki-tksd   Startup script for pki-tks with tomcat7
 #
 # chkconfig:    - 84 16
-# description:  Token Key Service (Tomcat 6.0)
+# description:  Token Key Service (Tomcat 7)
 # processname:  pki-tksd
 # piddir:       /var/run/pki/tks
 #
+
+. /lib/lsb/init-functions
 
 PROG_NAME=`basename $0`
 SERVICE_NAME="pki-tksd"

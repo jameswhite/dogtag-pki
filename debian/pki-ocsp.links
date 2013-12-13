@@ -1,1 +1,1 @@
-/etc/tomcat6/policy.d	usr/share/pki/ocsp/conf/policy.d
+/etc/tomcat7/policy.d	usr/share/pki/ocsp/conf/policy.d

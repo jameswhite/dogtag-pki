@@ -27,13 +27,15 @@
 # All rights reserved.
 # --- END COPYRIGHT BLOCK ---
 #
-# pki-cad    Startup script for pki-ca with tomcat6
+# pki-cad    Startup script for pki-ca with tomcat7
 #
 # chkconfig:    - 81 19
-# description:  Certificate Authority (Tomcat 6.0)
+# description:  Certificate Authority (Tomcat 7)
 # processname:  pki-cad
 # piddir:       /var/run/pki/ca
 #
+
+. /lib/lsb/init-functions
 
 PROG_NAME=`basename $0`
 SERVICE_NAME="pki-cad"

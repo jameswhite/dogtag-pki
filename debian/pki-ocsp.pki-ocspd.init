@@ -27,13 +27,15 @@
 # All rights reserved.
 # --- END COPYRIGHT BLOCK ---
 #
-# pki-ocspd  Startup script for pki-ocsp with tomcat6
+# pki-ocspd  Startup script for pki-ocsp with tomcat7
 #
 # chkconfig:    - 83 17
-# description:  Online Certificate Status Protocol Manager (Tomcat 6.0)
+# description:  Online Certificate Status Protocol Manager (Tomcat 7)
 # processname:  pki-ocspd
 # piddir:       /var/run/pki/ocsp
 #
+
+. /lib/lsb/init-functions
 
 PROG_NAME=`basename $0`
 SERVICE_NAME="pki-ocspd"

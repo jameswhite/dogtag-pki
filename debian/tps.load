@@ -1,0 +1,1 @@
+LoadModule mod_tps /usr/lib/apache2/modules/mod_tps.so

@@ -1,1 +1,2 @@
 binary-without-manpage usr/bin/tpsclient
+systemd-no-service-for-init-script	pki-tpsd

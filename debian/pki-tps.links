@@ -1,1 +1,3 @@
-/etc/tomcat6/policy.d	usr/share/pki/tps/conf/policy.d
+/etc/tomcat7/policy.d	usr/share/pki/tps/conf/policy.d
+/usr/share/javascript/prototype/prototype.js	usr/share/pki/tps/docroot/esc/sow/js/prototype.js
+/usr/share/javascript/scriptaculous/scriptaculous.js	usr/share/pki/tps/docroot/esc/sow/js/scriptaculous.js

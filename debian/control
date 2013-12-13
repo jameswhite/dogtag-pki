@@ -41,7 +41,7 @@ Package: dogtag-pki
 Architecture: all
 Depends: ${misc:Depends},
  libjss-java,
- libtomcatjss-java,
+ libtomcatjss-java (>= 7.1.0),
  dogtag-pki-console-theme,
  dogtag-pki-server-theme,
 # core
@@ -89,16 +89,18 @@ Description: Symmetric Key JNI Package
  This package is a part of the PKI Core used by the Certificate System.
 
 Package: pki-base
-Architecture: all
+Architecture: any
 Depends: ${java:Depends}, ${misc:Depends}, ${python:Depends},
+ libcommons-cli-java,
  libcommons-codec-java,
+ libcommons-io-java,
  libcommons-lang-java,
  libcommons-logging-java,
- libhttpclient-java,
  libjavassist-java,
  libjettison-java,
  libjss-java,
  libldap-java,
+ libresteasy-java,
  libservlet2.4-java,
  libxalan2-java,
  libxerces2-java,
@@ -107,7 +109,6 @@ Depends: ${java:Depends}, ${misc:Depends}, ${python:Depends},
  python-ldap,
  python-lxml,
  python-requests,
- resteasy,
 Description: Certificate System - PKI Framework
  The PKI Framework contains the common and client libraries and utilities.
  .
@@ -115,10 +116,10 @@ Description: Certificate System - PKI Framework
 
 Package: pki-tools
 Architecture: any
-Depends: ${java:Depends}, ${misc:Depends}, ${shlib:Depends},
+Depends: ${shlibs:Depends}, ${java:Depends}, ${misc:Depends},
+ pki-base (= ${binary:Version}),
  ldap-utils,
  libnss3-tools,
- pki-base (= ${binary:Version}),
 Description: Certificate System - PKI Tools
  This package contains PKI executables that can be used to help make
  Certificate System into a more complete and robust PKI solution.
@@ -126,15 +127,17 @@ Description: Certificate System - PKI Tools
  This package is a part of the PKI Core used by the Certificate System.
 
 Package: pki-server
-Architecture: all
+Architecture: any
 Depends: ${java:Depends}, ${misc:Depends}, ${python:Depends},
- dogtag-pki-common-theme | pki-common-theme,
+ dogtag-pki-common-theme,
  pki-base (= ${binary:Version}),
  pki-tools (= ${binary:Version}),
- libservlet2.4-java,
+ libatk-wrapper-java,
+ libcrypt-ssleay-perl,
  libtomcatjss-java (>= 7.1.0),
  libxml-commons-external-java,
  libxml-commons-resolver1.1-java,
+ libxml-perl,
  adduser,
  ldap-utils,
  velocity,
@@ -153,7 +156,7 @@ Description: Certificate System - PKI Server Framework
 Package: pki-ca
 Architecture: all
 Depends: ${java:Depends}, ${misc:Depends},
- pki-server (= ${binary:Version}),
+ pki-server (>= ${source:Version}),
 Suggests: 389-ds-base
 Description: Certificate System - Certificate Authority
  The Certificate Authority (CA) is a required PKI subsystem which issues,
@@ -167,10 +170,9 @@ Description: Certificate System - Certificate Authority
  This package is a part of the PKI Core used by the Certificate System.
 
 Package: dogtag-pki-console-theme
-Architecture: any
-Section: java
+Architecture: all
+Section: web
 Depends: ${java:Depends}, ${misc:Depends},
-Provides: pki-console-theme, pki-console-ui
 Description: Certificate System - PKI Console User Interface
  This PKI Console User Interface contains
  the Dogtag textual and graphical user interface for the PKI Console.
@@ -178,9 +180,9 @@ Description: Certificate System - PKI Console User Interface
  This package is used by the Dogtag Certificate System.
 
 Package: dogtag-pki-server-theme
-Architecture: any
-Depends: ${misc:Depends},
-Provides: pki-server-theme, pki-common-theme, pki-common-ui
+Architecture: all
+Section: web
+Depends: ${java:Depends}, ${misc:Depends},
 Description: Certificate System - PKI Server User Interface
  This PKI Common Framework User Interface contains
  the Dogtag textual and graphical user interface for the PKI Common Framework.
@@ -188,10 +190,10 @@ Description: Certificate System - PKI Server User Interface
  This package is used by the Dogtag Certificate System.
 
 Package: pki-console
-Architecture: any
+Architecture: all
 Depends: ${java:Depends}, ${misc:Depends},
  pki-base (>= 10.0),
- pki-console-theme,
+ dogtag-pki-console-theme,
  libidm-console-framework-java,
  libjss-java,
  libldap-java,
@@ -202,9 +204,9 @@ Description: Certificate System - PKI Console
  The PKI Console is a java application used to administer CS.
 
 Package: pki-kra
-Architecture: any
+Architecture: all
 Depends: ${java:Depends}, ${misc:Depends},
- pki-server (= ${source:Version}),
+ pki-server (>= ${source:Version}),
 Suggests: pki-ca,
 Description: Certificate System - Data Recovery Manager
  Certificate System (CS) is an enterprise software system designed
@@ -225,9 +227,9 @@ Description: Certificate System - Data Recovery Manager
  since such archival would undermine non-repudiation properties of signing keys.
 
 Package: pki-ocsp
-Architecture: any
+Architecture: all
 Depends: ${java:Depends}, ${misc:Depends},
- pki-server (= ${source:Version}),
+ pki-server (>= ${source:Version}),
 Suggests: pki-ca
 Description: Certificate System - Online Certificate Status Protocol Manager
  Certificate System (CS) is an enterprise software system designed
@@ -255,17 +257,16 @@ Description: Certificate System - Online Certificate Status Protocol Manager
  whenever they are issued or updated.
 
 Package: pki-ra
-Architecture: any
+Architecture: all
 Depends: ${java:Depends}, ${misc:Depends}, ${perl:Depends},
- pki-server (= ${source:Version}),
- pki-server-theme (= ${binary:Version}),
+ pki-server (>= ${source:Version}),
+ dogtag-pki-server-theme (>= ${source:Version}),
  libapache2-mod-nss,
  libapache2-mod-perl2,
  libapache2-mod-rev,
  libdbd-sqlite3-perl,
- libparse-recdescent-perl,
- libxml-simple-perl,
- apache2,
+ libnss3-tools,
+ apache2-api-20120211,
  sqlite3,
 Suggests: pki-ca,
 Description: Certificate System - Registration Authority
@@ -282,10 +283,10 @@ Description: Certificate System - Registration Authority
  organization's PKI deployment.
 
 Package: pki-tks
-Architecture: any
+Architecture: all
 Depends: ${java:Depends}, ${misc:Depends},
- pki-server (= ${source:Version}),
- libpki-symkey-java (= ${binary:Version}),
+ pki-server (>= ${source:Version}),
+ libpki-symkey-java (>= ${source:Version}),
 Suggests: pki-ca
 Description: Certificate System - Token Key Service
  Certificate System (CS) is an enterprise software system designed
@@ -307,9 +308,12 @@ Description: Certificate System - Token Key Service
  behind the firewall with restricted access.
 
 Package: pki-tps
-Architecture: any
+Architecture: all
 Depends: ${shlibs:Depends}, ${java:Depends}, ${misc:Depends}, ${perl:Depends},
- pki-server (= ${source:Version}),
+ pki-server (>= ${source:Version}),
+ libapache2-mod-tps (>= ${source:Version}),
+ libjs-prototype,
+ libjs-scriptaculous,
 Suggests: pki-ca, pki-tks, pki-kra
 Description: Certificate System - Token Processing System
  Certificate System (CS) is an enterprise software system designed
@@ -329,6 +333,15 @@ Description: Certificate System - Token Processing System
  .
  TPS also interacts with the token database, an LDAP server that stores
  information about individual tokens.
+
+Package: libapache2-mod-tps
+Architecture: any
+Section: web
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ apache2-api-20120211,
+Description: Certificate System - Token Processing System apache modules
+ This package includes mod_tps and mod_tokendb apache modules and support
+ libraries for pki-tps.
 
 Package: pki-javadoc
 Architecture: any

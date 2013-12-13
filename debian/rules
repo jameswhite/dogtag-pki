@@ -92,6 +92,7 @@ override_dh_auto_install:
 
 	find $(CURDIR)/debian/tmp/usr/share/pki -name '*.cgi' -exec chmod 755 '{}' ';'
 	find $(CURDIR)/debian/tmp/usr/share/pki -name '*.pl' -exec chmod 755 '{}' ';'
+	find $(CURDIR)/debian/tmp/lib/systemd -exec chmod 644 '{}' ';'
 	cd $(CURDIR)/debian/tmp/usr/share/pki/tps/docroot && \
 		ln -s tokendb tus
 
@@ -106,8 +107,12 @@ override_dh_installinit:
 	dh_installinit -ppki-ra --name=pki-rad --error-handler=invoke_failure
 	dh_installinit -ppki-tks --name=pki-tksd --error-handler=invoke_failure
 	dh_installinit -ppki-tps --name=pki-tpsd --error-handler=invoke_failure
+#	dh_installinit -ppki-server --name=pki-tomcatd --error-handler=invoke_failure
 
 override_dh_install:
+	# use packaged versions instead
+	rm -f $(CURDIR)/debian/tmp/usr/share/pki/tps/docroot/esc/sow/js/prototype.js
+	rm -f $(CURDIR)/debian/tmp/usr/share/pki/tps/docroot/esc/sow/js/scriptaculous.js
 	# we don't use these
 	rm -rf $(CURDIR)/debian/tmp/etc/rc.d
 
@@ -118,7 +123,7 @@ override_dh_install:
 		$(CURDIR)/debian/pki-setup/usr/share/pki/scripts
 
 %:
-	dh $@ --with javahelper,quilt,python2,systemd --builddirectory=build/
+	dh $@ --with javahelper,quilt,python2,systemd,apache2 --builddirectory=build/
 
 # For maintainer use only, generate a tarball:
 gentarball: UV=$(shell dpkg-parsechangelog|awk '/^Version:/ {print $$2}'|sed 's/-.*$$//')

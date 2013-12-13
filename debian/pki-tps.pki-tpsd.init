@@ -35,6 +35,8 @@
 # piddir:       /var/run/pki/tps
 # config:       ${PKI_SERVER_ROOT}/conf/httpd.conf
 
+. /lib/lsb/init-functions
+
 PROG_NAME=`basename $0`
 SERVICE_NAME="pki-tpsd"
 SERVICE_PROG="/usr/sbin/service"

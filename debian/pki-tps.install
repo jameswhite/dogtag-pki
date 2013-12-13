@@ -1,8 +1,5 @@
 lib/systemd/system/pki-tpsd@.service
 lib/systemd/system/pki-tpsd.target
-usr/bin/tpsclient
-usr/lib/httpd/modules/*		usr/lib/apache2/modules
-usr/lib/tps
 usr/share/pki/tps/applets
 usr/share/pki/tps/cgi-bin
 usr/share/pki/tps/conf

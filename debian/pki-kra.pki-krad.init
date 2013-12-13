@@ -27,13 +27,15 @@
 # All rights reserved.
 # --- END COPYRIGHT BLOCK ---
 #
-# pki-krad   Startup script pki-kra with tomcat6
+# pki-krad   Startup script pki-kra with tomcat7
 #
 # chkconfig:    - 82 18
-# description:  Data Recovery Manager (Tomcat 6.0)
+# description:  Data Recovery Manager (Tomcat 7)
 # processname:  pki-krad
 # piddir:       /var/run/pki/kra
 #
+
+. /lib/lsb/init-functions
 
 PROG_NAME=`basename $0`
 SERVICE_NAME="pki-krad"
