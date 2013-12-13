@@ -129,7 +129,7 @@ Description: Certificate System - PKI Tools
 Package: pki-server
 Architecture: any
 Depends: ${java:Depends}, ${misc:Depends}, ${python:Depends},
- dogtag-pki-common-theme,
+ dogtag-pki-server-theme (>= ${source:Version}),
  pki-base (= ${binary:Version}),
  pki-tools (= ${binary:Version}),
  libatk-wrapper-java,
