@@ -27,6 +27,7 @@ BUILD_STAMPS = $(addprefix $(STAMP)-build-, $(CONFIGS))
 confflags = 
 
 confflags-common = $(confflags) \
+	-DVERSION=$(VER) \
 	-DSYSTEMD_LIB_INSTALL_DIR=/lib/systemd/system \
 	-DVAR_INSTALL_DIR:PATH=/var \
 	-DRESTEASY_LIB=/usr/share/java/ \
