@@ -141,7 +141,7 @@ Depends: ${java:Depends}, ${misc:Depends}, ${python:Depends},
  adduser,
  ldap-utils,
  velocity,
- tomcat7,
+ tomcat7-user,
 Description: Certificate System - PKI Server Framework
  The PKI Server Framework is required by the following four PKI subsystems:
  .
