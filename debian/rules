@@ -88,7 +88,7 @@ $(STAMP)-build-%:
 		-DSYSCONF_INSTALL_DIR:PATH=/etc \
 		-DVAR_INSTALL_DIR:PATH=/var \
 		-DJAVA_LIB_INSTALL_DIR=/usr/share/java \
-		-D_NSS_INSTALLDIR=/usr/include/nss \
+		-D_NSS_INCLUDEDIR=/usr/include/nss \
 		$(confflags-$*) \
 		../../pki
 	cd $(DEB_BUILD_DIR)/$* && make VERBOSE=1
