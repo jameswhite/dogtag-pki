@@ -28,7 +28,6 @@ else (NSS_LIBRARIES AND NSS_INCLUDE_DIRS)
       nss.h
     PATHS
       ${_NSS_INCLUDEDIR}
-      /usr/include/nss
       /usr/include
       /usr/local/include
       /opt/local/include
